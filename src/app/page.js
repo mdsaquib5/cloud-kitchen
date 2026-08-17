@@ -1,8 +1,9 @@
 import Hero from "@/components/ui/Hero";
 import Categories from "@/components/ui/Categories";
 import WhyChooseUs from "@/components/ui/WhyChooseUs";
-import OrderProcess from "@/components/ui/OrderProcess";
 import Products from "@/components/ui/Products";
+import OrderProcess from "@/components/ui/OrderProcess";
+import Cta from "@/components/ui/Cta";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <WhyChooseUs />
       <Products />
       <OrderProcess />
+      <Cta />
     </>
   );
 }

@@ -272,6 +272,33 @@
     .process-main-title {
         font-size: 28px;
     }
+
+    .cta-banner {
+        padding: 50px 40px;
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .cta-content {
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cta-title {
+        font-size: 32px;
+    }
+
+    .cta-image-wrap {
+        position: static;
+        margin-top: 10px;
+    }
+
+    .cta-delivery-img {
+        max-height: 280px;
+    }
 }
 
 @media (min-width: 769px) {}
@@ -420,6 +447,24 @@
     .logo img {
         width: auto;
         height: 50px;
+    }
+
+    .cta-section {
+        padding-block: 40px;
+    }
+
+    .cta-banner {
+        padding: 35px 20px;
+        border-radius: 14px;
+        min-height: auto;
+    }
+
+    .cta-title {
+        font-size: 24px;
+    }
+
+    .cta-delivery-img {
+        max-height: 220px;
     }
 
     .product-bg {

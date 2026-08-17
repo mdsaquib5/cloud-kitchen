@@ -1095,3 +1095,100 @@ a.contact-val:hover {
     background: var(--white);
     color: var(--primary);
 }
+
+.cta-section {
+    margin-bottom: -50px;
+    padding-top: 70px;
+    position: relative;
+    z-index: 2;
+}
+
+.cta-banner {
+    background: url('/cta-bg.jpg') center / cover no-repeat;
+    border-radius: 20px;
+    padding: 60px 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    min-height: 380px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+}
+
+.cta-content {
+    max-width: 540px;
+    z-index: 2;
+}
+
+.cta-tagline {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.cta-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.18;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+}
+
+.cta-highlight {
+    color: var(--secondary);
+}
+
+.cta-order-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    color: var(--dark);
+    font-size: 14px;
+    font-weight: 800;
+    padding: 15px 32px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: var(--transition);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.cta-order-btn:hover {
+    background: var(--dark);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.cta-image-wrap {
+    position: absolute;
+    right: 40px;
+    bottom: -15px;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+}
+
+.cta-delivery-img {
+    width: auto;
+    max-height: 390px;
+    object-fit: contain;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.25));
+    animation: ctaFloat 4s ease-in-out infinite alternate;
+}
+
+@keyframes ctaFloat {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-8px);
+    }
+}
