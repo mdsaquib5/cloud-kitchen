@@ -299,6 +299,11 @@
     .cta-delivery-img {
         max-height: 280px;
     }
+
+    .cart-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
 }
 
 @media (min-width: 769px) {}
@@ -524,6 +529,40 @@
         bottom: 16px;
         width: 38px;
         height: 38px;
+    }
+
+    .cart-page {
+        padding-block: 35px 50px;
+    }
+
+    .cart-items-card,
+    .cart-summary-card {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+
+    .cart-card-title,
+    .summary-title {
+        font-size: 18px;
+    }
+
+    .cart-table th,
+    .cart-row td {
+        padding: 12px 6px;
+    }
+
+    .cart-prod-title {
+        font-size: 13px;
+    }
+
+    .cart-prod-img-wrap {
+        width: 38px;
+        height: 38px;
+    }
+
+    .qty-control-pill {
+        width: 80px;
+        padding: 3px 6px;
     }
 }
 
