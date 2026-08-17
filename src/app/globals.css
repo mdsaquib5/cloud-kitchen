@@ -529,6 +529,151 @@ header {
     max-width: 240px;
 }
 
+.order-process-section {
+    position: relative;
+    padding-block: 90px;
+    background: #000720;
+    overflow: hidden;
+}
+
+.order-process-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.process-thumb-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.process-thumb-img {
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
+    animation: floatProcessThumb 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatProcessThumb {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+.process-content-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.process-header {
+    margin-bottom: 30px;
+}
+
+.process-tagline {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.process-main-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.3;
+}
+
+.title-highlight {
+    color: var(--secondary);
+}
+
+.process-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.process-step-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background: #000e3d;
+    border: 1px solid #ffffff14;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.process-step-card:hover {
+    background: #001557;
+    border-color: var(--primary);
+    transform: translateX(8px);
+    box-shadow: 0 10px 30px #0000004d;
+}
+
+.step-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: #ffffff0d;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.process-step-card:hover .step-icon-box {
+    background: var(--primary);
+    color: var(--white);
+    transform: scale(1.08);
+    box-shadow: 0 0 20px #f0154366;
+}
+
+.step-text-content {
+    flex: 1;
+}
+
+.step-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+}
+
+.step-description {
+    font-size: 13px;
+    color: var(--light);
+    line-height: 1.5;
+}
+
+.step-watermark-number {
+    font-size: 38px;
+    font-weight: 900;
+    color: #ffffff14;
+    font-family: var(--font, sans-serif);
+    transition: var(--transition);
+    user-select: none;
+}
+
+.process-step-card:hover .step-watermark-number {
+    color: #f0154340;
+}
+
 .main-footer {
     position: relative;
     background-color: var(--dark);

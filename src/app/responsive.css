@@ -226,11 +226,40 @@
     }
 }
 
-@media (max-width: 992px) {}
+@media (max-width: 992px) {
+    .order-process-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .process-thumb-wrap {
+        order: -1;
+    }
+
+    .process-main-title {
+        font-size: 28px;
+    }
+}
 
 @media (min-width: 769px) {}
 
 @media (max-width: 768px) {
+    .order-process-section {
+        padding-block: 50px;
+    }
+
+    .process-step-card {
+        padding: 16px;
+        gap: 14px;
+    }
+
+    .step-watermark-number {
+        font-size: 28px;
+    }
+
+    .process-main-title {
+        font-size: 24px;
+    }
 
     .logo img {
         height: 60px;
