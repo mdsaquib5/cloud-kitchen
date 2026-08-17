@@ -30,7 +30,7 @@ body {
 }
 
 section:not([aria-label*="Notifications"]) {
-    padding-block: 100px;
+    padding-block: 70px;
 }
 
 section[aria-label*="Notifications"] {

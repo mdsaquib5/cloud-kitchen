@@ -9,13 +9,13 @@
     }
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1440px) {}
+
+@media (max-width: 1440px) {
     .products-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
-
-@media (max-width: 1440px) {}
 
 @media (min-width: 1201px) {
     .has-dropdown {
