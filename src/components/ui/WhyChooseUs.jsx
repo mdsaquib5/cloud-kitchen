@@ -43,9 +43,6 @@ const WhyChooseUs = () => {
 
     return (
         <section className="why-choose-section">
-            <div className="gradient-circle-glow left-glow"></div>
-            <div className="gradient-circle-glow right-glow"></div>
-
             <div className="container">
                 <div className="why-choose-gallery">
                     {galleryItems.map((item) => (

@@ -431,28 +431,6 @@ header {
     color: var(--white);
 }
 
-.gradient-circle-glow {
-    position: absolute;
-    width: 480px;
-    height: 480px;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(80px);
-}
-
-.left-glow {
-    top: 25%;
-    left: -180px;
-    background: radial-gradient(circle, #00092933 0%, #f0154318 45%, transparent 70%);
-}
-
-.right-glow {
-    bottom: 10%;
-    right: -180px;
-    background: radial-gradient(circle, #f0154326 0%, #00092920 45%, transparent 70%);
-}
-
 .why-choose-gallery {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -471,6 +449,7 @@ header {
 
 .why-choose-gallery-card img {
     border-radius: 10px;
+    width: 100%;
 }
 
 .why-choose-card-banner {

@@ -9,7 +9,11 @@
     }
 }
 
-@media (min-width: 1440px) {}
+@media (min-width: 1440px) {
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
 
 @media (max-width: 1440px) {}
 
@@ -196,7 +200,7 @@
     }
 
     .why-choose-gallery {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 16px;
         margin-bottom: 50px;
     }
@@ -207,6 +211,11 @@
 
     .why-choose-gallery-card:nth-child(even) {
         transform: translateY(12px);
+    }
+
+    .why-choose-gallery-card:nth-child(5),
+    .why-choose-gallery-card:nth-child(6) {
+        display: none;
     }
 
     .why-choose-card-banner {
@@ -287,35 +296,23 @@
         font-size: 24px;
     }
 
-    .categories-grid {
-        grid-template-columns: 1fr;
-        gap: 70px;
-        max-width: 360px;
-        margin-inline: auto;
-    }
 
     .why-choose-section {
         padding-block: 50px;
     }
 
     .why-choose-gallery {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
         margin-bottom: 35px;
     }
 
-    .why-choose-gallery-card:nth-child(odd),
-    .why-choose-gallery-card:nth-child(even) {
-        transform: none;
+    .why-choose-gallery-card:nth-child(4) {
+        display: none;
     }
 
     .why-choose-card-banner {
         padding: 30px 16px;
-    }
-
-    .why-choose-features-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
     }
 
     .hero-swiper-prev {
@@ -335,6 +332,23 @@
 @media (max-width: 600px) {
     .header-actions {
         gap: 8px;
+    }
+
+    .why-choose-features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .why-choose-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .why-choose-gallery-card:nth-child(3) {
+        display: none;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 70px;
     }
 
     .action-btn {
@@ -359,8 +373,7 @@
     }
 
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        grid-template-columns: 1fr;
     }
 
     .prod-holder {

@@ -85,6 +85,10 @@ img {
     .container {
         max-width: var(--container-lg);
     }
+
+    section:not([aria-label*="Notifications"]) {
+        padding-block: 60px;
+    }
 }
 
 @media (max-width: 1200px) {
@@ -102,5 +106,9 @@ img {
 @media (max-width: 768px) {
     .container {
         max-width: 100%;
+    }
+
+    section:not([aria-label*="Notifications"]) {
+        padding-block: 40px;
     }
 }
