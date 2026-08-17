@@ -172,6 +172,12 @@ const Footer = () => {
                     <p className="copyright-text">
                         © {new Date().getFullYear()} <span className="brand-highlight">Your's Kitchen</span>. All Rights Reserved.
                     </p>
+                    <div className="footer-credits">
+                        <span>Developed by </span>
+                        <a href="https://noohark.com" target="_blank" rel="noopener noreferrer" className="developer-link">
+                            NoohArk
+                        </a>
+                    </div>
                     <div className="footer-bottom-badges">
                         <span className="secure-badge">100% Direct UPI & Card Payment Safe</span>
                     </div>

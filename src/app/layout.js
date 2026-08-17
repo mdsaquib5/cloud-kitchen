@@ -4,6 +4,7 @@ import "./globals.css";
 import "./responsive.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 
 const montserrat = Montserrat({
   variable: "--montserrat",
@@ -13,8 +14,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "Cloud Kitchen",
-  description: "Order food from your favorite restaurants",
+  title: "Your's Kitchen | Authentic Cloud Kitchen & Gourmet Delicacies",
+  description: "Order fresh, authentic Mughlai biryanis, tandoori starters, curries, and gourmet food direct from Your's Kitchen.",
 };
 
 export default function RootLayout({ children }) {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
         <Header />
         {children}
         <Footer />
+        <ScrollToTop />
       </body>
     </html>
   );

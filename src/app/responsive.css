@@ -408,6 +408,10 @@
         text-align: center;
         gap: 10px;
     }
+
+    .cta-section {
+        margin-bottom: -20px;
+    }
 }
 
 @media (max-width: 600px) {
@@ -447,10 +451,6 @@
     .logo img {
         width: auto;
         height: 50px;
-    }
-
-    .cta-section {
-        padding-block: 40px;
     }
 
     .cta-banner {
@@ -517,6 +517,13 @@
 
     .hero-swiper-next {
         right: 8px;
+    }
+
+    .scroll-to-top-btn {
+        right: 16px;
+        bottom: 16px;
+        width: 38px;
+        height: 38px;
     }
 }
 

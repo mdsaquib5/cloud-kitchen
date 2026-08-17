@@ -915,6 +915,23 @@ a.contact-val:hover {
     font-weight: 700;
 }
 
+.footer-credits {
+    font-size: 13px;
+    color: #a0aec0;
+}
+
+.developer-link {
+    color: var(--secondary);
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.developer-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
 .secure-badge {
     font-size: 13px;
     color: var(--secondary);
@@ -1191,4 +1208,38 @@ a.contact-val:hover {
     100% {
         transform: translateY(-8px);
     }
+}
+
+.scroll-to-top-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 8px 24px #f0154366;
+}
+
+.scroll-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top-btn:hover {
+    background: var(--dark);
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 12px 30px #0009294d;
 }
