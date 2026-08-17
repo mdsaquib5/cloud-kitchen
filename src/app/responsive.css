@@ -304,6 +304,11 @@
         grid-template-columns: 1fr;
         gap: 24px;
     }
+
+    .checkout-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
 }
 
 @media (min-width: 769px) {}
@@ -563,6 +568,20 @@
     .qty-control-pill {
         width: 80px;
         padding: 3px 6px;
+    }
+
+    .checkout-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .checkout-card {
+        padding: 18px 14px;
+    }
+
+    .address-item-card {
+        padding: 14px;
+        gap: 10px;
     }
 }
 
