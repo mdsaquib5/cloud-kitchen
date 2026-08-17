@@ -1,7 +1,11 @@
+import Hero from "@/components/ui/Hero";
+import Categories from "@/components/ui/Categories";
+
 export default function Home() {
   return (
-    <main>
-      <div>Home</div>
-    </main>
+    <>
+      <Hero />
+      <Categories />
+    </>
   );
 }

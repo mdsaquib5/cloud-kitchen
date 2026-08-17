@@ -38,7 +38,7 @@ const Header = () => {
                         <div className="drawer-header">
                             <div className="drawer-logo">
                                 <Link href="/" onClick={() => setIsMenuOpen(false)}>
-                                    <Image src="/test.png" alt="Your's Kitchen" width={504} height={197} />
+                                    <Image src="/logo.png" alt="Your's Kitchen" width={504} height={197} />
                                 </Link>
                             </div>
                             <button
