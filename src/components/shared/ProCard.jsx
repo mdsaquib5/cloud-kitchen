@@ -2,17 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiShoppingBag } from "react-icons/fi";
 
-const ProCard = ({
-    image = "/cat-image.png",
-    title = "Pizza Hut",
-    price = "$30.06",
-    totalDiscount = "$12.06",
-    discount = "-5%",
-    href = "/",
-}) => {
+const ProCard = ({ prod }) => {
+    const { image, title, price, totalDiscount, discount, href } = prod;
+
     return (
         <div className="product-card">
-            <Link href={href} className="cart-icon" aria-label="Add to cart">
+            <Link href={href} className="cart-icon" aria-label={`Add ${title} to cart`}>
                 <FiShoppingBag size={18} />
             </Link>
 

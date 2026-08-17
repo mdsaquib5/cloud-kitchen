@@ -341,6 +341,25 @@
         width: 30px;
         height: 30px;
     }
+
+    .product-filter-tabs {
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .filter-tab-btn {
+        padding: 12px 16px;
+        min-width: 90px;
+        border-radius: 10px;
+    }
+
+    .tab-icon {
+        font-size: 18px;
+    }
+
+    .tab-label {
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 600px) {
