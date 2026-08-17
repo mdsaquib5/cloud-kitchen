@@ -217,6 +217,11 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 28px;
     }
+
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -259,6 +264,11 @@
 
     .process-main-title {
         font-size: 24px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
     }
 
     .logo img {
@@ -342,6 +352,45 @@
     .logo img {
         width: auto;
         height: 50px;
+    }
+
+    .product-bg {
+        padding-block: 50px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .prod-holder {
+        max-width: 140px;
+    }
+
+    .prod-title {
+        font-size: 15px;
+    }
+
+    .pricing {
+        gap: 6px;
+    }
+
+    .discount-percent {
+        font-size: 12px;
+        padding: 2px 4px;
+    }
+
+    .price {
+        font-size: 13px;
+    }
+
+    .total-discount {
+        font-size: 12px;
+    }
+
+    .cart-btn {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 
     .hero-swiper-btn {
