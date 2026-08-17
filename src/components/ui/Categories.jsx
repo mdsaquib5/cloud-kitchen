@@ -1,6 +1,6 @@
 import React from "react";
-import SectionTitle from "./SectionTitle";
-import CategoryCard from "./CategoryCard";
+import SectionTitle from "../layout/SectionTitle";
+import CategoryCard from "../shared/CategoryCard";
 
 const Categories = () => {
     const categories = [

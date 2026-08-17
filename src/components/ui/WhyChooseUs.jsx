@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { FiAward, FiCheckCircle } from "react-icons/fi";
 import { FaMotorcycle, FaPepperHot } from "react-icons/fa";
-import SectionTitle from "./SectionTitle";
+import SectionTitle from "../layout/SectionTitle";
 
 const WhyChooseUs = () => {
     const galleryItems = [
