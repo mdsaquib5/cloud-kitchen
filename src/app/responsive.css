@@ -309,6 +309,30 @@
         grid-template-columns: 1fr;
         gap: 24px;
     }
+
+    .contact-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 45px;
+    }
+
+    .contact-main-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .auth-box-card {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-banner-side {
+        display: none;
+    }
+
+    .auth-form-side {
+        padding: 40px 24px;
+        background: url('/login-left-bg.png') top left / 240px auto no-repeat, #ffffff;
+    }
 }
 
 @media (min-width: 769px) {}
@@ -582,6 +606,45 @@
     .address-item-card {
         padding: 14px;
         gap: 10px;
+    }
+
+    .error-code {
+        font-size: 110px;
+        margin-bottom: 16px;
+    }
+
+    .error-title {
+        font-size: 20px;
+        margin-bottom: 24px;
+    }
+
+    .contact-page-wrapper {
+        padding-block: 35px 50px;
+    }
+
+    .contact-info-card {
+        padding: 24px 16px;
+    }
+
+    .contact-section-heading {
+        font-size: 24px;
+    }
+
+    .contact-submit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .login-page-wrapper {
+        padding-block: 30px 50px;
+    }
+
+    .auth-form-side {
+        padding: 30px 16px;
+    }
+
+    .auth-title {
+        font-size: 22px;
     }
 }
 
