@@ -453,11 +453,7 @@ header {
 }
 
 .why-choose-card-banner {
-    background-color: var(--black);
-    background-image: linear-gradient(180deg, #000929f0 0%, #000517fa 100%), url('/choose-bg.png');
-    background-position: center;
-    background-repeat: repeat;
-    background-size: cover;
+    background: url(/choose-bg.png) center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
     border-radius: 10px;
     padding: 50px 30px;
     box-shadow: 0 20px 50px #00000033;
@@ -636,21 +632,20 @@ header {
 
 .step-description {
     font-size: 13px;
-    color: var(--light);
+    color: #97a3bf;
     line-height: 1.5;
 }
 
 .step-watermark-number {
     font-size: 38px;
     font-weight: 900;
-    color: #ffffff14;
-    font-family: var(--font, sans-serif);
+    color: #ffffff36;
     transition: var(--transition);
     user-select: none;
 }
 
 .process-step-card:hover .step-watermark-number {
-    color: #f0154340;
+    color: var(--secondary);
 }
 
 .products-grid {
@@ -662,11 +657,7 @@ header {
 
 .main-footer {
     position: relative;
-    background-color: var(--dark);
-    background-image: linear-gradient(180deg, #000929f2 0%, #000517fa 100%), url('/footer-bg.png');
-    background-position: center;
-    background-repeat: repeat;
-    background-size: cover;
+    background: url(/footer-bg.png) center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
     border-top: 1px solid var(--primary);
     color: var(--white);
 }
@@ -751,11 +742,16 @@ header {
 
 .discount-percent {
     background: var(--secondary);
-    border-radius: 2px;
+    border-radius: 4px;
     color: var(--black);
     padding: 3px 6px;
     font-size: 14px;
     font-weight: 600;
+}
+
+.product-card:hover .discount-percent {
+    background: var(--dark);
+    color: var(--secondary);
 }
 
 .price {
@@ -783,7 +779,7 @@ header {
     color: var(--primary);
 }
 
-.cart-btn {
+.pd-cart-btn {
     background: var(--black);
     border-radius: 8px;
     padding: 8px 18px;
@@ -800,7 +796,7 @@ header {
     text-decoration: none;
 }
 
-.cart-btn:hover {
+.pd-cart-btn:hover {
     background: var(--primary);
     color: var(--white);
 }
@@ -811,7 +807,7 @@ header {
     background-image: url('/catagory-card-shape.jpg');
 }
 
-.product-card:hover .cart-btn {
+.product-card:hover .pd-cart-btn {
     opacity: 1;
 }
 

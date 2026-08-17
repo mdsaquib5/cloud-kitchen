@@ -29,7 +29,7 @@ const ProCard = ({
             </div>
 
             <div className="product-body">
-                <Link href={href} className="cart-btn">
+                <Link href={href} className="pd-cart-btn">
                     <FiShoppingBag size={15} />
                     <span>Add to cart</span>
                 </Link>
