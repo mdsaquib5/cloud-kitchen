@@ -6,6 +6,7 @@
     --dark: #000929;
     --light: #6c727f;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font: 'Montserrat', sans-serif;
 }
 
 header {
@@ -36,7 +37,7 @@ header {
 
 .logo img {
     width: auto;
-    height: 80px;
+    height: 70px;
 }
 
 .nav-menu ul {
@@ -52,7 +53,7 @@ header {
     gap: 8px;
     padding: 40px 14px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--light);
     border-radius: 10px;
     position: relative;
@@ -165,7 +166,6 @@ header {
     border-radius: 4px;
     background: var(--white);
     color: var(--light);
-    font-size: 16px;
     position: relative;
     transition: var(--transition);
 }
@@ -194,9 +194,11 @@ header {
 .login-cta-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 12px 20px;
+    padding-inline: 20px;
     font-weight: 500;
+    height: 45px;
     color: var(--white);
     background: var(--primary);
     border-radius: 4px;
@@ -224,13 +226,14 @@ header {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: #ffffff0a;
-    border: 1px solid var(--border-glass);
+    width: 45px;
+    height: 45px;
+    border-radius: 4px;
+    background: #ffffff2b;
+    border: 1px solid #ffffff1f;
     color: var(--white);
-    font-size: 18px;
+    font-size: 20px;
+    transition: var(--transition);
 }
 
 .menu-toggle-btn:hover {
@@ -238,4 +241,6 @@ header {
     border-color: var(--primary);
 }
 
-/* header css ends */
+.drawer-header {
+    display: none;
+}

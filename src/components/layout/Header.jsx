@@ -35,6 +35,21 @@ const Header = () => {
                     </div>
 
                     <div className={`menu-bars ${isMenuOpen ? "active" : ""}`}>
+                        <div className="drawer-header">
+                            <div className="drawer-logo">
+                                <Link href="/" onClick={() => setIsMenuOpen(false)}>
+                                    <Image src="/test.png" alt="Your's Kitchen" width={504} height={197} />
+                                </Link>
+                            </div>
+                            <button
+                                className="drawer-close-btn"
+                                onClick={() => setIsMenuOpen(false)}
+                                aria-label="Close Navigation"
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+
                         <nav className="nav-menu">
                             <ul>
                                 <li>
@@ -45,22 +60,18 @@ const Header = () => {
                                 </li>
 
                                 <li className={`has-dropdown ${isDropdownOpen ? "open" : ""}`}>
-                                    <Link
-                                        href="/menu"
-                                        className="nav-link"
+                                    <button
+                                        type="button"
+                                        className="nav-link dropdown-toggle-btn"
                                         onClick={(e) => {
-                                            if (window.innerWidth <= 1200) {
-                                                e.preventDefault();
-                                                setIsDropdownOpen(!isDropdownOpen);
-                                            } else {
-                                                setIsMenuOpen(false);
-                                            }
+                                            e.preventDefault();
+                                            setIsDropdownOpen(!isDropdownOpen);
                                         }}
                                     >
                                         <FaUtensils className="nav-icon" />
                                         <span>Menu</span>
                                         <FaChevronDown className="arrow-icon" />
-                                    </Link>
+                                    </button>
                                     <div className="dropdown-menu">
                                         <Link href="/menu/starters" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
                                             <span>Starters Kebabs</span>
@@ -121,11 +132,11 @@ const Header = () => {
 
                     <div className="header-actions">
                         <Link href="/cart" className="action-btn cart-btn">
-                            <FiShoppingBag />
+                            <FiShoppingBag size={16} />
                             <span className="cart-badge">0</span>
                         </Link>
                         <Link href="/login" className="login-cta-btn">
-                            <FiUser />
+                            <FiUser size={16} />
                             <span>Account</span>
                         </Link>
                         <button
@@ -133,7 +144,7 @@ const Header = () => {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-label="Toggle Navigation"
                         >
-                            {isMenuOpen ? <FiX /> : <FiMenu />}
+                            {isMenuOpen ? <FiX size={16} /> : <FiMenu size={16} />}
                         </button>
                     </div>
                 </div>
