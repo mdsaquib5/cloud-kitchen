@@ -13,12 +13,12 @@ const Products = () => {
     const [activeFilter, setActiveFilter] = useState("all");
 
     const filterTabs = [
-        { id: "all", label: "All Items", icon: <FiGrid size={24} /> },
-        { id: "starters", label: "Starters", icon: <FaPepperHot size={24} /> },
-        { id: "rice-bowls", label: "Rice & Bowls", icon: <FaBowlRice size={24} /> },
-        { id: "breads", label: "Breads", icon: <FaBreadSlice size={24} /> },
-        { id: "chinese", label: "Chinese", icon: <FaBowlFood size={24} /> },
-        { id: "desserts", label: "Desserts", icon: <FaIceCream size={24} /> },
+        { id: "all", label: "All Items", icon: <FiGrid size={20} /> },
+        { id: "starters", label: "Starters", icon: <FaPepperHot size={20} /> },
+        { id: "rice-bowls", label: "Rice & Bowls", icon: <FaBowlRice size={20} /> },
+        { id: "breads", label: "Breads", icon: <FaBreadSlice size={20} /> },
+        { id: "chinese", label: "Chinese", icon: <FaBowlFood size={20} /> },
+        { id: "desserts", label: "Desserts", icon: <FaIceCream size={20} /> },
     ];
 
     const filteredProducts = PRODUCTS.filter((item) => {

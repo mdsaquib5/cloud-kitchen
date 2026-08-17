@@ -252,6 +252,11 @@
     .product-card .product-body {
         transform: translate(0);
     }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px;
+    }
 }
 
 @media (max-width: 992px) {
@@ -343,22 +348,38 @@
     }
 
     .product-filter-tabs {
-        gap: 10px;
+        gap: 8px;
         margin-bottom: 30px;
     }
 
     .filter-tab-btn {
-        padding: 12px 16px;
-        min-width: 90px;
-        border-radius: 10px;
+        padding: 8px 14px;
+        border-radius: 2px;
     }
 
     .tab-icon {
-        font-size: 18px;
+        font-size: 15px;
     }
 
     .tab-label {
         font-size: 12px;
+    }
+
+    .main-footer {
+        padding-top: 50px;
+        padding-bottom: 25px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin-bottom: 35px;
+    }
+
+    .footer-bottom-bar {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
     }
 }
 

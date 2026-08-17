@@ -19,6 +19,7 @@ import {
     FiMenu,
     FiX,
 } from "react-icons/fi";
+import { CATEGORIES } from "@/constant/product";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,7 +31,7 @@ const Header = () => {
                 <div className="main-header">
                     <div className="logo">
                         <Link href="/">
-                            <Image src="/test.png" alt="Your's Kitchen" width={504} height={197} priority />
+                            <Image src="/logo.png" alt="Your's Kitchen" width={504} height={197} priority />
                         </Link>
                     </div>
 
@@ -64,8 +65,8 @@ const Header = () => {
                                         type="button"
                                         className="nav-link dropdown-toggle-btn"
                                         onClick={(e) => {
-                                            e.preventDefault();
-                                            setIsDropdownOpen(!isDropdownOpen);
+                                             e.preventDefault();
+                                             setIsDropdownOpen(!isDropdownOpen);
                                         }}
                                     >
                                         <FaUtensils className="nav-icon" />
@@ -73,26 +74,24 @@ const Header = () => {
                                         <FaChevronDown className="arrow-icon" />
                                     </button>
                                     <div className="dropdown-menu">
-                                        <Link href="/menu/starters" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                                            <span>Starters Kebabs</span>
+                                        <Link href="/menu" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                                            <span>All Menu Items</span>
                                         </Link>
-                                        <Link href="/menu/biryani" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                                            <span>Handi Biryani Rice</span>
-                                        </Link>
-                                        <Link href="/menu/curries" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                                            <span>Main Course Curries</span>
-                                        </Link>
-                                        <Link href="/menu/breads" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                                            <span>Fresh Tandoori Breads</span>
-                                        </Link>
-                                        <Link href="/menu/desserts" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                                            <span>Desserts Beverages</span>
-                                        </Link>
+                                        {CATEGORIES.slice(0, 7).map((cat) => (
+                                            <Link
+                                                key={cat.id}
+                                                href={cat.href}
+                                                className="dropdown-item"
+                                                onClick={() => setIsMenuOpen(false)}
+                                            >
+                                                <span>{cat.title}</span>
+                                            </Link>
+                                        ))}
                                     </div>
                                 </li>
 
                                 <li>
-                                    <Link href="/todays-special" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
+                                    <Link href="/menu/todays-special" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
                                         <FaFire className="nav-icon fire-icon" />
                                         <span>Today's Special</span>
                                         <span className="badge-hot">HOT</span>
@@ -100,14 +99,14 @@ const Header = () => {
                                 </li>
 
                                 <li>
-                                    <Link href="/veg-foods" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
+                                    <Link href="/menu/veg" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
                                         <FaLeaf className="nav-icon veg-icon" />
                                         <span>Veg Foods</span>
                                     </Link>
                                 </li>
 
                                 <li>
-                                    <Link href="/non-veg-foods" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
+                                    <Link href="/menu/non-veg" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
                                         <FaDrumstickBite className="nav-icon non-veg-icon" />
                                         <span>Non-Veg Foods</span>
                                     </Link>
