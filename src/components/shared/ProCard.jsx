@@ -1,15 +1,28 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { FiShoppingBag } from "react-icons/fi";
 
-const ProCard = ({ prod }) => {
-    const { image, title, price, totalDiscount, discount, href } = prod;
+const ProCard = ({ prod, onOpenModal }) => {
+    const { image, title, price, totalDiscount, discount } = prod;
+
+    const handleCardClick = (e) => {
+        e.preventDefault();
+        if (onOpenModal) {
+            onOpenModal(prod);
+        }
+    };
 
     return (
-        <div className="product-card">
-            <Link href={href} className="cart-icon" aria-label={`Add ${title} to cart`}>
+        <div className="product-card" onClick={handleCardClick}>
+            <button
+                type="button"
+                className="cart-icon"
+                onClick={handleCardClick}
+                aria-label={`Add ${title} to cart`}
+            >
                 <FiShoppingBag size={18} />
-            </Link>
+            </button>
 
             <div className="product-item">
                 <div className="prod-holder">
@@ -24,10 +37,14 @@ const ProCard = ({ prod }) => {
             </div>
 
             <div className="product-body">
-                <Link href={href} className="pd-cart-btn">
+                <button
+                    type="button"
+                    className="pd-cart-btn"
+                    onClick={handleCardClick}
+                >
                     <FiShoppingBag size={15} />
                     <span>Add to cart</span>
-                </Link>
+                </button>
 
                 <div className="pricing">
                     <div className="discount-percent">{discount}</div>
@@ -35,7 +52,7 @@ const ProCard = ({ prod }) => {
                     <div className="total-discount">{totalDiscount}</div>
                 </div>
 
-                <Link href={href} className="prod-title">{title}</Link>
+                <h3 className="prod-title">{title}</h3>
             </div>
         </div>
     );

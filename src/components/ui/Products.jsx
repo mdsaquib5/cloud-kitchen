@@ -7,10 +7,13 @@ import { FaPepperHot, FaBreadSlice, FaIceCream } from "react-icons/fa";
 import { FaBowlRice, FaBowlFood } from "react-icons/fa6";
 import SectionTitle from "../layout/SectionTitle";
 import ProCard from "../shared/ProCard";
+import ProductModal from "../shared/ProductModal";
 import { PRODUCTS } from "@/constant/product";
 
 const Products = () => {
     const [activeFilter, setActiveFilter] = useState("all");
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filterTabs = [
         { id: "all", label: "All Items", icon: <FiGrid size={20} /> },
@@ -30,6 +33,16 @@ const Products = () => {
         if (activeFilter === "desserts") return item.category === "desserts";
         return item.category === activeFilter;
     });
+
+    const handleOpenModal = (prod) => {
+        setSelectedProduct(prod);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedProduct(null);
+    };
 
     return (
         <section className="product-bg">
@@ -58,17 +71,23 @@ const Products = () => {
 
                 <div className="products-grid">
                     {filteredProducts.map((prod) => (
-                        <ProCard key={prod.id} prod={prod} />
+                        <ProCard key={prod.id} prod={prod} onOpenModal={handleOpenModal} />
                     ))}
                 </div>
 
                 <div className="view-all-products-wrap">
-                    <Link href="/menu" className="view-all-foods-btn">
+                    <Link href="/foods" className="view-all-foods-btn">
                         <span>View All Foods</span>
                         <FiArrowRight size={18} />
                     </Link>
                 </div>
             </div>
+
+            <ProductModal
+                product={selectedProduct}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
         </section>
     );
 };

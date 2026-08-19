@@ -457,6 +457,10 @@
         grid-template-columns: 1fr;
     }
 
+    .has-dropdown {
+        display: none;
+    }
+
     .why-choose-gallery {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -659,6 +663,82 @@
 
     .main-footer {
         padding-bottom: 90px;
+    }
+
+    .foods-page-title {
+        font-size: 24px;
+    }
+
+    .foods-control-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .foods-search-box {
+        max-width: 100%;
+    }
+
+    .foods-filter-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .diet-toggle-group {
+        justify-content: space-around;
+    }
+
+    .diet-pill-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .foods-sort-select {
+        width: 100%;
+    }
+
+    .product-modal-container {
+        max-height: 94vh;
+    }
+
+    .modal-product-grid {
+        grid-template-columns: 1fr;
+        max-height: 94vh;
+        overflow-y: auto;
+    }
+
+    .modal-media-col {
+        padding: 20px;
+        border-right: none;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .modal-img-wrap {
+        max-width: 160px;
+    }
+
+    .modal-details-col {
+        padding: 20px 16px;
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .modal-product-title {
+        font-size: 20px;
+    }
+
+    .portion-chips-group {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .modal-footer-action {
+        position: sticky;
+        bottom: 0;
+        background: var(--white);
+        padding: 12px 0 4px;
     }
 }
 
