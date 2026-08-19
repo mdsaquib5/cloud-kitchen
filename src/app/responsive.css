@@ -245,7 +245,7 @@
         background-image: url('/catagory-card-shape.jpg');
     }
 
-    .product-card .cart-btn {
+    .product-card .pd-cart-btn {
         opacity: 1;
     }
 
@@ -705,18 +705,11 @@
 
     .modal-product-grid {
         grid-template-columns: 1fr;
-        max-height: 94vh;
         overflow-y: auto;
     }
 
-    .modal-media-col {
-        padding: 20px;
-        border-right: none;
-        border-bottom: 1px solid #edf0f5;
-    }
-
     .modal-img-wrap {
-        max-width: 160px;
+        height: 360px;
     }
 
     .modal-details-col {
