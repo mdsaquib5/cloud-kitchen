@@ -5,12 +5,16 @@ import Image from "next/image";
 import { FiX, FiPlus, FiMinus, FiShoppingBag, FiCheck } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 
+import { useStore } from "@/store/useStore";
+
 const ProductModal = ({ product, isOpen, onClose }) => {
     const [quantity, setQuantity] = useState(1);
     const [selectedPortion, setSelectedPortion] = useState("regular");
     const [selectedAddons, setSelectedAddons] = useState([]);
     const [cookingNote, setCookingNote] = useState("");
     const [isAdded, setIsAdded] = useState(false);
+
+    const addToCart = useStore((state) => state.addToCart);
 
     if (!isOpen || !product) return null;
 
@@ -33,21 +37,29 @@ const ProductModal = ({ product, isOpen, onClose }) => {
         }
     };
 
-    const portionExtra = selectedPortion === "large" ? 8.00 : 0;
-    const addonsTotal = selectedAddons.reduce((sum, id) => {
-        const addon = addonOptions.find((a) => a.id === id);
-        return sum + (addon ? addon.price : 0);
-    }, 0);
+    const selectedPortionObj = portionOptions.find((p) => p.id === selectedPortion);
+    const portionExtra = selectedPortionObj ? selectedPortionObj.extra : 0;
+    const selectedAddonsObjs = addonOptions.filter((a) => selectedAddons.includes(a.id));
+    const addonsTotal = selectedAddonsObjs.reduce((sum, item) => sum + item.price, 0);
 
     const unitPrice = (product.rawPrice || 25.00) + portionExtra + addonsTotal;
     const totalPrice = (unitPrice * quantity).toFixed(2);
 
     const handleAddToCart = () => {
+        addToCart(product, {
+            portion: selectedPortion,
+            portionLabel: selectedPortionObj?.name || "Regular / Half",
+            portionExtra,
+            addons: selectedAddonsObjs,
+            cookingNote,
+            quantity,
+        });
+
         setIsAdded(true);
         setTimeout(() => {
             setIsAdded(false);
             onClose();
-        }, 800);
+        }, 600);
     };
 
     return (

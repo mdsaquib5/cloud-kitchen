@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
     FiUser,
     FiMapPin,
@@ -17,25 +18,106 @@ import {
     FiCreditCard,
     FiDollarSign,
     FiClock,
+    FiShoppingBag,
+    FiTag,
 } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils, FaStar } from "react-icons/fa";
-import { PRODUCTS } from "@/constant/product";
+import { useStore } from "@/store/useStore";
 
 const Checkout = () => {
-    const [orderType, setOrderType] = useState("delivery");
-    const [selectedAddress, setSelectedAddress] = useState(1);
-    const [pickupSlot, setPickupSlot] = useState("15");
-    const [tableNo, setTableNo] = useState("T-04");
-    const [paymentMethod, setPaymentMethod] = useState("cash");
+    const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+    const [firstName, setFirstName] = useState("Mohammad");
+    const [lastName, setLastName] = useState("Saquib");
+    const [email, setEmail] = useState("saquib@example.com");
+    const [phone, setPhone] = useState("+91 98765 43210");
+    const [specialRequest, setSpecialRequest] = useState("");
+    const [couponInput, setCouponInput] = useState("");
+    const [couponFeedback, setCouponFeedback] = useState(null);
     const [isCouponsOpen, setIsCouponsOpen] = useState(true);
 
-    const orderItems = PRODUCTS.slice(0, 2);
+    const cart = useStore((state) => state.cart);
+    const orderType = useStore((state) => state.orderType);
+    const setOrderType = useStore((state) => state.setOrderType);
+    const pickupSlot = useStore((state) => state.pickupSlot);
+    const setPickupSlot = useStore((state) => state.setPickupSlot);
+    const tableNo = useStore((state) => state.tableNo);
+    const setTableNo = useStore((state) => state.setTableNo);
+    const selectedAddressId = useStore((state) => state.selectedAddressId);
+    const setSelectedAddressId = useStore((state) => state.setSelectedAddressId);
+    const paymentMethod = useStore((state) => state.paymentMethod);
+    const setPaymentMethod = useStore((state) => state.setPaymentMethod);
+    const updateQuantity = useStore((state) => state.updateQuantity);
+    const applyCoupon = useStore((state) => state.applyCoupon);
+    const removeCoupon = useStore((state) => state.removeCoupon);
+    const appliedCoupon = useStore((state) => state.appliedCoupon);
+    const createOrder = useStore((state) => state.createOrder);
+    const getCartTotals = useStore((state) => state.getCartTotals);
 
-    const subtotal = 48.00;
-    const deliveryFee = orderType === "delivery" ? 10.00 : 0.00;
-    const platformFee = 2.00;
-    const discount = 0.00;
-    const grandTotal = (subtotal + deliveryFee + platformFee - discount).toFixed(2);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const totals = getCartTotals();
+
+    const handleApplyCouponCode = (code) => {
+        const res = applyCoupon(code);
+        setCouponFeedback(res);
+        setCouponInput(code);
+    };
+
+    const handleCustomApply = (e) => {
+        e.preventDefault();
+        if (!couponInput) return;
+        const res = applyCoupon(couponInput);
+        setCouponFeedback(res);
+    };
+
+    const handlePlaceOrder = (e) => {
+        e.preventDefault();
+        createOrder({
+            firstName,
+            lastName,
+            email,
+            phone,
+            specialRequest,
+        });
+        router.push("/track-order");
+    };
+
+    if (!mounted) {
+        return (
+            <div className="inner-wrapper">
+                <div className="container">
+                    <div className="cart-header-strip">
+                        <Link href="/cart" className="back-to-shop-link">
+                            <FiArrowLeft size={16} />
+                            <span>Back to Cart</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (cart.length === 0) {
+        return (
+            <div className="inner-wrapper">
+                <div className="container">
+                    <div className="empty-cart-state">
+                        <div className="empty-cart-icon-wrap">
+                            <FiShoppingBag size={48} />
+                        </div>
+                        <h2>No Items in Checkout</h2>
+                        <p>Please add dishes to your cart before proceeding to checkout.</p>
+                        <Link href="/foods" className="explore-menu-btn">
+                            <span>Explore Gourmet Menu</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="inner-wrapper">
@@ -47,7 +129,7 @@ const Checkout = () => {
                     </Link>
                 </div>
 
-                <div className="checkout-layout-grid">
+                <form className="checkout-layout-grid" onSubmit={handlePlaceOrder}>
                     <div className="checkout-main-col">
                         <div className="checkout-card order-type-card">
                             <div className="checkout-card-header">
@@ -120,7 +202,9 @@ const Checkout = () => {
                                         type="text"
                                         placeholder="Enter First Name"
                                         className="checkout-input"
-                                        defaultValue="Mohammad"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -128,7 +212,9 @@ const Checkout = () => {
                                         type="text"
                                         placeholder="Enter Last Name"
                                         className="checkout-input"
-                                        defaultValue="Saquib"
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -136,7 +222,9 @@ const Checkout = () => {
                                         type="email"
                                         placeholder="Enter Email Address"
                                         className="checkout-input"
-                                        defaultValue="saquib@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -144,7 +232,9 @@ const Checkout = () => {
                                         type="tel"
                                         placeholder="Enter Phone Number"
                                         className="checkout-input"
-                                        defaultValue="+91 98765 43210"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -166,11 +256,11 @@ const Checkout = () => {
 
                                 <div className="saved-addresses-list">
                                     <div
-                                        className={`address-item-card ${selectedAddress === 1 ? "selected" : ""}`}
-                                        onClick={() => setSelectedAddress(1)}
+                                        className={`address-item-card ${selectedAddressId === 1 ? "selected" : ""}`}
+                                        onClick={() => setSelectedAddressId(1)}
                                     >
                                         <div className="address-card-radio">
-                                            <span className={`custom-radio ${selectedAddress === 1 ? "checked" : ""}`}></span>
+                                            <span className={`custom-radio ${selectedAddressId === 1 ? "checked" : ""}`}></span>
                                         </div>
                                         <div className="address-card-content">
                                             <div className="address-type-tag">Home Address</div>
@@ -189,11 +279,11 @@ const Checkout = () => {
                                     </div>
 
                                     <div
-                                        className={`address-item-card ${selectedAddress === 2 ? "selected" : ""}`}
-                                        onClick={() => setSelectedAddress(2)}
+                                        className={`address-item-card ${selectedAddressId === 2 ? "selected" : ""}`}
+                                        onClick={() => setSelectedAddressId(2)}
                                     >
                                         <div className="address-card-radio">
-                                            <span className={`custom-radio ${selectedAddress === 2 ? "checked" : ""}`}></span>
+                                            <span className={`custom-radio ${selectedAddressId === 2 ? "checked" : ""}`}></span>
                                         </div>
                                         <div className="address-card-content">
                                             <div className="address-type-tag">Office Address</div>
@@ -282,6 +372,7 @@ const Checkout = () => {
                                             value={tableNo}
                                             onChange={(e) => setTableNo(e.target.value)}
                                             className="checkout-input"
+                                            required
                                         />
                                     </div>
                                     <div className="form-group">
@@ -289,6 +380,8 @@ const Checkout = () => {
                                         <input
                                             type="text"
                                             placeholder="e.g. Extra cutlery, baby chair"
+                                            value={specialRequest}
+                                            onChange={(e) => setSpecialRequest(e.target.value)}
                                             className="checkout-input"
                                         />
                                     </div>
@@ -302,49 +395,87 @@ const Checkout = () => {
                             <h3 className="summary-card-title">Order Summary</h3>
 
                             <div className="checkout-items-preview">
-                                {orderItems.map((item) => (
-                                    <div key={item.id} className="preview-item-row">
-                                        <div className="preview-img-wrap">
-                                            <Image
-                                                src={item.image}
-                                                alt={item.title}
-                                                width={55}
-                                                height={55}
-                                                className="preview-dish-img"
-                                            />
-                                        </div>
-                                        <div className="preview-info-col">
-                                            <div className="preview-rating-pill">
-                                                <FaStar className="star-gold" size={10} />
-                                                <span>5.0</span>
+                                {cart.map((item) => {
+                                    const itemKey = item.cartItemId || item.id;
+                                    const itemUnit = item.unitPrice || item.rawPrice || 25;
+                                    return (
+                                        <div key={itemKey} className="preview-item-row">
+                                            <div className="preview-img-wrap">
+                                                <Image
+                                                    src={item.image}
+                                                    alt={item.title}
+                                                    width={55}
+                                                    height={55}
+                                                    className="preview-dish-img"
+                                                />
                                             </div>
-                                            <h5 className="preview-dish-name">{item.title}</h5>
-                                            <div className="preview-qty-pill">
-                                                <button type="button" className="mini-qty-btn">
-                                                    <FiMinus size={10} />
-                                                </button>
-                                                <span className="mini-qty-val">1</span>
-                                                <button type="button" className="mini-qty-btn">
-                                                    <FiPlus size={10} />
-                                                </button>
+                                            <div className="preview-info-col">
+                                                <div className="preview-rating-pill">
+                                                    <FaStar className="star-gold" size={10} />
+                                                    <span>5.0</span>
+                                                </div>
+                                                <h5 className="preview-dish-name">{item.title}</h5>
+                                                <div className="preview-qty-pill">
+                                                    <button
+                                                        type="button"
+                                                        className="mini-qty-btn"
+                                                        onClick={() => updateQuantity(itemKey, item.quantity - 1)}
+                                                    >
+                                                        <FiMinus size={10} />
+                                                    </button>
+                                                    <span className="mini-qty-val">{item.quantity}</span>
+                                                    <button
+                                                        type="button"
+                                                        className="mini-qty-btn"
+                                                        onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                                                    >
+                                                        <FiPlus size={10} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="preview-price-col">
+                                                <span className="preview-price">
+                                                    ${(itemUnit * item.quantity).toFixed(2)}
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className="preview-price-col">
-                                            <span className="preview-price">{item.price}</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
-                            <div className="promo-input-row">
-                                <input
-                                    type="text"
-                                    placeholder="Enter Promo Code"
-                                    className="promo-input-field"
-                                />
-                                <button type="button" className="promo-apply-btn">
-                                    <span>Apply</span>
-                                </button>
+                            <div className="promo-input-card">
+                                <div className="promo-input-row">
+                                    <div className="promo-field-wrap">
+                                        <FiTag className="promo-field-icon" size={15} />
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Promo Code"
+                                            value={couponInput}
+                                            onChange={(e) => setCouponInput(e.target.value)}
+                                            className="promo-input-field"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="promo-apply-btn"
+                                        onClick={handleCustomApply}
+                                    >
+                                        <span>Apply</span>
+                                    </button>
+                                </div>
+                                {couponFeedback && (
+                                    <p className={`promo-feedback-msg ${couponFeedback.success ? "success" : "error"}`}>
+                                        {couponFeedback.message}
+                                    </p>
+                                )}
+                                {appliedCoupon && (
+                                    <div className="applied-coupon-pill">
+                                        <span>Applied: <strong>{appliedCoupon}</strong></span>
+                                        <button type="button" onClick={removeCoupon} className="remove-pill-btn">
+                                            Remove
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="available-coupons-accordion">
@@ -358,7 +489,7 @@ const Checkout = () => {
 
                                 {isCouponsOpen && (
                                     <div className="coupons-list">
-                                        <div className="coupon-card">
+                                        <div className="coupon-card" onClick={() => handleApplyCouponCode("BIOFF10")}>
                                             <div className="coupon-icon-box green">
                                                 <span>🛒</span>
                                             </div>
@@ -372,7 +503,7 @@ const Checkout = () => {
                                             </div>
                                         </div>
 
-                                        <div className="coupon-card">
+                                        <div className="coupon-card" onClick={() => handleApplyCouponCode("BURG05")}>
                                             <div className="coupon-icon-box orange">
                                                 <span>🍔</span>
                                             </div>
@@ -382,7 +513,7 @@ const Checkout = () => {
                                                     <FiCopy className="copy-icon" size={12} />
                                                     <span className="coupon-expiry">Valid until 25 May 2026</span>
                                                 </div>
-                                                <p className="coupon-desc">Get 10% off on your total order</p>
+                                                <p className="coupon-desc">Get $5.00 off on your total order</p>
                                             </div>
                                         </div>
                                     </div>
@@ -392,21 +523,27 @@ const Checkout = () => {
                             <div className="summary-rows">
                                 <div className="summary-row">
                                     <span className="summary-label">Subtotal</span>
-                                    <span className="summary-val">${subtotal.toFixed(2)}</span>
+                                    <span className="summary-val">${totals.subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="summary-row">
                                     <span className="summary-label">Delivery Fee</span>
                                     <span className="summary-val">
-                                        {orderType === "delivery" ? `$${deliveryFee.toFixed(2)}` : "FREE"}
+                                        {orderType === "delivery" ? `$${totals.deliveryFee.toFixed(2)}` : "FREE"}
                                     </span>
                                 </div>
                                 <div className="summary-row">
                                     <span className="summary-label">Platform Fee</span>
-                                    <span className="summary-val">${platformFee.toFixed(2)}</span>
+                                    <span className="summary-val">${totals.platformFee.toFixed(2)}</span>
                                 </div>
+                                {totals.discount > 0 && (
+                                    <div className="summary-row">
+                                        <span className="summary-label">Discount</span>
+                                        <span className="summary-val discount-val">-${totals.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
                                 <div className="summary-row">
-                                    <span className="summary-label">Discount</span>
-                                    <span className="summary-val discount-val">-$0.00</span>
+                                    <span className="summary-label">Taxes (GST 5%)</span>
+                                    <span className="summary-val">${totals.tax.toFixed(2)}</span>
                                 </div>
                             </div>
 
@@ -414,7 +551,7 @@ const Checkout = () => {
 
                             <div className="summary-total-row">
                                 <span className="total-label">Total</span>
-                                <span className="total-val">${grandTotal}</span>
+                                <span className="total-val">${totals.grandTotal.toFixed(2)}</span>
                             </div>
 
                             <div className="payment-method-selector">
@@ -455,12 +592,12 @@ const Checkout = () => {
                                 </label>
                             </div>
 
-                            <Link href="/track-order" className="checkout-btn">
-                                <span>Place Order & Track Live (${grandTotal})</span>
-                            </Link>
+                            <button type="submit" className="checkout-btn">
+                                <span>Place Order & Track Live (${totals.grandTotal.toFixed(2)})</span>
+                            </button>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     );

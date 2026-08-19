@@ -751,7 +751,6 @@
 
     .track-layout-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
     }
 
     .track-sidebar-col {

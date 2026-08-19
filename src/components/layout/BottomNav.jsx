@@ -1,11 +1,21 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiHome, FiShoppingBag, FiGrid, FiTruck } from "react-icons/fi";
+import { useStore } from "@/store/useStore";
 
 const BottomNav = () => {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+    const cart = useStore((state) => state.cart);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const cartCount = mounted ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
     const navItems = [
         {
@@ -27,7 +37,7 @@ const BottomNav = () => {
             icon: (
                 <div className="bottom-nav-cart-icon">
                     <FiShoppingBag size={16} />
-                    <span className="bottom-cart-badge">0</span>
+                    <span className="bottom-cart-badge">{cartCount}</span>
                 </div>
             ),
         },

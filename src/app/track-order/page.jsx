@@ -10,42 +10,47 @@ import {
     FiPhone,
     FiMessageSquare,
     FiArrowLeft,
+    FiShoppingBag,
     FiCheck,
     FiShield,
 } from "react-icons/fi";
 import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
-import { PRODUCTS } from "@/constant/product";
+import { useStore } from "@/store/useStore";
 
 const TrackOrder = () => {
-    const [orderMode, setOrderMode] = useState("delivery");
+    const activeOrder = useStore((state) => state.activeOrder);
     const [currentStepIndex, setCurrentStepIndex] = useState(2);
+
+    const orderMode = activeOrder?.orderType || "delivery";
+    const orderedItems = activeOrder?.items || [];
+    const orderId = activeOrder?.id || "YK-84920";
 
     const deliverySteps = [
         {
             id: 0,
             title: "Order Placed",
-            time: "12:30 PM",
-            desc: "Order #YK-84920 received & confirmed",
+            time: activeOrder?.placedAt || "12:30 PM",
+            desc: `Order #${orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
             id: 1,
             title: "Kitchen Preparing",
-            time: "12:34 PM",
+            time: "In Progress",
             desc: "Chef is handcrafting your gourmet meal",
             icon: <FaUtensils size={16} />,
         },
         {
             id: 2,
             title: "Rider Assigned & On the Way",
-            time: "12:45 PM",
+            time: "Live Dispatch",
             desc: "Rider Rahul Verma is arriving with your fresh order",
             icon: <FaMotorcycle size={17} />,
         },
         {
             id: 3,
             title: "Delivered",
-            time: "Est. 12:55 PM",
+            time: `Est. ${activeOrder?.eta || "20-30 Mins"}`,
             desc: "Enjoy your hot, authentic delicious food",
             icon: <FiCheck size={18} />,
         },
@@ -55,28 +60,28 @@ const TrackOrder = () => {
         {
             id: 0,
             title: "Order Placed",
-            time: "12:30 PM",
-            desc: "Takeaway order received & confirmed",
+            time: activeOrder?.placedAt || "12:30 PM",
+            desc: `Takeaway order #${orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
             id: 1,
             title: "Kitchen Preparing",
-            time: "12:34 PM",
+            time: "In Progress",
             desc: "Chef is packing your meal hot & fresh",
             icon: <FaUtensils size={16} />,
         },
         {
             id: 2,
             title: "Ready for Pickup",
-            time: "12:48 PM",
+            time: `Slot: ${activeOrder?.pickupSlot || "15"} Mins`,
             desc: "Your order is ready at the kitchen counter",
             icon: <FaStoreAlt size={16} />,
         },
         {
             id: 3,
             title: "Picked Up",
-            time: "Est. 12:55 PM",
+            time: "Est. Handover",
             desc: "Order handed over to customer",
             icon: <FiCheck size={18} />,
         },
@@ -86,29 +91,29 @@ const TrackOrder = () => {
         {
             id: 0,
             title: "Order Placed",
-            time: "12:30 PM",
-            desc: "Table #T-04 order sent to kitchen",
+            time: activeOrder?.placedAt || "12:30 PM",
+            desc: `Table #${activeOrder?.tableNo || "T-04"} order sent to kitchen`,
             icon: <FiCheckCircle size={18} />,
         },
         {
             id: 1,
             title: "Kitchen Cooking",
-            time: "12:33 PM",
+            time: "In Progress",
             desc: "Fresh sizzlers & gravies on the flame",
             icon: <FaUtensils size={16} />,
         },
         {
             id: 2,
             title: "Food Ready",
-            time: "12:45 PM",
+            time: "Plating Done",
             desc: "Plating and garnishing completed",
             icon: <FaUtensils size={16} />,
         },
         {
             id: 3,
             title: "Served at Table",
-            time: "Est. 12:48 PM",
-            desc: "Served fresh to your table #T-04",
+            time: `Table #${activeOrder?.tableNo || "T-04"}`,
+            desc: `Served fresh to your table #${activeOrder?.tableNo || "T-04"}`,
             icon: <FiCheck size={18} />,
         },
     ];
@@ -119,8 +124,6 @@ const TrackOrder = () => {
             : orderMode === "takeaway"
             ? takeawaySteps
             : dineInSteps;
-
-    const orderedItems = PRODUCTS.slice(0, 2);
 
     return (
         <div className="inner-wrapper track-page-wrapper">
@@ -144,41 +147,29 @@ const TrackOrder = () => {
                                 <div className="eta-time-wrap">
                                     <FiClock size={24} className="eta-icon" />
                                     <div>
-                                        <h2 className="eta-heading">20-25 Mins</h2>
+                                        <h2 className="eta-heading">{activeOrder?.eta || "20-25 Mins"}</h2>
                                         <p className="eta-subtext">Estimated Arrival Time</p>
                                     </div>
                                 </div>
                                 <div className="order-id-badge">
                                     <span>Order ID:</span>
-                                    <strong>#YK-84920</strong>
+                                    <strong>#{orderId}</strong>
                                 </div>
                             </div>
 
-                            <div className="order-mode-toggle-pills">
-                                <button
-                                    type="button"
-                                    className={`mode-pill-btn ${orderMode === "delivery" ? "active" : ""}`}
-                                    onClick={() => setOrderMode("delivery")}
-                                >
-                                    <FaMotorcycle size={14} />
-                                    <span>Delivery</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`mode-pill-btn ${orderMode === "takeaway" ? "active" : ""}`}
-                                    onClick={() => setOrderMode("takeaway")}
-                                >
-                                    <FaStoreAlt size={14} />
-                                    <span>Takeaway</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`mode-pill-btn ${orderMode === "dine-in" ? "active" : ""}`}
-                                    onClick={() => setOrderMode("dine-in")}
-                                >
-                                    <FaUtensils size={14} />
-                                    <span>Dine-In (Table 04)</span>
-                                </button>
+                            <div className="order-mode-badge-display">
+                                <span className="mode-badge-label">
+                                    {orderMode === "delivery" && <FaMotorcycle size={14} />}
+                                    {orderMode === "takeaway" && <FaStoreAlt size={14} />}
+                                    {orderMode === "dine-in" && <FaUtensils size={14} />}
+                                    <span>
+                                        {orderMode === "delivery"
+                                            ? "Home Delivery"
+                                            : orderMode === "takeaway"
+                                            ? `Takeaway (Pickup in ${activeOrder?.pickupSlot || 15}m)`
+                                            : `Dine-In (Table ${activeOrder?.tableNo || "04"})`}
+                                    </span>
+                                </span>
                             </div>
                         </div>
 
@@ -189,7 +180,6 @@ const TrackOrder = () => {
                                 {activeSteps.map((step, idx) => {
                                     const isDone = idx < currentStepIndex;
                                     const isCurrent = idx === currentStepIndex;
-                                    const isPending = idx > currentStepIndex;
 
                                     return (
                                         <div
@@ -266,7 +256,7 @@ const TrackOrder = () => {
                                         ? "Flat 402, Royal Palms Residency, DLF Phase 3, Gurugram"
                                         : orderMode === "takeaway"
                                         ? "Your's Kitchen Counter, Sector 29 Cyber Hub, Gurugram"
-                                        : "Main Dining Hall, Table #04 (Ground Floor)"}
+                                        : `Main Dining Hall, Table #${activeOrder?.tableNo || "04"} (Ground Floor)`}
                                 </p>
                             </div>
                         </div>
@@ -277,8 +267,8 @@ const TrackOrder = () => {
                             <h3 className="track-card-title">Order Items ({orderedItems.length})</h3>
 
                             <div className="track-items-list">
-                                {orderedItems.map((item) => (
-                                    <div key={item.id} className="track-item-row">
+                                {orderedItems.map((item, index) => (
+                                    <div key={item.cartItemId || item.id || index} className="track-item-row">
                                         <div className="track-item-img-wrap">
                                             <Image
                                                 src={item.image}
@@ -290,9 +280,13 @@ const TrackOrder = () => {
                                         </div>
                                         <div className="track-item-info">
                                             <h5 className="track-item-name">{item.title}</h5>
-                                            <span className="track-item-qty">Qty: 1 • Portion: Regular</span>
+                                            <span className="track-item-qty">
+                                                Qty: {item.quantity} • Portion: {item.portionLabel || "Regular"}
+                                            </span>
                                         </div>
-                                        <span className="track-item-price">{item.price}</span>
+                                        <span className="track-item-price">
+                                            ${((item.unitPrice || item.rawPrice || 25) * item.quantity).toFixed(2)}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
@@ -300,20 +294,34 @@ const TrackOrder = () => {
                             <div className="track-price-breakdown">
                                 <div className="breakdown-row">
                                     <span>Item Total</span>
-                                    <span>$58.58</span>
+                                    <span>${(activeOrder?.subtotal || 58.58).toFixed(2)}</span>
                                 </div>
                                 <div className="breakdown-row">
                                     <span>Delivery Partner Fee</span>
-                                    <span>{orderMode === "delivery" ? "$5.00" : "FREE"}</span>
+                                    <span>
+                                        {orderMode === "delivery"
+                                            ? `$${(activeOrder?.deliveryFee || 5.00).toFixed(2)}`
+                                            : "FREE"}
+                                    </span>
                                 </div>
                                 <div className="breakdown-row">
+                                    <span>Platform Fee</span>
+                                    <span>${(activeOrder?.platformFee || 2.00).toFixed(2)}</span>
+                                </div>
+                                {activeOrder?.discount > 0 && (
+                                    <div className="breakdown-row">
+                                        <span>Discount</span>
+                                        <span className="discount-val">-${activeOrder.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="breakdown-row">
                                     <span>Taxes & GST (5%)</span>
-                                    <span>$2.92</span>
+                                    <span>${(activeOrder?.tax || 2.92).toFixed(2)}</span>
                                 </div>
                                 <div className="breakdown-row total-row">
                                     <span>Total Amount Paid</span>
                                     <span className="grand-total-val">
-                                        {orderMode === "delivery" ? "$66.50" : "$61.50"}
+                                        ${(activeOrder?.grandTotal || 68.50).toFixed(2)}
                                     </span>
                                 </div>
                             </div>

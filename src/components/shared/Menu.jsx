@@ -68,7 +68,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                     </li>
 
                     <li>
-                        <Link href="/menu/todays-special" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
+                        <Link href="/foods?category=todays-special" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
                             <FaFire className="nav-icon fire-icon" />
                             <span>Today's Special</span>
                             <span className="badge-hot">HOT</span>
@@ -76,14 +76,14 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                     </li>
 
                     <li>
-                        <Link href="/menu/veg" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
+                        <Link href="/foods?diet=veg" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
                             <FaLeaf className="nav-icon veg-icon" />
                             <span>Veg Foods</span>
                         </Link>
                     </li>
 
                     <li>
-                        <Link href="/menu/non-veg" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
+                        <Link href="/foods?diet=non-veg" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
                             <FaDrumstickBite className="nav-icon non-veg-icon" />
                             <span>Non-Veg Foods</span>
                         </Link>

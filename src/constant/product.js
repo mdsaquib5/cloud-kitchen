@@ -6,7 +6,7 @@ export const CATEGORIES = [
         image: "/choose1.png",
         description: "Chef's exclusive signature dishes prepared with artisanal touch.",
         itemCount: 8,
-        href: "/menu/todays-special",
+        href: "/foods?category=todays-special",
     },
     {
         id: "cat-2",
@@ -15,7 +15,7 @@ export const CATEGORIES = [
         image: "/choose2.png",
         description: "100% fresh, authentic vegetarian delights and paneer delicacies.",
         itemCount: 18,
-        href: "/menu/veg",
+        href: "/foods?category=veg",
     },
     {
         id: "cat-3",
@@ -24,7 +24,7 @@ export const CATEGORIES = [
         image: "/cat-image.png",
         description: "Succulent chicken, tender mutton, and royal slow-cooked curries.",
         itemCount: 22,
-        href: "/menu/non-veg",
+        href: "/foods?category=non-veg",
     },
     {
         id: "cat-4",
@@ -33,7 +33,7 @@ export const CATEGORIES = [
         image: "/choose3.png",
         description: "Smoky charcoal kebabs, crispy appetizers, and fiery tikkas.",
         itemCount: 14,
-        href: "/menu/starters",
+        href: "/foods?category=starters",
     },
     {
         id: "cat-5",
@@ -42,7 +42,7 @@ export const CATEGORIES = [
         image: "/choose4.png",
         description: "Freshly cooked hot breakfasts to fuel your day with goodness.",
         itemCount: 10,
-        href: "/menu/breakfast",
+        href: "/foods?category=breakfast",
     },
     {
         id: "cat-6",
@@ -51,7 +51,7 @@ export const CATEGORIES = [
         image: "/cat-image.png",
         description: "Complete wholesome thalis, combos, and express office meals.",
         itemCount: 12,
-        href: "/menu/lunch",
+        href: "/foods?category=lunch",
     },
     {
         id: "cat-7",
@@ -60,7 +60,7 @@ export const CATEGORIES = [
         image: "/choose1.png",
         description: "Flaky kathi rolls, street snacks, and crunchy tea-time bites.",
         itemCount: 15,
-        href: "/menu/snacks",
+        href: "/foods?category=snacks",
     },
     {
         id: "cat-8",
@@ -69,7 +69,7 @@ export const CATEGORIES = [
         image: "/choose2.png",
         description: "Hearty handi curries, freshly baked breads, and aromatic rice.",
         itemCount: 16,
-        href: "/menu/dinner",
+        href: "/foods?category=dinner",
     },
     {
         id: "cat-9",
@@ -78,7 +78,7 @@ export const CATEGORIES = [
         image: "/choose4.png",
         description: "Crispy dosas, fluffy idlis, and traditional coastal recipes.",
         itemCount: 9,
-        href: "/menu/south-indian",
+        href: "/foods?category=south-indian",
     },
     {
         id: "cat-10",
@@ -87,7 +87,7 @@ export const CATEGORIES = [
         image: "/choose3.png",
         description: "Sizzling noodles, spicy fried rice, and fiery manchurian dishes.",
         itemCount: 12,
-        href: "/menu/chinese",
+        href: "/foods?category=chinese",
     },
     {
         id: "cat-11",
@@ -96,7 +96,7 @@ export const CATEGORIES = [
         image: "/cat-image.png",
         description: "Hand-stretched cheesy pizzas, creamy pastas, and garlic breads.",
         itemCount: 11,
-        href: "/menu/italian",
+        href: "/foods?category=italian",
     },
     {
         id: "cat-12",
@@ -105,7 +105,7 @@ export const CATEGORIES = [
         image: "/choose1.png",
         description: "Royal gulab jamun, thick milkshakes, and indulgent sweets.",
         itemCount: 10,
-        href: "/menu/desserts",
+        href: "/foods?category=desserts",
     },
 ];
 

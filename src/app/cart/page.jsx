@@ -1,135 +1,198 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiShoppingBag } from "react-icons/fi";
-import { PRODUCTS } from "@/constant/product";
+import EmptyState from "@/components/shared/EmptyState";
+import { useStore } from "@/store/useStore";
 
 const Cart = () => {
-    const cartItems = PRODUCTS.slice(0, 5);
+    const [mounted, setMounted] = useState(false);
+
+    const cart = useStore((state) => state.cart);
+    const updateQuantity = useStore((state) => state.updateQuantity);
+    const removeFromCart = useStore((state) => state.removeFromCart);
+    const clearCart = useStore((state) => state.clearCart);
+    const getCartTotals = useStore((state) => state.getCartTotals);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const totals = getCartTotals();
+
+    if (!mounted) {
+        return (
+            <div className="inner-wrapper">
+                <div className="container">
+                    <div className="cart-header-strip">
+                        <Link href="/foods" className="back-to-shop-link">
+                            <FiArrowLeft size={16} />
+                            <span>Continue Shopping</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="inner-wrapper">
             <div className="container">
                 <div className="cart-header-strip">
-                    <Link href="/" className="back-to-shop-link">
+                    <Link href="/foods" className="back-to-shop-link">
                         <FiArrowLeft size={16} />
                         <span>Continue Shopping</span>
                     </Link>
                 </div>
 
-                <div className="cart-layout-grid">
-                    <div className="cart-items-card">
-                        <div className="cart-card-header">
-                            <h2 className="cart-card-title">{cartItems.length} Orders</h2>
-                            <button type="button" className="clear-cart-btn">
-                                <FiTrash2 size={15} />
-                                <span>Clear Cart</span>
-                            </button>
-                        </div>
+                {cart.length > 0 ? (
+                    <div className="cart-layout-grid">
+                        <div className="cart-items-card">
+                            <div className="cart-card-header">
+                                <h2 className="cart-card-title">
+                                    {cart.reduce((sum, item) => sum + item.quantity, 0)} Orders
+                                </h2>
+                                <button type="button" className="clear-cart-btn" onClick={clearCart}>
+                                    <FiTrash2 size={15} />
+                                    <span>Clear Cart</span>
+                                </button>
+                            </div>
 
-                        <div className="cart-table-wrap">
-                            <table className="cart-table">
-                                <thead>
-                                    <tr>
-                                        <th className="th-product">Product</th>
-                                        <th className="th-price">Price</th>
-                                        <th className="th-qty">Quantity</th>
-                                        <th className="th-subtotal">Subtotal</th>
-                                        <th className="th-action"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {cartItems.map((item) => (
-                                        <tr key={item.id} className="cart-row">
-                                            <td className="td-product">
-                                                <div className="cart-prod-info">
-                                                    <div className="cart-prod-img-wrap">
-                                                        <Image
-                                                            src={item.image}
-                                                            alt={item.title}
-                                                            width={50}
-                                                            height={50}
-                                                            className="cart-prod-img"
-                                                        />
-                                                    </div>
-                                                    <span className="cart-prod-title">{item.title}</span>
-                                                </div>
-                                            </td>
-                                            <td className="td-price">
-                                                <span className="cart-price-val">{item.price}</span>
-                                            </td>
-                                            <td className="td-qty">
-                                                <div className="qty-control-pill">
-                                                    <button type="button" className="qty-btn" aria-label="Decrease quantity">
-                                                        <FiMinus size={13} />
-                                                    </button>
-                                                    <span className="qty-number">1</span>
-                                                    <button type="button" className="qty-btn" aria-label="Increase quantity">
-                                                        <FiPlus size={13} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="td-subtotal">
-                                                <span className="cart-subtotal-val">{item.price}</span>
-                                            </td>
-                                            <td className="td-action">
-                                                <button type="button" className="remove-item-btn" aria-label="Remove item">
-                                                    <FiTrash2 size={16} />
-                                                </button>
-                                            </td>
+                            <div className="cart-table-wrap">
+                                <table className="cart-table">
+                                    <thead>
+                                        <tr>
+                                            <th className="th-product">Product</th>
+                                            <th className="th-price">Price</th>
+                                            <th className="th-qty">Quantity</th>
+                                            <th className="th-subtotal">Subtotal</th>
+                                            <th className="th-action"></th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {cart.map((item) => {
+                                            const itemKey = item.cartItemId || item.id;
+                                            const itemUnitPrice = item.unitPrice || item.rawPrice || 25;
+                                            const subtotal = (itemUnitPrice * item.quantity).toFixed(2);
+
+                                            return (
+                                                <tr key={itemKey} className="cart-row">
+                                                    <td className="td-product">
+                                                        <div className="cart-prod-info">
+                                                            <div className="cart-prod-img-wrap">
+                                                                <Image
+                                                                    src={item.image}
+                                                                    alt={item.title}
+                                                                    width={50}
+                                                                    height={50}
+                                                                    className="cart-prod-img"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <span className="cart-prod-title">{item.title}</span>
+                                                                {item.portionLabel && (
+                                                                    <div className="cart-item-portion-tag">
+                                                                        {item.portionLabel}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="td-price">
+                                                        <span className="cart-price-val">${itemUnitPrice.toFixed(2)}</span>
+                                                    </td>
+                                                    <td className="td-qty">
+                                                        <div className="qty-control-pill">
+                                                            <button
+                                                                type="button"
+                                                                className="qty-btn"
+                                                                onClick={() => updateQuantity(itemKey, item.quantity - 1)}
+                                                                aria-label="Decrease quantity"
+                                                            >
+                                                                <FiMinus size={13} />
+                                                            </button>
+                                                            <span className="qty-number">{item.quantity}</span>
+                                                            <button
+                                                                type="button"
+                                                                className="qty-btn"
+                                                                onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                                                                aria-label="Increase quantity"
+                                                            >
+                                                                <FiPlus size={13} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td className="td-subtotal">
+                                                        <span className="cart-subtotal-val">${subtotal}</span>
+                                                    </td>
+                                                    <td className="td-action">
+                                                        <button
+                                                            type="button"
+                                                            className="remove-item-btn"
+                                                            onClick={() => removeFromCart(itemKey)}
+                                                            aria-label="Remove item"
+                                                        >
+                                                            <FiTrash2 size={16} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="cart-summary-card">
+                            <h3 className="summary-title">Order Summary</h3>
+
+                            <div className="summary-rows">
+                                <div className="summary-row">
+                                    <span className="summary-label">Items Total ({cart.reduce((s, i) => s + i.quantity, 0)})</span>
+                                    <span className="summary-val">${totals.subtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="summary-row">
+                                    <span className="summary-label">Delivery Fee</span>
+                                    <span className="summary-val">${totals.deliveryFee.toFixed(2)}</span>
+                                </div>
+                                <div className="summary-row">
+                                    <span className="summary-label">Platform Fee</span>
+                                    <span className="summary-val">${totals.platformFee.toFixed(2)}</span>
+                                </div>
+                                {totals.discount > 0 && (
+                                    <div className="summary-row">
+                                        <span className="summary-label">Discount</span>
+                                        <span className="summary-val discount-val">-${totals.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="summary-row">
+                                    <span className="summary-label">Taxes (GST 5%)</span>
+                                    <span className="summary-val">${totals.tax.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            <div className="summary-divider"></div>
+
+                            <div className="summary-total-row">
+                                <span className="total-label">Total</span>
+                                <span className="total-val">${totals.grandTotal.toFixed(2)}</span>
+                            </div>
+
+                            <Link href="/checkout" className="checkout-btn">
+                                <span>Proceed to Checkout</span>
+                            </Link>
                         </div>
                     </div>
-
-                    <div className="cart-summary-card">
-                        <h2 className="summary-title">Order Summary</h2>
-
-                        <div className="promo-input-group">
-                            <input
-                                type="text"
-                                placeholder="Enter Promo Code"
-                                className="promo-input"
-                                readOnly
-                            />
-                            <button type="button" className="promo-apply-btn">
-                                Apply
-                            </button>
-                        </div>
-
-                        <div className="summary-rows">
-                            <div className="summary-row">
-                                <span className="summary-label">Subtotal</span>
-                                <span className="summary-val">$118.46</span>
-                            </div>
-                            <div className="summary-row">
-                                <span className="summary-label">Delivery Fee</span>
-                                <span className="summary-val">$5.00</span>
-                            </div>
-                            <div className="summary-row">
-                                <span className="summary-label">Tax</span>
-                                <span className="summary-val">$5.92</span>
-                            </div>
-                            <div className="summary-row">
-                                <span className="summary-label">Shipping</span>
-                                <span className="summary-val free-shipping">$0.00</span>
-                            </div>
-                        </div>
-
-                        <div className="summary-divider"></div>
-
-                        <div className="summary-total-row">
-                            <span className="total-label">Total</span>
-                            <span className="total-val">$129.38</span>
-                        </div>
-
-                        <Link href="/checkout" className="checkout-btn">
-                            <span>Proceed to Checkout</span>
-                        </Link>
-                    </div>
-                </div>
+                ) : (
+                    <EmptyState
+                        title="Your Cart is Empty"
+                        description="Looks like you haven't added any authentic dishes to your cart yet."
+                        buttonText="Explore Gourmet Menu"
+                        buttonHref="/foods"
+                    />
+                )}
             </div>
         </div>
     );
