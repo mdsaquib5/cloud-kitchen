@@ -608,6 +608,21 @@
         padding: 18px 14px;
     }
 
+    .order-type-selector-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .slot-selection-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .dine-in-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
     .address-item-card {
         padding: 14px;
         gap: 10px;
@@ -732,6 +747,43 @@
         bottom: 0;
         background: var(--white);
         padding: 12px 0 4px;
+    }
+
+    .track-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .track-sidebar-col {
+        position: static;
+    }
+
+    .rider-contact-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rider-action-btns {
+        justify-content: stretch;
+    }
+
+    .rider-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .status-eta-block {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .order-id-badge {
+        text-align: left;
+    }
+
+    .order-mode-toggle-pills {
+        flex-direction: column;
     }
 }
 
