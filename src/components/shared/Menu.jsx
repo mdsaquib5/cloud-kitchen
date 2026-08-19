@@ -50,7 +50,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                             }}
                         >
                             <FaUtensils className="nav-icon" />
-                            <span>Foods</span>
+                            <span>Menu</span>
                             <FaChevronDown className="arrow-icon" />
                         </button>
                         <div className="dropdown-menu">
@@ -86,13 +86,6 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                         <Link href="/menu/non-veg" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
                             <FaDrumstickBite className="nav-icon non-veg-icon" />
                             <span>Non-Veg Foods</span>
-                        </Link>
-                    </li>
-
-                    <li>
-                        <Link href="/track-order" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaMotorcycle className="nav-icon" />
-                            <span>Track Order</span>
                         </Link>
                     </li>
 

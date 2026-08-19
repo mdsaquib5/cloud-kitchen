@@ -537,6 +537,7 @@
     .cart-btn {
         padding: 6px 12px;
         font-size: 12px;
+        display: none;
     }
 
     .hero-swiper-btn {
@@ -645,6 +646,19 @@
 
     .auth-title {
         font-size: 22px;
+    }
+
+    .mobile-bottom-nav {
+        display: block;
+    }
+
+    .scroll-to-top-btn {
+        bottom: 80px;
+        right: 16px;
+    }
+
+    .main-footer {
+        padding-bottom: 90px;
     }
 }
 

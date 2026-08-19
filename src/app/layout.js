@@ -5,6 +5,7 @@ import "./responsive.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import BottomNav from "@/components/layout/BottomNav";
 
 const montserrat = Montserrat({
   variable: "--montserrat",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         {children}
         <Footer />
         <ScrollToTop />
+        <BottomNav />
       </body>
     </html>
   );

@@ -1,13 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import {
-    FiShoppingBag,
-    FiUser,
-    FiMenu,
-    FiX,
-} from "react-icons/fi";
+import { FiShoppingBag, FiUser, FiMenu, FiX } from "react-icons/fi";
 import Logo from "../shared/Logo";
 import Menu from "../shared/Menu";
 
@@ -21,7 +16,6 @@ const Header = () => {
                 <div className="main-header">
                     <Logo />
                     <Menu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} isDropdownOpen={isDropdownOpen} setIsDropdownOpen={setIsDropdownOpen} />
-
                     <div className="header-actions">
                         <Link href="/cart" className="action-btn cart-btn">
                             <FiShoppingBag size={16} />
