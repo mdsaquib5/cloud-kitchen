@@ -22,6 +22,21 @@ a {
     --container-md: 1200px;
     --container-sm: 992px;
     --container-xs: 768px;
+    --normal-bg: var(--white);
+    --normal-border: #e2e8f0;
+    --normal-text: var(--dark);
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --success-text: #065f46;
+    --error-bg: #fff1f3;
+    --error-border: #fecdd3;
+    --error-text: var(--primary);
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --warning-text: #92400e;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --info-text: #1e40af;
 }
 
 body {

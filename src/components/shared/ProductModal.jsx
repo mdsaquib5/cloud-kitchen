@@ -7,6 +7,8 @@ import { FaStar } from "react-icons/fa";
 
 import { useStore } from "@/store/useStore";
 
+import { toast } from "sonner";
+
 const ProductModal = ({ product, isOpen, onClose }) => {
     const [quantity, setQuantity] = useState(1);
     const [selectedPortion, setSelectedPortion] = useState("regular");
@@ -55,11 +57,15 @@ const ProductModal = ({ product, isOpen, onClose }) => {
             quantity,
         });
 
+        toast.success(`Added ${quantity}x ${product.title} to cart!`, {
+            description: `${selectedPortionObj?.name || "Regular"} • $${totalPrice}`,
+        });
+
         setIsAdded(true);
         setTimeout(() => {
             setIsAdded(false);
             onClose();
-        }, 600);
+        }, 500);
     };
 
     return (

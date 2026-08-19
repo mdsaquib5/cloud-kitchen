@@ -22,6 +22,7 @@ import {
     FiTag,
 } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils, FaStar } from "react-icons/fa";
+import { toast } from "sonner";
 import { useStore } from "@/store/useStore";
 
 const Checkout = () => {
@@ -64,6 +65,11 @@ const Checkout = () => {
         const res = applyCoupon(code);
         setCouponFeedback(res);
         setCouponInput(code);
+        if (res.success) {
+            toast.success(res.message, { description: `Coupon ${code} applied successfully!` });
+        } else {
+            toast.error(res.message);
+        }
     };
 
     const handleCustomApply = (e) => {
@@ -71,16 +77,24 @@ const Checkout = () => {
         if (!couponInput) return;
         const res = applyCoupon(couponInput);
         setCouponFeedback(res);
+        if (res.success) {
+            toast.success(res.message, { description: `Coupon ${couponInput.toUpperCase()} applied!` });
+        } else {
+            toast.error(res.message);
+        }
     };
 
     const handlePlaceOrder = (e) => {
         e.preventDefault();
-        createOrder({
+        const order = createOrder({
             firstName,
             lastName,
             email,
             phone,
             specialRequest,
+        });
+        toast.success(`Order Placed Successfully!`, {
+            description: `Order #${order.id} is confirmed. Tracking live now.`,
         });
         router.push("/track-order");
     };

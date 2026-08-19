@@ -1,4 +1,5 @@
 import { Montserrat } from "next/font/google";
+import { Toaster } from "sonner";
 import "./layout.css";
 import "./globals.css";
 import "./responsive.css";
@@ -28,6 +29,14 @@ export default function RootLayout({ children }) {
         <Footer />
         <ScrollToTop />
         <BottomNav />
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            duration: 3500,
+          }}
+        />
       </body>
     </html>
   );
