@@ -1,8 +1,508 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+    FiSearch,
+    FiClock,
+    FiPrinter,
+    FiVolume2,
+    FiVolumeX,
+    FiRefreshCw,
+    FiPhone,
+    FiCheck,
+    FiChevronRight,
+    FiPackage,
+    FiAlertCircle,
+    FiWifi,
+} from "react-icons/fi";
+import { FaMotorcycle, FaStoreAlt, FaUtensils, FaCircle } from "react-icons/fa";
+import { toast } from "sonner";
+
+const initialOrders = [
+    {
+        id: "YK-84920",
+        customerName: "Rahul Sharma",
+        phone: "+91 98765 43210",
+        orderType: "delivery",
+        orderTime: "2m ago",
+        status: "PLACED",
+        urgent: true,
+        items: [
+            { name: "Paneer Kurkure Momos", portion: "Full Portion", qty: 2, price: 240 },
+            { name: "Malai Chaap", portion: "Half Portion", qty: 1, price: 50 },
+            { name: "Cold Coffee", portion: "Standard", qty: 2, price: 100 },
+        ],
+        total: 390,
+        address: "Flat 402, Royal Palms, Cyber City",
+        notes: "Extra spicy red chutney & green dips please.",
+    },
+    {
+        id: "YK-84921",
+        customerName: "Sneha Patel",
+        phone: "+91 98222 33445",
+        orderType: "takeaway",
+        orderTime: "4m ago",
+        status: "PLACED",
+        urgent: false,
+        items: [
+            { name: "₹179 Mega Feast Combo", portion: "Standard", qty: 1, price: 179 },
+            { name: "Paneer Burger", portion: "Standard", qty: 1, price: 40 },
+        ],
+        total: 219,
+        pickupTime: "Pickup in 15m",
+    },
+    {
+        id: "YK-84918",
+        customerName: "Amit Kumar",
+        phone: "+91 98111 22334",
+        orderType: "delivery",
+        orderTime: "8m ago",
+        status: "PREPARING",
+        urgent: false,
+        items: [
+            { name: "White Sauce Pasta", portion: "Full Portion", qty: 1, price: 120 },
+            { name: "Veg Fried Momo", portion: "Full Portion", qty: 1, price: 70 },
+            { name: "Peri Peri Fries", portion: "Half Portion", qty: 1, price: 40 },
+        ],
+        total: 230,
+        address: "Tower B, Sector 29",
+    },
+    {
+        id: "YK-84919",
+        customerName: "Table 04 (Dining)",
+        phone: "+91 99887 66554",
+        orderType: "dine-in",
+        orderTime: "11m ago",
+        status: "PREPARING",
+        urgent: false,
+        items: [
+            { name: "Paneer Chowmein", portion: "Full Portion", qty: 1, price: 110 },
+            { name: "Cheese Balls", portion: "Half Portion", qty: 1, price: 70 },
+        ],
+        total: 180,
+        tableNo: "Table 04",
+    },
+    {
+        id: "YK-84915",
+        customerName: "Vikram Singh",
+        phone: "+91 97654 32109",
+        orderType: "delivery",
+        orderTime: "16m ago",
+        status: "READY",
+        urgent: false,
+        riderName: "Sonu Kumar (Shadowfax)",
+        riderPhone: "+91 91234 56780",
+        otp: "4921",
+        items: [
+            { name: "Butter Malai Chaap", portion: "Full Portion", qty: 1, price: 90 },
+            { name: "Veg Spring Roll", portion: "Full Portion", qty: 2, price: 100 },
+        ],
+        total: 190,
+    },
+    {
+        id: "YK-84916",
+        customerName: "Pooja Verma",
+        phone: "+91 98444 55667",
+        orderType: "takeaway",
+        orderTime: "19m ago",
+        status: "READY",
+        urgent: false,
+        items: [
+            { name: "₹150 Super Saver Combo", portion: "Standard", qty: 2, price: 300 },
+        ],
+        total: 300,
+        pickupTime: "Counter Ready",
+    },
+];
+
 const Dashboard = () => {
+    const [orders, setOrders] = useState(initialOrders);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeTab, setActiveTab] = useState("all");
+    const [soundEnabled, setSoundEnabled] = useState(true);
+    const [autoPrint, setAutoPrint] = useState(true);
+
+    const updateOrderStatus = (orderId, nextStatus) => {
+        setOrders(
+            orders.map((order) =>
+                order.id === orderId ? { ...order, status: nextStatus } : order
+            )
+        );
+        toast.success(`Order #${orderId} moved to ${nextStatus}!`);
+    };
+
+    const handlePrintKOT = (order) => {
+        toast.success(`Thermal KOT Printed for #${order.id}`, {
+            description: `${order.items.length} items • ${order.orderType.toUpperCase()}`,
+        });
+    };
+
+    const filteredOrders = orders.filter((order) => {
+        const matchesType = activeTab === "all" || order.orderType === activeTab;
+        const matchesSearch =
+            searchQuery === "" ||
+            order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.phone.includes(searchQuery);
+
+        return matchesType && matchesSearch;
+    });
+
+    const placedCount = orders.filter((o) => o.status === "PLACED").length;
+    const prepCount = orders.filter((o) => o.status === "PREPARING").length;
+    const readyCount = orders.filter((o) => o.status === "READY").length;
+
     return (
-        <div className="kitchen-main-content">
-            <h2>Live KDS Orders Dashboard</h2>
-            <p>Real-time incoming orders, preparation timers & station tickets.</p>
+        <div className="kds-screen">
+            <div className="kds-top-bar">
+                <div className="kds-live-status">
+                    <div className="live-dot-wrap">
+                        <FaCircle className="pulse-green" size={10} />
+                        <span className="live-title">Kitchen Online</span>
+                    </div>
+                    <div className="connection-pill">
+                        <FiWifi size={13} />
+                        <span>Connected</span>
+                    </div>
+                </div>
+
+                <div className="kds-metrics-strip">
+                    <div className="metric-chip new">
+                        <span className="m-label">New Orders</span>
+                        <span className="m-val">{placedCount}</span>
+                    </div>
+                    <div className="metric-chip prep">
+                        <span className="m-label">In Kitchen</span>
+                        <span className="m-val">{prepCount}</span>
+                    </div>
+                    <div className="metric-chip ready">
+                        <span className="m-label">Ready for Pickup</span>
+                        <span className="m-val">{readyCount}</span>
+                    </div>
+                    <div className="metric-chip avg">
+                        <span className="m-label">Avg Prep Time</span>
+                        <span className="m-val">11.4m</span>
+                    </div>
+                </div>
+
+                <div className="kds-controls-cluster">
+                    <button
+                        type="button"
+                        className={`kds-pill-btn ${soundEnabled ? "active" : ""}`}
+                        onClick={() => setSoundEnabled(!soundEnabled)}
+                    >
+                        {soundEnabled ? <FiVolume2 size={15} /> : <FiVolumeX size={15} />}
+                        <span>{soundEnabled ? "Sound ON" : "Muted"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className={`kds-pill-btn ${autoPrint ? "active" : ""}`}
+                        onClick={() => setAutoPrint(!autoPrint)}
+                    >
+                        <FiPrinter size={15} />
+                        <span>Auto-Print ({autoPrint ? "ON" : "OFF"})</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="kds-refresh-btn"
+                        onClick={() => toast.info("Orders refreshed from server")}
+                        aria-label="Refresh orders"
+                    >
+                        <FiRefreshCw size={15} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="kds-sub-bar">
+                <div className="kds-search-field">
+                    <FiSearch className="search-ico" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Search by Order #ID, Customer Name or Phone..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="kds-input"
+                    />
+                </div>
+
+                <div className="kds-filter-tabs">
+                    <button
+                        type="button"
+                        className={`kds-tab ${activeTab === "all" ? "active" : ""}`}
+                        onClick={() => setActiveTab("all")}
+                    >
+                        All ({orders.length})
+                    </button>
+                    <button
+                        type="button"
+                        className={`kds-tab ${activeTab === "delivery" ? "active" : ""}`}
+                        onClick={() => setActiveTab("delivery")}
+                    >
+                        <FaMotorcycle size={14} />
+                        <span>Delivery ({orders.filter((o) => o.orderType === "delivery").length})</span>
+                    </button>
+                    <button
+                        type="button"
+                        className={`kds-tab ${activeTab === "takeaway" ? "active" : ""}`}
+                        onClick={() => setActiveTab("takeaway")}
+                    >
+                        <FaStoreAlt size={14} />
+                        <span>Takeaway ({orders.filter((o) => o.orderType === "takeaway").length})</span>
+                    </button>
+                    <button
+                        type="button"
+                        className={`kds-tab ${activeTab === "dine-in" ? "active" : ""}`}
+                        onClick={() => setActiveTab("dine-in")}
+                    >
+                        <FaUtensils size={14} />
+                        <span>Dine-In ({orders.filter((o) => o.orderType === "dine-in").length})</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className="kds-kanban-board">
+                <div className="kds-column col-new">
+                    <div className="col-header">
+                        <div className="col-title-wrap">
+                            <span className="col-indicator new"></span>
+                            <h3>NEW ORDERS</h3>
+                        </div>
+                        <span className="col-count">{filteredOrders.filter((o) => o.status === "PLACED").length}</span>
+                    </div>
+
+                    <div className="col-tickets-flow">
+                        {filteredOrders
+                            .filter((o) => o.status === "PLACED")
+                            .map((order) => (
+                                <div key={order.id} className={`kds-ticket ${order.urgent ? "urgent" : ""}`}>
+                                    <div className="ticket-header">
+                                        <div className="ticket-id-box">
+                                            <span className="ticket-id">#{order.id}</span>
+                                            <span className="ticket-timer">
+                                                <FiClock size={12} /> {order.orderTime}
+                                            </span>
+                                        </div>
+                                        <span className={`ticket-type-pill ${order.orderType}`}>
+                                            {order.orderType === "delivery" && <FaMotorcycle size={11} />}
+                                            {order.orderType === "takeaway" && <FaStoreAlt size={11} />}
+                                            {order.orderType === "dine-in" && <FaUtensils size={11} />}
+                                            <span>{order.orderType.toUpperCase()}</span>
+                                        </span>
+                                    </div>
+
+                                    {order.urgent && (
+                                        <div className="urgent-banner">
+                                            <FiAlertCircle size={13} />
+                                            <span>Action Needed (&gt; 2 mins unaccepted)</span>
+                                        </div>
+                                    )}
+
+                                    <div className="ticket-meta">
+                                        <div className="meta-cust">
+                                            <strong>{order.customerName}</strong>
+                                            <span>{order.phone}</span>
+                                        </div>
+                                        <span className="meta-total">₹{order.total}</span>
+                                    </div>
+
+                                    {order.notes && (
+                                        <div className="ticket-note">
+                                            <span>Note: {order.notes}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="ticket-items">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="ticket-item-row">
+                                                <span className="item-qty">{item.qty}x</span>
+                                                <div className="item-details">
+                                                    <span className="item-name">{item.name}</span>
+                                                    <span className="item-portion">{item.portion}</span>
+                                                </div>
+                                                <span className="item-price">₹{item.price}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="ticket-actions">
+                                        <button
+                                            type="button"
+                                            className="ticket-print-btn"
+                                            onClick={() => handlePrintKOT(order)}
+                                            title="Print Thermal KOT"
+                                        >
+                                            <FiPrinter size={15} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="ticket-primary-btn accept"
+                                            onClick={() => updateOrderStatus(order.id, "PREPARING")}
+                                        >
+                                            <span>Accept &amp; Prepare</span>
+                                            <FiChevronRight size={15} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                    </div>
+                </div>
+
+                <div className="kds-column col-prep">
+                    <div className="col-header">
+                        <div className="col-title-wrap">
+                            <span className="col-indicator prep"></span>
+                            <h3>PREPARING</h3>
+                        </div>
+                        <span className="col-count">{filteredOrders.filter((o) => o.status === "PREPARING").length}</span>
+                    </div>
+
+                    <div className="col-tickets-flow">
+                        {filteredOrders
+                            .filter((o) => o.status === "PREPARING")
+                            .map((order) => (
+                                <div key={order.id} className="kds-ticket in-prep">
+                                    <div className="ticket-header">
+                                        <div className="ticket-id-box">
+                                            <span className="ticket-id">#{order.id}</span>
+                                            <span className="ticket-timer in-kitchen">
+                                                <FiClock size={12} /> Cooking ({order.orderTime})
+                                            </span>
+                                        </div>
+                                        <span className={`ticket-type-pill ${order.orderType}`}>
+                                            <span>{order.orderType.toUpperCase()}</span>
+                                        </span>
+                                    </div>
+
+                                    <div className="ticket-meta">
+                                        <div className="meta-cust">
+                                            <strong>{order.customerName}</strong>
+                                            {order.tableNo && <span className="table-highlight">{order.tableNo}</span>}
+                                        </div>
+                                        <span className="meta-total">₹{order.total}</span>
+                                    </div>
+
+                                    <div className="ticket-items">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="ticket-item-row">
+                                                <span className="item-qty prep">{item.qty}x</span>
+                                                <div className="item-details">
+                                                    <span className="item-name">{item.name}</span>
+                                                    <span className="item-portion">{item.portion}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="ticket-actions">
+                                        <button
+                                            type="button"
+                                            className="ticket-print-btn"
+                                            onClick={() => handlePrintKOT(order)}
+                                        >
+                                            <FiPrinter size={15} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="ticket-primary-btn ready"
+                                            onClick={() => updateOrderStatus(order.id, "READY")}
+                                        >
+                                            <FiCheck size={15} />
+                                            <span>Food Ready</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                    </div>
+                </div>
+
+                <div className="kds-column col-ready">
+                    <div className="col-header">
+                        <div className="col-title-wrap">
+                            <span className="col-indicator ready"></span>
+                            <h3>READY FOR DISPATCH</h3>
+                        </div>
+                        <span className="col-count">{filteredOrders.filter((o) => o.status === "READY").length}</span>
+                    </div>
+
+                    <div className="col-tickets-flow">
+                        {filteredOrders
+                            .filter((o) => o.status === "READY")
+                            .map((order) => (
+                                <div key={order.id} className="kds-ticket ready-ticket">
+                                    <div className="ticket-header">
+                                        <div className="ticket-id-box">
+                                            <span className="ticket-id">#{order.id}</span>
+                                            <span className="ticket-timer ready">
+                                                <FiPackage size={12} /> Packed &amp; Ready
+                                            </span>
+                                        </div>
+                                        <span className={`ticket-type-pill ${order.orderType}`}>
+                                            <span>{order.orderType.toUpperCase()}</span>
+                                        </span>
+                                    </div>
+
+                                    {order.riderName && (
+                                        <div className="rider-assign-box">
+                                            <div className="rider-info">
+                                                <FaMotorcycle size={14} />
+                                                <span>{order.riderName}</span>
+                                            </div>
+                                            <span className="otp-pill">OTP: {order.otp}</span>
+                                        </div>
+                                    )}
+
+                                    {order.pickupTime && (
+                                        <div className="takeaway-box">
+                                            <span>Status: {order.pickupTime}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="ticket-items">
+                                        {order.items.map((item, idx) => (
+                                            <div key={idx} className="ticket-item-row">
+                                                <span className="item-qty done">{item.qty}x</span>
+                                                <div className="item-details">
+                                                    <span className="item-name">{item.name}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="ticket-actions">
+                                        <button
+                                            type="button"
+                                            className="ticket-primary-btn dispatch"
+                                            onClick={() => updateOrderStatus(order.id, "COMPLETED")}
+                                        >
+                                            <FiCheck size={16} />
+                                            <span>Handover Complete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="kds-bottom-bar">
+                <div className="bottom-stat">
+                    <span className="b-label">Today's Revenue:</span>
+                    <strong className="b-val">₹4,890</strong>
+                </div>
+                <div className="bottom-stat">
+                    <span className="b-label">Total Orders Today:</span>
+                    <strong className="b-val">28 Orders</strong>
+                </div>
+                <div className="bottom-stat">
+                    <span className="b-label">Active 3PL Fleet:</span>
+                    <strong className="b-val">Shadowfax / Borzo</strong>
+                </div>
+                <div className="bottom-time">
+                    <span>Auto-Sync Active (SSE)</span>
+                </div>
+            </div>
         </div>
     );
 };

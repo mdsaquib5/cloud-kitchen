@@ -10,7 +10,7 @@ export default function KitchenLayout({ children }) {
     return (
         <div className="kitchen-page">
             <KitchenSidebar />
-            <div>{children}</div>
+            <div className="kitchen-content-wrapper">{children}</div>
         </div>
     );
 }
