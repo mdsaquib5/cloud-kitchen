@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { FiShoppingBag } from "react-icons/fi";
 
-const ProCard = ({ prod, onOpenModal }) => {
-    const { image, title, price, totalDiscount, discount } = prod;
+const ProCard = ({ item, prod, onOpenModal }) => {
+    const product = item || prod;
+    if (!product) return null;
 
     const handleCardClick = (e) => {
         e.preventDefault();
         if (onOpenModal) {
-            onOpenModal(prod);
+            onOpenModal(product);
         }
     };
 
@@ -19,7 +20,7 @@ const ProCard = ({ prod, onOpenModal }) => {
                 type="button"
                 className="cart-icon"
                 onClick={handleCardClick}
-                aria-label={`Add ${title} to cart`}
+                aria-label={`Add ${product.title} to cart`}
             >
                 <FiShoppingBag size={18} />
             </button>
@@ -27,10 +28,10 @@ const ProCard = ({ prod, onOpenModal }) => {
             <div className="product-item">
                 <div className="prod-holder">
                     <Image
-                        src={image}
+                        src={product.image}
                         width={280}
                         height={280}
-                        alt={title}
+                        alt={product.title}
                         className="prod-img"
                     />
                 </div>
@@ -47,12 +48,11 @@ const ProCard = ({ prod, onOpenModal }) => {
                 </button>
 
                 <div className="pricing">
-                    <div className="discount-percent">{discount}</div>
-                    <div className="price">{price}</div>
-                    <div className="total-discount">{totalDiscount}</div>
+                    <div className="discount-percent">{product.discount}</div>
+                    <div className="price">₹{product.price}</div>
                 </div>
 
-                <h3 className="prod-title">{title}</h3>
+                <h3 className="prod-title">{product.title}</h3>
             </div>
         </div>
     );

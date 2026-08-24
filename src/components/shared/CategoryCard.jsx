@@ -3,21 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 
-const CategoryCard = ({ cat = {}, image, title, description, href, isActive }) => {
-    const cardTitle = cat.title || title || "Category";
-    const cardImg = cat.image || image || "/cat-image.png";
-    const cardDesc = cat.description || description || "";
-    const cardHref = cat.href || href || "/menu";
-    const cardActive = cat.isActive || isActive || false;
+const CategoryCard = ({ item }) => {
 
     return (
-        <Link href={cardHref} className={`category-card ${cardActive ? "active" : ""}`}>
+        <Link href={item.href} className={`category-card ${item.isActive ? "active" : ""}`}>
             <div className="cat-card-img">
-                <Image src={cardImg} alt={cardTitle} width={180} height={180} />
+                <Image src={item.image} alt={item.title} width={180} height={180} />
             </div>
             <div className="cat-card-body">
-                <div className="cat-card-title">{cardTitle}</div>
-                <p className="cat-card-desc">{cardDesc}</p>
+                <div className="cat-card-title">{item.title}</div>
+                <p className="cat-card-desc">{item.description}</p>
                 <div className="cat-card-arrow">
                     <FiArrowRight size={18} />
                 </div>

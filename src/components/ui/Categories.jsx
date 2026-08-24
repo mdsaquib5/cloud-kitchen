@@ -1,7 +1,14 @@
+"use client";
+
 import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
 import SectionTitle from "../layout/SectionTitle";
 import CategoryCard from "../shared/CategoryCard";
 import { CATEGORIES } from "@/constant/product";
+
+import "swiper/css";
+import "swiper/css/pagination";
 
 const Categories = () => {
     return (
@@ -11,10 +18,44 @@ const Categories = () => {
                     title="Top Categories"
                     description="Explore our carefully curated categories featuring fresh ingredients and signature flavors."
                 />
-                <div className="categories-grid">
-                    {CATEGORIES.slice(0, 4).map((cat) => (
-                        <CategoryCard key={cat.id} cat={cat} />
-                    ))}
+                <div className="categories-slider-wrap">
+                    <Swiper
+                        modules={[Pagination, Autoplay]}
+                        spaceBetween={24}
+                        slidesPerView={1}
+                        loop={true}
+                        autoplay={{
+                            delay: 3500,
+                            disableOnInteraction: false,
+                            pauseOnMouseEnter: true,
+                        }}
+                        pagination={{
+                            clickable: true,
+                            el: ".categories-swiper-pagination",
+                        }}
+                        breakpoints={{
+                            480: {
+                                slidesPerView: 2,
+                                spaceBetween: 16,
+                            },
+                            768: {
+                                slidesPerView: 3,
+                                spaceBetween: 20,
+                            },
+                            1024: {
+                                slidesPerView: 4,
+                                spaceBetween: 24,
+                            },
+                        }}
+                        className="categories-swiper"
+                    >
+                        {CATEGORIES.map((item, index) => (
+                            <SwiperSlide key={index}>
+                                <CategoryCard item={item} />
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                    <div className="categories-swiper-pagination"></div>
                 </div>
             </div>
         </section>

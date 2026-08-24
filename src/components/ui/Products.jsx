@@ -70,8 +70,8 @@ const Products = () => {
                 </div>
 
                 <div className="products-grid">
-                    {filteredProducts.map((prod) => (
-                        <ProCard key={prod.id} prod={prod} onOpenModal={handleOpenModal} />
+                    {filteredProducts.map((item, index) => (
+                        <ProCard key={index} item={item} onOpenModal={handleOpenModal} />
                     ))}
                 </div>
 
