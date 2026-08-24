@@ -1,31 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
-import { FiSearch, FiFilter, FiSliders } from "react-icons/fi";
-import { FaLeaf, FaDrumstickBite } from "react-icons/fa";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { FiSearch, FiSliders } from "react-icons/fi";
 import ProCard from "@/components/shared/ProCard";
 import ProductModal from "@/components/shared/ProductModal";
 import { CATEGORIES, PRODUCTS } from "@/constant/product";
 
-const Foods = () => {
+const FoodsContent = () => {
+    const searchParams = useSearchParams();
+    const categoryParam = searchParams.get("category");
+
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
-    const [dietFilter, setDietFilter] = useState("all");
     const [sortBy, setSortBy] = useState("default");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    useEffect(() => {
+        if (categoryParam) {
+            setSelectedCategory(categoryParam);
+        }
+    }, [categoryParam]);
+
     const filteredList = PRODUCTS.filter((item) => {
         const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-        const matchesSearch = searchQuery === "" ||
+        const matchesSearch =
+            searchQuery === "" ||
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.categoryName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.cuisine?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDiet = dietFilter === "all" ||
-            (dietFilter === "veg" && item.isVeg) ||
-            (dietFilter === "non-veg" && !item.isVeg);
 
-        return matchesCategory && matchesSearch && matchesDiet;
+        return matchesCategory && matchesSearch;
     }).sort((a, b) => {
         if (sortBy === "price-low") return (a.rawPrice || 0) - (b.rawPrice || 0);
         if (sortBy === "price-high") return (b.rawPrice || 0) - (a.rawPrice || 0);
@@ -49,7 +55,7 @@ const Foods = () => {
                 <div className="foods-header-banner">
                     <h1 className="foods-page-title">Explore Our Full Menu</h1>
                     <p className="foods-page-subtitle">
-                        Handcrafted gourmet delicacies, royal dum biryanis, sizzling tandoori starters & artisanal desserts.
+                        Fresh, tasty & made with love — Hot Momos, Sizzling Chaap, Chowmein, Rolls, Burgers & Special Combos.
                     </p>
                 </div>
 
@@ -58,7 +64,7 @@ const Foods = () => {
                         <FiSearch size={18} className="search-icon" />
                         <input
                             type="text"
-                            placeholder="Search dishes, biryani, pizza, desserts..."
+                            placeholder="Search momos, chaap, chowmein, burger, rolls..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="foods-search-input"
@@ -66,32 +72,6 @@ const Foods = () => {
                     </div>
 
                     <div className="foods-filter-actions">
-                        <div className="diet-toggle-group">
-                            <button
-                                type="button"
-                                className={`diet-pill-btn ${dietFilter === "all" ? "active" : ""}`}
-                                onClick={() => setDietFilter("all")}
-                            >
-                                All
-                            </button>
-                            <button
-                                type="button"
-                                className={`diet-pill-btn veg ${dietFilter === "veg" ? "active" : ""}`}
-                                onClick={() => setDietFilter("veg")}
-                            >
-                                <FaLeaf size={12} />
-                                <span>Veg</span>
-                            </button>
-                            <button
-                                type="button"
-                                className={`diet-pill-btn non-veg ${dietFilter === "non-veg" ? "active" : ""}`}
-                                onClick={() => setDietFilter("non-veg")}
-                            >
-                                <FaDrumstickBite size={12} />
-                                <span>Non-Veg</span>
-                            </button>
-                        </div>
-
                         <div className="sort-select-box">
                             <select
                                 value={sortBy}
@@ -113,7 +93,7 @@ const Foods = () => {
                         className={`cat-pill-btn ${selectedCategory === "all" ? "active" : ""}`}
                         onClick={() => setSelectedCategory("all")}
                     >
-                        <span>All Categories</span>
+                        <span>All Items</span>
                         <span className="pill-count">{PRODUCTS.length}</span>
                     </button>
                     {CATEGORIES.map((cat) => {
@@ -134,16 +114,15 @@ const Foods = () => {
 
                 <div className="foods-results-meta">
                     <span className="results-count-text">
-                        Showing <strong>{filteredList.length}</strong> delicious dishes
+                        Showing <strong>{filteredList.length}</strong> fresh dishes
                     </span>
-                    {(selectedCategory !== "all" || searchQuery !== "" || dietFilter !== "all") && (
+                    {(selectedCategory !== "all" || searchQuery !== "") && (
                         <button
                             type="button"
                             className="clear-filters-btn"
                             onClick={() => {
                                 setSelectedCategory("all");
                                 setSearchQuery("");
-                                setDietFilter("all");
                                 setSortBy("default");
                             }}
                         >
@@ -168,7 +147,6 @@ const Foods = () => {
                             onClick={() => {
                                 setSelectedCategory("all");
                                 setSearchQuery("");
-                                setDietFilter("all");
                             }}
                         >
                             Show All Dishes
@@ -183,6 +161,14 @@ const Foods = () => {
                 onClose={handleCloseModal}
             />
         </div>
+    );
+};
+
+const Foods = () => {
+    return (
+        <Suspense fallback={<div>Loading menu...</div>}>
+            <FoodsContent />
+        </Suspense>
     );
 };
 
