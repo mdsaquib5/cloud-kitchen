@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { FiGrid, FiArrowRight } from "react-icons/fi";
-import { FaPepperHot, FaBreadSlice, FaIceCream } from "react-icons/fa";
+import { FaFire, FaHamburger } from "react-icons/fa";
 import { FaBowlRice, FaBowlFood } from "react-icons/fa6";
+import { GiDumpling } from "react-icons/gi";
 import SectionTitle from "../layout/SectionTitle";
 import ProCard from "../shared/ProCard";
 import ProductModal from "../shared/ProductModal";
@@ -17,20 +18,34 @@ const Products = () => {
 
     const filterTabs = [
         { id: "all", label: "All Items", icon: <FiGrid size={20} /> },
-        { id: "starters", label: "Starters", icon: <FaPepperHot size={20} /> },
-        { id: "rice-bowls", label: "Rice & Bowls", icon: <FaBowlRice size={20} /> },
-        { id: "breads", label: "Breads", icon: <FaBreadSlice size={20} /> },
-        { id: "chinese", label: "Chinese", icon: <FaBowlFood size={20} /> },
-        { id: "desserts", label: "Desserts", icon: <FaIceCream size={20} /> },
+        { id: "momos", label: "Momos", icon: <GiDumpling size={20} /> },
+        { id: "chaap", label: "Chaap", icon: <FaFire size={20} /> },
+        { id: "chowmein-pasta", label: "Chowmein & Pasta", icon: <FaBowlFood size={20} /> },
+        { id: "burgers-sandwiches", label: "Burgers & Rolls", icon: <FaHamburger size={20} /> },
+        { id: "combos", label: "Combos & Specials", icon: <FaBowlRice size={20} /> },
     ];
 
     const filteredProducts = PRODUCTS.filter((item) => {
         if (activeFilter === "all") return true;
-        if (activeFilter === "starters") return item.category === "starters" || item.category === "snacks";
-        if (activeFilter === "rice-bowls") return item.category === "non-veg" || item.title.toLowerCase().includes("biryani") || item.title.toLowerCase().includes("rice");
-        if (activeFilter === "breads") return item.category === "breads" || item.category === "breakfast" || item.title.toLowerCase().includes("bhature") || item.title.toLowerCase().includes("kulcha") || item.title.toLowerCase().includes("dosa");
-        if (activeFilter === "chinese") return item.category === "chinese";
-        if (activeFilter === "desserts") return item.category === "desserts";
+        if (activeFilter === "momos") {
+            return (
+                item.category === "fried-momos" ||
+                item.category === "steam-momos" ||
+                item.category === "creamy-momos" ||
+                item.category === "gravy-momos" ||
+                item.category === "kurkure-momos"
+            );
+        }
+        if (activeFilter === "chaap") return item.category === "chaap";
+        if (activeFilter === "chowmein-pasta") {
+            return item.category === "chowmein" || item.category === "pasta" || item.category === "fried-rice" || item.category === "chilli-potato";
+        }
+        if (activeFilter === "burgers-sandwiches") {
+            return item.category === "burgers-sandwiches" || item.category === "spring-rolls" || item.category === "french-fries";
+        }
+        if (activeFilter === "combos") {
+            return item.category === "combos" || item.category === "special-items" || item.category === "samosa";
+        }
         return item.category === activeFilter;
     });
 
@@ -70,7 +85,7 @@ const Products = () => {
                 </div>
 
                 <div className="products-grid">
-                    {filteredProducts.map((item, index) => (
+                    {filteredProducts.slice(0, 10).map((item, index) => (
                         <ProCard key={index} item={item} onOpenModal={handleOpenModal} />
                     ))}
                 </div>

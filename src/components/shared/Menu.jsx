@@ -5,10 +5,9 @@ import {
     FaUtensils,
     FaFire,
     FaLeaf,
-    FaDrumstickBite,
+    FaPercent,
     FaPhoneAlt,
     FaChevronDown,
-    FaMotorcycle,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 import { CATEGORIES } from "@/constant/product";
@@ -19,7 +18,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
             <div className="drawer-header">
                 <div className="drawer-logo">
                     <Link href="/" onClick={() => setIsMenuOpen(false)}>
-                        <Image src="/logo.png" alt="Your's Kitchen" width={504} height={197} />
+                        <Image src="/logo.png" alt="Shree Shyam Fast Food" width={504} height={197} />
                     </Link>
                 </div>
                 <button
@@ -54,7 +53,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                             <FaChevronDown className="arrow-icon" />
                         </button>
                         <div className="dropdown-menu">
-                            {CATEGORIES.slice(0, 7).map((cat) => (
+                            {CATEGORIES.slice(0, 8).map((cat) => (
                                 <Link
                                     key={cat.id}
                                     href={cat.href}
@@ -68,24 +67,24 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                     </li>
 
                     <li>
-                        <Link href="/foods?category=todays-special" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
+                        <Link href="/foods?category=kurkure-momos" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
                             <FaFire className="nav-icon fire-icon" />
-                            <span>Today's Special</span>
+                            <span>Kurkure Momos</span>
                             <span className="badge-hot">HOT</span>
                         </Link>
                     </li>
 
                     <li>
-                        <Link href="/foods?diet=veg" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
+                        <Link href="/foods?category=chaap" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
                             <FaLeaf className="nav-icon veg-icon" />
-                            <span>Veg Foods</span>
+                            <span>Chaap Special</span>
                         </Link>
                     </li>
 
                     <li>
-                        <Link href="/foods?diet=non-veg" className="nav-link non-veg-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaDrumstickBite className="nav-icon non-veg-icon" />
-                            <span>Non-Veg Foods</span>
+                        <Link href="/foods?category=combos" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
+                            <FaPercent className="nav-icon fire-icon" />
+                            <span>Combo Offers</span>
                         </Link>
                     </li>
 
@@ -98,7 +97,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                 </ul>
             </nav>
         </div>
-    )
-}
+    );
+};
 
 export default Menu;

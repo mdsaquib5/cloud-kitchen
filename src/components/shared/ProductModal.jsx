@@ -20,15 +20,22 @@ const ProductModal = ({ product, isOpen, onClose }) => {
 
     if (!isOpen || !product) return null;
 
-    const portionOptions = [
-        { id: "regular", name: "Regular / Half", extra: 0 },
-        { id: "large", name: "Large / Full", extra: 8.00 },
-    ];
+    const hasPortionDiff = product.fullPrice && product.fullPrice > product.halfPrice;
+    const portionDiff = hasPortionDiff ? product.fullPrice - product.halfPrice : 0;
+
+    const portionOptions = hasPortionDiff
+        ? [
+              { id: "regular", name: "Half Portion", extra: 0, price: product.halfPrice },
+              { id: "large", name: "Full Portion", extra: portionDiff, price: product.fullPrice },
+          ]
+        : [
+              { id: "regular", name: "Standard", extra: 0, price: product.rawPrice || 50 },
+          ];
 
     const addonOptions = [
-        { id: "addon-1", name: "Extra Spiced Dip / Chutney", price: 2.50 },
-        { id: "addon-2", name: "Grated Cheddar / Cheese", price: 3.50 },
-        { id: "addon-3", name: "Fresh Butter Naan (1 pc)", price: 3.00 },
+        { id: "addon-1", name: "Extra Spicy Red Dip / Mayonnaise", price: 10.00 },
+        { id: "addon-2", name: "Extra Amul Butter Layer", price: 15.00 },
+        { id: "addon-3", name: "Peri-Peri Seasoning Sprinkles", price: 10.00 },
     ];
 
     const toggleAddon = (addonId) => {
@@ -39,12 +46,13 @@ const ProductModal = ({ product, isOpen, onClose }) => {
         }
     };
 
-    const selectedPortionObj = portionOptions.find((p) => p.id === selectedPortion);
+    const selectedPortionObj = portionOptions.find((p) => p.id === selectedPortion) || portionOptions[0];
     const portionExtra = selectedPortionObj ? selectedPortionObj.extra : 0;
     const selectedAddonsObjs = addonOptions.filter((a) => selectedAddons.includes(a.id));
     const addonsTotal = selectedAddonsObjs.reduce((sum, item) => sum + item.price, 0);
 
-    const unitPrice = (product.rawPrice || 25.00) + portionExtra + addonsTotal;
+    const baseItemPrice = product.halfPrice || product.rawPrice || 50.00;
+    const unitPrice = baseItemPrice + portionExtra + addonsTotal;
     const totalPrice = (unitPrice * quantity).toFixed(2);
 
     const handleAddToCart = () => {
