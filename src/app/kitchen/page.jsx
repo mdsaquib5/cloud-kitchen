@@ -1,7 +1,7 @@
+import Dashboard from "@/components/kitchen/Dashboard";
+
 const KitchenPage = () => {
-    return (
-        <div>This is kitchen Dashboard</div>
-    )
-}
+    return <Dashboard />;
+};
 
 export default KitchenPage;

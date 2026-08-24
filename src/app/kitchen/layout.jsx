@@ -1,6 +1,5 @@
 import React from "react";
 import KitchenSidebar from "@/components/kitchen/KitchenSidebar";
-import KitchenHeader from "@/components/kitchen/KitchenHeader";
 
 export const metadata = {
     title: "Kitchen KDS Dashboard | Shree Shyam Fast Food",
@@ -9,10 +8,9 @@ export const metadata = {
 
 export default function KitchenLayout({ children }) {
     return (
-        <>
+        <div className="kitchen-page">
             <KitchenSidebar />
-            <KitchenHeader />
-            {children}
-        </>
+            <div>{children}</div>
+        </div>
     );
 }
