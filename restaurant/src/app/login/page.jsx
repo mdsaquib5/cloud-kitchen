@@ -2,10 +2,60 @@
 
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import api from "@/services/api";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Login = () => {
+    const router = useRouter();
+    const setAuth = useAuthStore((state) => state.setAuth);
+
     const [currentState, setCurrentState] = useState("login");
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        password: ""
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            if (currentState === "signup") {
+                const res = await api.post("/user/signup", formData);
+                if (res.data.success) {
+                    setAuth(res.data.user, res.data.accessToken);
+                    toast.success("Account created successfully!");
+                    router.push("/");
+                }
+            } else {
+                const res = await api.post("/user/login", {
+                    email: formData.email,
+                    password: formData.password
+                });
+                if (res.data.success) {
+                    setAuth(res.data.user, res.data.accessToken);
+                    toast.success("Logged in successfully!");
+                    router.push("/");
+                }
+            }
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Something went wrong";
+            toast.error(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="inner-wrapper login-page-wrapper">
@@ -24,11 +74,14 @@ const Login = () => {
                                 </p>
                             </div>
 
-                            <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+                            <form className="auth-form" onSubmit={handleSubmit}>
                                 {currentState === "signup" && (
                                     <div className="auth-input-group">
                                         <input
                                             type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
                                             placeholder="Full Name"
                                             required
                                             className="auth-input"
@@ -38,8 +91,11 @@ const Login = () => {
 
                                 <div className="auth-input-group">
                                     <input
-                                        type="text"
-                                        placeholder={currentState === "login" ? "Username or Email" : "Email Address"}
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        placeholder="Email Address"
                                         required
                                         className="auth-input"
                                     />
@@ -49,8 +105,13 @@ const Login = () => {
                                     <div className="auth-input-group">
                                         <input
                                             type="tel"
-                                            placeholder="Phone Number"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            placeholder="Phone Number (10 digits)"
                                             required
+                                            pattern="[0-9]{10}"
+                                            title="Please enter a valid 10-digit phone number"
                                             className="auth-input"
                                         />
                                     </div>
@@ -59,8 +120,12 @@ const Login = () => {
                                 <div className="auth-input-group password-group">
                                     <input
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        placeholder="Password (min 6 chars)"
                                         required
+                                        minLength={6}
                                         className="auth-input"
                                     />
                                     <button
@@ -92,8 +157,13 @@ const Login = () => {
                                     </div>
                                 )}
 
-                                <button type="submit" className="auth-submit-btn">
-                                    <span>{currentState === "login" ? "Login Account" : "Create Account"}</span>
+                                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                                    <span>
+                                        {loading 
+                                            ? "Processing..." 
+                                            : currentState === "login" ? "Login Account" : "Create Account"
+                                        }
+                                    </span>
                                 </button>
 
                                 <div className="auth-switch-prompt">
@@ -103,7 +173,10 @@ const Login = () => {
                                             <button
                                                 type="button"
                                                 className="auth-switch-link"
-                                                onClick={() => setCurrentState("signup")}
+                                                onClick={() => {
+                                                    setCurrentState("signup");
+                                                    setFormData({ name: "", email: "", phone: "", password: "" });
+                                                }}
                                             >
                                                 Sign up
                                             </button>
@@ -114,7 +187,10 @@ const Login = () => {
                                             <button
                                                 type="button"
                                                 className="auth-switch-link"
-                                                onClick={() => setCurrentState("login")}
+                                                onClick={() => {
+                                                    setCurrentState("login");
+                                                    setFormData({ name: "", email: "", phone: "", password: "" });
+                                                }}
                                             >
                                                 Log in
                                             </button>
