@@ -12,7 +12,6 @@ import {
     FiSend,
     FiLayers,
     FiBarChart2,
-    FiSettings,
 } from "react-icons/fi";
 import Logo from "../shared/Logo";
 
@@ -77,12 +76,6 @@ const KitchenSidebar = () => {
             label: "Sales & Insights",
             href: "/kitchen/analytics",
             icon: <FiBarChart2 size={19} />,
-        },
-        {
-            id: "settings",
-            label: "Kitchen Settings",
-            href: "/kitchen/settings",
-            icon: <FiSettings size={19} />,
         },
     ];
 
