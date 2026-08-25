@@ -784,11 +784,165 @@
     .order-mode-toggle-pills {
         flex-direction: column;
     }
+
+    .kitchen-page {
+        flex-direction: column;
+    }
+
+    .kitchen-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .sidebar-scroll-area {
+        max-height: 280px;
+    }
+
+    .kds-top-bar,
+    .stock-top-header,
+    .dispatch-top-header,
+    .history-top-header,
+    .cust-top-header,
+    .analytics-top-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .kds-metrics-strip,
+    .stock-kpi-row,
+    .dispatch-kpi-strip,
+    .history-kpi-row,
+    .cust-kpi-row,
+    .analytics-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .kds-sub-bar,
+    .stock-controls-bar,
+    .dispatch-controls-bar,
+    .history-controls-bar,
+    .cust-controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kds-search-field,
+    .stock-search-field,
+    .dispatch-search-field,
+    .history-search-field,
+    .cust-search-field {
+        max-width: 100%;
+    }
+
+    .kds-kanban-board,
+    .dispatch-cards-grid,
+    .cust-cards-grid,
+    .analytics-main-grid,
+    .hourly-bars-grid,
+    .providers-grid,
+    .riders-cards-grid,
+    .prep-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stock-table-header,
+    .history-table-header {
+        display: none;
+    }
+
+    .stock-item-row,
+    .history-item-row {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 992px) {
+    .kds-kanban-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cust-cards-grid,
+    .prep-cards-grid,
+    .providers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    .kitchen-page {
+        flex-direction: column;
+    }
+
+    .kitchen-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .sidebar-scroll-area {
+        max-height: 240px;
+    }
+
+    .kds-kanban-board,
+    .dispatch-cards-grid,
+    .cust-cards-grid,
+    .prep-cards-grid,
+    .providers-grid,
+    .riders-cards-grid,
+    .analytics-main-grid,
+    .hourly-bars-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kds-top-bar,
+    .stock-top-header,
+    .dispatch-top-header,
+    .history-top-header,
+    .cust-top-header,
+    .analytics-top-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .kds-sub-bar,
+    .stock-controls-bar,
+    .dispatch-controls-bar,
+    .history-controls-bar,
+    .cust-controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kds-search-field,
+    .stock-search-field,
+    .dispatch-search-field,
+    .history-search-field,
+    .cust-search-field {
+        max-width: 100%;
+    }
+
+    .analytics-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 360px) {
     .logo img {
         width: auto;
         height: 40px;
+    }
+
+    .kds-metrics-strip,
+    .analytics-kpi-grid {
+        grid-template-columns: 1fr;
     }
 }
