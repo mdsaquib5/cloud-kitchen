@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import userRoute from "./routes/userRoute.js";
+import categoryRoute from "./routes/categoryRoute.js";
+import foodRoute from "./routes/foodRoute.js";
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.get("/api/health", (req, res) => {
 
 // place all the routes here
 app.use("/api/user", userRoute);
+app.use("/api/category", categoryRoute);
+app.use("/api/food", foodRoute);
 
 // Global 404 Handler
 app.use((req, res) => {

@@ -4,33 +4,111 @@ import React, { useState } from "react";
 import { FiSearch, FiCheckCircle, FiXCircle, FiFilter, FiAlertCircle, FiPower } from "react-icons/fi";
 import { toast } from "sonner";
 import { CATEGORIES, PRODUCTS } from "@/constant/product";
+import FoodModal from "./FoodModal";
+import CategoryModal from "./CategoryModal";
+import api from "@/services/api";
+import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 
 const MenuStock = () => {
-    const [productsList, setProductsList] = useState(
-        PRODUCTS.map((prod) => ({
-            ...prod,
-            inStock: true,
-        }))
-    );
+    const [productsList, setProductsList] = useState([]);
+    const [dbCategories, setDbCategories] = useState([]);
+
+    React.useEffect(() => {
+        fetchFoods();
+        fetchCategories();
+    }, []);
+
+    const fetchFoods = async () => {
+        try {
+            const res = await api.get("/food");
+            if (res.data.success) {
+                setProductsList(res.data.foods);
+            }
+        } catch (error) {
+            toast.error("Failed to load foods from database");
+        }
+    };
+
+    const handleSaveCategory = async (catData) => {
+        try {
+            const res = await api.post("/category", catData);
+            if (res.data.success) {
+                setDbCategories([...dbCategories, res.data.category]);
+                toast.success("Category added successfully");
+            }
+        } catch (error) {
+            toast.error("Failed to add category");
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const res = await api.get("/category");
+            if (res.data.success) {
+                setDbCategories(res.data.categories);
+            }
+        } catch (error) {
+            toast.error("Failed to load categories");
+        }
+    };
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [stockFilter, setStockFilter] = useState("all");
+    const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [editingFood, setEditingFood] = useState(null);
 
-    const toggleItemStock = (productId) => {
-        setProductsList((prev) =>
-            prev.map((item) => {
-                if (item.id === productId) {
-                    const newStatus = !item.inStock;
-                    if (newStatus) {
-                        toast.success(`${item.title} is now IN STOCK (Available)`);
-                    } else {
-                        toast.error(`${item.title} 86'd (Marked OUT OF STOCK)`);
-                    }
-                    return { ...item, inStock: newStatus };
+    const handleEditFood = (food) => {
+        setEditingFood(food);
+        setIsFoodModalOpen(true);
+    };
+
+    const handleDeleteFood = async (foodId) => {
+        if(confirm("Are you sure you want to delete this dish?")) {
+            try {
+                const res = await api.delete(`/food/${foodId}`);
+                if (res.data.success) {
+                    setProductsList(productsList.filter(f => f._id !== foodId));
+                    toast.success("Dish deleted successfully");
                 }
-                return item;
-            })
-        );
+            } catch (error) {
+                toast.error("Failed to delete dish");
+            }
+        }
+    };
+
+    const handleSaveFood = async (foodData) => {
+        try {
+            if(editingFood) {
+                const res = await api.put(`/food/${editingFood._id}`, foodData);
+                if (res.data.success) {
+                    setProductsList(productsList.map(f => f._id === editingFood._id ? res.data.food : f));
+                    toast.success("Dish updated successfully");
+                }
+            } else {
+                const res = await api.post("/food", foodData);
+                if (res.data.success) {
+                    setProductsList([res.data.food, ...productsList]);
+                    toast.success("New dish added successfully");
+                }
+            }
+        } catch (error) {
+            toast.error("Failed to save dish");
+        }
+    };
+
+    const toggleItemStock = async (dish) => {
+        try {
+            const newStatus = !dish.inStock;
+            const res = await api.put(`/food/${dish._id}`, { inStock: newStatus });
+            if (res.data.success) {
+                setProductsList(productsList.map(p => p._id === dish._id ? { ...p, inStock: newStatus } : p));
+                if (newStatus) toast.success(`${dish.title} is now IN STOCK (Available)`);
+                else toast.error(`${dish.title} 86'd (Marked OUT OF STOCK)`);
+            }
+        } catch (error) {
+            toast.error("Failed to update stock status");
+        }
     };
 
     const toggleCategoryStock = (categorySlug, makeAvailable) => {
@@ -75,7 +153,21 @@ const MenuStock = () => {
                     <p>Real-time item availability management for storefront ordering.</p>
                 </div>
 
-                <div className="stock-kpi-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <button 
+                        onClick={() => setIsCategoryModalOpen(true)}
+                        style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
+                    >
+                        <FiPlus size={18} /> Add Category
+                    </button>
+                    <button 
+                        onClick={() => { setEditingFood(null); setIsFoodModalOpen(true); }}
+                        style={{ background: '#e11d48', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
+                    >
+                        <FiPlus size={18} /> Add New Dish
+                    </button>
+                    <div className="stock-kpi-row" style={{margin: 0}}>
+                </div>
                     <div className="stock-kpi in-stock">
                         <FiCheckCircle size={18} />
                         <div className="kpi-info">
@@ -141,7 +233,7 @@ const MenuStock = () => {
                     <span>All Categories</span>
                     <span className="pill-badge">{productsList.length}</span>
                 </button>
-                {CATEGORIES.map((cat) => {
+                {dbCategories.map((cat) => {
                     const catCount = productsList.filter((p) => p.category === cat.slug).length;
                     const catOutCount = productsList.filter((p) => p.category === cat.slug && !p.inStock).length;
                     return (
@@ -190,14 +282,14 @@ const MenuStock = () => {
                     <span className="col-category">Category</span>
                     <span className="col-price">Pricing (Half / Full)</span>
                     <span className="col-status">Live Status</span>
-                    <span className="col-action">86 Toggle</span>
+                    <span className="col-action" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>86 Toggle</span>
                 </div>
 
                 <div className="stock-items-rows">
                     {filteredItems.length > 0 ? (
                         filteredItems.map((dish) => (
                             <div
-                                key={dish.id}
+                                key={dish._id || dish.id}
                                 className={`stock-item-row ${dish.inStock ? "in-stock" : "out-of-stock"}`}
                             >
                                 <div className="col-dish item-info-col">
@@ -210,13 +302,14 @@ const MenuStock = () => {
                                 </div>
 
                                 <div className="col-price">
-                                    {dish.fullPrice && dish.fullPrice > dish.halfPrice ? (
+                                    {dish.portions && dish.portions.length > 0 ? (
                                         <div className="price-stack">
-                                            <span>Half: ₹{dish.halfPrice}</span>
-                                            <strong>Full: ₹{dish.fullPrice}</strong>
+                                            {dish.portions.map(p => (
+                                                <span key={p._id || p.portionName}>{p.portionName}: ₹{p.price}</span>
+                                            ))}
                                         </div>
                                     ) : (
-                                        <strong className="single-price">₹{dish.rawPrice}</strong>
+                                        <strong className="single-price">No Portions Set</strong>
                                     )}
                                 </div>
 
@@ -234,12 +327,14 @@ const MenuStock = () => {
                                     )}
                                 </div>
 
-                                <div className="col-action">
-                                    <label className="switch-toggle" title="Toggle 86 Stock Status">
+                                <div className="col-action" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <button type="button" onClick={() => handleEditFood(dish)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '5px' }} title="Edit"><FiEdit2 size={16} /></button>
+         <button type="button" onClick={() => handleDeleteFood(dish._id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }} title="Delete"><FiTrash2 size={16} /></button>
+         <label className="switch-toggle" title="Toggle 86 Stock Status">
                                         <input
                                             type="checkbox"
                                             checked={dish.inStock}
-                                            onChange={() => toggleItemStock(dish.id)}
+                                            onChange={() => toggleItemStock(dish)}
                                         />
                                         <span className="slider-round"></span>
                                     </label>
@@ -254,6 +349,8 @@ const MenuStock = () => {
                     )}
                 </div>
             </div>
+            <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleSaveCategory} />
+        <FoodModal isOpen={isFoodModalOpen} onClose={() => setIsFoodModalOpen(false)} foodToEdit={editingFood} onSave={handleSaveFood} dbCategories={dbCategories} />
         </div>
     );
 };

@@ -26,7 +26,7 @@ export const useAuthStore = create(
         }),
         {
             name: "yours-kitchen-auth", // unique key for localStorage
-            partialize: (state) => ({ user: state.user }) // Only persist user info, token is kept in memory
+            partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }) // Only persist user info, token is kept in memory
         }
     )
 );
