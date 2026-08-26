@@ -1,9 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import api from "@/services/api";
+import { toast } from "sonner";
 import { FiX, FiPlus, FiTrash2 } from "react-icons/fi";
 import { CATEGORIES } from "@/constant/product";
 
 const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) => {
+    const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
         category: dbCategories[0]?._id || "",
@@ -35,6 +38,30 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
     }, [foodToEdit, isOpen]);
 
     if (!isOpen) return null;
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        setIsUploading(true);
+        try {
+            const res = await api.post("/upload", uploadData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            if (res.data.success) {
+                setFormData({ ...formData, image: res.data.imageUrl });
+                toast.success("Image uploaded successfully");
+            }
+        } catch (error) {
+            toast.error("Failed to upload image");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+    
 
     const handlePortionChange = (index, field, value) => {
         const newPortions = [...formData.portions];

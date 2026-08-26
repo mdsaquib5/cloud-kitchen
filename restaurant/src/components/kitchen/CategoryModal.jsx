@@ -1,8 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import api from "@/services/api";
+import { toast } from "sonner";
 import { FiX } from "react-icons/fi";
 
 const CategoryModal = ({ isOpen, onClose, onSave }) => {
+    const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({ title: "", description: "", image: "" });
 
     useEffect(() => {
@@ -10,6 +13,30 @@ const CategoryModal = ({ isOpen, onClose, onSave }) => {
     }, [isOpen]);
 
     if (!isOpen) return null;
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        setIsUploading(true);
+        try {
+            const res = await api.post("/upload", uploadData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            if (res.data.success) {
+                setFormData({ ...formData, image: res.data.imageUrl });
+                toast.success("Image uploaded successfully");
+            }
+        } catch (error) {
+            toast.error("Failed to upload image");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+    
 
     return (
         <div className="modal-overlay">

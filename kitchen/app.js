@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import userRoute from "./routes/userRoute.js";
 import categoryRoute from "./routes/categoryRoute.js";
 import foodRoute from "./routes/foodRoute.js";
+import uploadRoute from "./routes/uploadRoute.js";
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/user", userRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/food", foodRoute);
+app.use("/api/upload", uploadRoute);
 
 // Global 404 Handler
 app.use((req, res) => {
