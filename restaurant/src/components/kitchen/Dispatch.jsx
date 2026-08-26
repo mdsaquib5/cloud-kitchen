@@ -80,37 +80,81 @@ const mockDispatches = [
 ];
 
 const Dispatch = () => {
-    const [dispatches, setDispatches] = useState(mockDispatches);
+
+    const [dispatches, setDispatches] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchDispatches = async () => {
+        try {
+            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const data = await res.json();
+            if (data.success) {
+                const activeDispatches = data.orders
+                    .filter(o => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY")
+                    .map(o => {
+                        const isDelivery = o.orderType === "delivery";
+                        return {
+                            id: o._id.substring(o._id.length - 6).toUpperCase(),
+                            originalId: o._id,
+                            customerName: o.customer.name,
+                            customerPhone: o.customer.phone,
+                            address: o.customer.address || "No Address Provided",
+                            orderValue: o.totalAmount,
+                            itemsCount: o.items.reduce((acc, item) => acc + item.quantity, 0),
+                            status: o.status === "READY_FOR_PICKUP" ? "RIDER_ASSIGNED" : "OUT_FOR_DELIVERY",
+                            provider: isDelivery ? "Shadowfax" : "Self-Pickup",
+                            riderName: isDelivery ? "Assigning Rider..." : "Customer Pickup",
+                            riderPhone: "-",
+                            eta: "Live tracking",
+                            otp: Math.floor(1000 + Math.random() * 9000).toString(), // Mock OTP for now
+                            dispatchTime: new Date(o.updatedAt).toLocaleTimeString()
+                        };
+                    });
+                setDispatches(activeDispatches);
+            }
+        } catch (error) {
+            console.error("Failed to fetch dispatch orders", error);
+            toast.error("Failed to load dispatch data");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchDispatches();
+        const interval = setInterval(fetchDispatches, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
 
     const reassignProvider = (dispatchId, newProvider) => {
-        setDispatches((prev) =>
-            prev.map((d) => {
-                if (d.id === dispatchId) {
-                    toast.info(`Cascading #${dispatchId} to ${newProvider}`);
-                    return {
-                        ...d,
-                        provider: newProvider,
-                        status: "SEARCHING_RIDER",
-                        riderName: `Searching on ${newProvider}...`,
-                    };
-                }
-                return d;
-            })
-        );
+        toast.info(`Cascading #${dispatchId} to ${newProvider}`);
     };
 
-    const confirmHandover = (dispatchId) => {
-        setDispatches((prev) =>
-            prev.map((d) => {
-                if (d.id === dispatchId) {
-                    toast.success(`Order #${dispatchId} Handed Over to Rider!`);
-                    return { ...d, status: "OUT_FOR_DELIVERY", eta: "On the way to customer" };
-                }
-                return d;
-            })
-        );
+    const confirmHandover = async (dispatchId) => {
+        try {
+            const orderToUpdate = dispatches.find(d => d.id === dispatchId);
+            if (!orderToUpdate) return;
+
+            // Change status to DELIVERED when handed over (assuming it implies completed for MVP)
+            const res = await fetch(`http://localhost:4000/api/orders/admin/status/${orderToUpdate.originalId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "DELIVERED" })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                fetchDispatches();
+                toast.success(`Order #${dispatchId} Handed Over successfully!`);
+            } else {
+                toast.error("Failed to handover order");
+            }
+        } catch (error) {
+            toast.error("Error during handover");
+        }
     };
 
     const filteredList = dispatches.filter((d) => {

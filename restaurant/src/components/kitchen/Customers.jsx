@@ -85,7 +85,102 @@ const mockCustomers = [
 ];
 
 const Customers = () => {
-    const [customers, setCustomers] = useState(mockCustomers);
+
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchCustomers = async () => {
+        try {
+            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const data = await res.json();
+            if (data.success) {
+                const customerMap = {};
+
+                data.orders.forEach(o => {
+                    const phone = o.customer?.phone;
+                    if (!phone) return;
+
+                    if (!customerMap[phone]) {
+                        customerMap[phone] = {
+                            id: "CUST-" + phone.substring(phone.length - 4),
+                            name: o.customer.name || "Unknown",
+                            phone: phone,
+                            address: o.customer.address || "No Address Provided",
+                            totalOrders: 0,
+                            totalSpend: 0,
+                            lastOrderDate: new Date(o.createdAt),
+                            itemCounts: {}
+                        };
+                    }
+
+                    // Update stats
+                    customerMap[phone].totalOrders += 1;
+                    customerMap[phone].totalSpend += o.totalAmount;
+                    
+                    const orderDate = new Date(o.createdAt);
+                    if (orderDate > customerMap[phone].lastOrderDate) {
+                        customerMap[phone].lastOrderDate = orderDate;
+                    }
+
+                    // Track favorite dishes
+                    o.items.forEach(item => {
+                        customerMap[phone].itemCounts[item.title] = (customerMap[phone].itemCounts[item.title] || 0) + item.quantity;
+                    });
+                });
+
+                const formattedCustomers = Object.values(customerMap).map(cust => {
+                    // Find favorite dish
+                    let favDish = "None";
+                    let maxCount = 0;
+                    for (const [dish, count] of Object.entries(cust.itemCounts)) {
+                        if (count > maxCount) {
+                            maxCount = count;
+                            favDish = dish;
+                        }
+                    }
+
+                    // Determine Tag
+                    let tag = "New Customer";
+                    if (cust.totalOrders > 10) tag = "VIP Loyal";
+                    else if (cust.totalOrders > 4) tag = "Frequent";
+                    else if (cust.totalOrders > 1) tag = "Regular";
+
+                    // Format date
+                    const diffDays = Math.floor((new Date() - cust.lastOrderDate) / (1000 * 60 * 60 * 24));
+                    let dateStr = "Today";
+                    if (diffDays === 1) dateStr = "Yesterday";
+                    else if (diffDays > 1) dateStr = `${diffDays} days ago`;
+
+                    return {
+                        id: cust.id,
+                        name: cust.name,
+                        phone: cust.phone,
+                        address: cust.address,
+                        totalOrders: cust.totalOrders,
+                        totalSpend: cust.totalSpend,
+                        lastOrderDate: dateStr,
+                        favoriteDish: favDish,
+                        tag: tag
+                    };
+                });
+
+                // Sort by total spend descending
+                formattedCustomers.sort((a, b) => b.totalSpend - a.totalSpend);
+                
+                setCustomers(formattedCustomers);
+            }
+        } catch (error) {
+            console.error("Failed to fetch customers", error);
+            toast.error("Failed to load customer CRM");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchCustomers();
+    }, []);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [tagFilter, setTagFilter] = useState("all");
 
@@ -110,7 +205,7 @@ const Customers = () => {
 
     const totalCustomers = customers.length;
     const vipCount = customers.filter((c) => c.tag === "VIP Loyal").length;
-    const avgOrderVal = Math.round(
+    const avgOrderVal = customers.length === 0 ? 0 : Math.round(
         customers.reduce((sum, c) => sum + c.totalSpend, 0) /
             customers.reduce((sum, c) => sum + c.totalOrders, 0)
     );

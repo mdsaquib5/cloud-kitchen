@@ -96,7 +96,55 @@ const mockHistoryOrders = [
 ];
 
 const History = () => {
-    const [ordersList, setOrdersList] = useState(mockHistoryOrders);
+
+    const [ordersList, setOrdersList] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchHistory = async () => {
+        try {
+            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const data = await res.json();
+            if (data.success) {
+                const historyOrders = data.orders
+                    .filter(o => o.status === "DELIVERED" || o.status === "CANCELLED")
+                    .map(o => {
+                        const dateObj = new Date(o.updatedAt || o.createdAt);
+                        const dateStr = dateObj.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+                        return {
+                            id: o._id.substring(o._id.length - 6).toUpperCase(),
+                            originalId: o._id,
+                            customerName: o.customer.name,
+                            phone: o.customer.phone,
+                            orderType: o.orderType || "delivery",
+                            dateTime: `${dateStr}, ${timeStr}`,
+                            itemsSummary: o.items.map(i => `${i.quantity}x ${i.title}`).join(", "),
+                            itemsCount: o.items.reduce((acc, item) => acc + item.quantity, 0),
+                            paymentMode: o.paymentMethod === "cod" ? "CASH" : "ONLINE",
+                            paymentStatus: o.paymentStatus === "completed" ? "PAID" : (o.status === "CANCELLED" ? "REFUNDED" : "PENDING"),
+                            orderStatus: o.status,
+                            total: o.totalAmount,
+                        };
+                    });
+                
+                // Sort by date descending
+                historyOrders.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+                
+                setOrdersList(historyOrders);
+            }
+        } catch (error) {
+            console.error("Failed to fetch history orders", error);
+            toast.error("Failed to load history data");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchHistory();
+    }, []);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [typeFilter, setTypeFilter] = useState("all");
