@@ -4,13 +4,21 @@ import api from "@/services/api";
 import { toast } from "sonner";
 import { FiX } from "react-icons/fi";
 
-const CategoryModal = ({ isOpen, onClose, onSave }) => {
+const CategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({ title: "", description: "", image: "" });
 
     useEffect(() => {
-        if (!isOpen) setFormData({ title: "", description: "", image: "" });
-    }, [isOpen]);
+        if (categoryToEdit) {
+            setFormData({
+                title: categoryToEdit.title || "",
+                description: categoryToEdit.description || "",
+                image: categoryToEdit.image || ""
+            });
+        } else if (!isOpen) {
+            setFormData({ title: "", description: "", image: "" });
+        }
+    }, [isOpen, categoryToEdit]);
 
     if (!isOpen) return null;
 
@@ -42,7 +50,7 @@ const CategoryModal = ({ isOpen, onClose, onSave }) => {
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-header">
-                    <h3>Add New Category</h3>
+                    <h3>{categoryToEdit ? "Edit Category" : "Add New Category"}</h3>
                     <button onClick={onClose} className="close-btn"><FiX size={20} /></button>
                 </div>
                 <div className="modal-body">

@@ -29,17 +29,42 @@ const MenuStock = () => {
         }
     };
 
-    const handleSaveCategory = async (catData) => {
-        try {
-            const res = await api.post("/category", catData);
-            if (res.data.success) {
-                setDbCategories([...dbCategories, res.data.category]);
-                toast.success("Category added successfully");
+    
+    const handleDeleteCategory = async (catId) => {
+        if(confirm("Are you sure you want to delete this category? All related dishes might lose their category reference.")) {
+            try {
+                const res = await api.delete(`/category/${catId}`);
+                if (res.data.success) {
+                    setDbCategories(dbCategories.filter(c => c._id !== catId));
+                    setSelectedCategory("all");
+                    toast.success("Category deleted successfully");
+                }
+            } catch (error) {
+                toast.error("Failed to delete category");
             }
-        } catch (error) {
-            toast.error("Failed to add category");
         }
     };
+
+    const handleSaveCategory = async (catData) => {
+        try {
+            if (editingCategory) {
+                const res = await api.put(`/category/${editingCategory._id}`, catData);
+                if (res.data.success) {
+                    setDbCategories(dbCategories.map(c => c._id === editingCategory._id ? res.data.category : c));
+                    toast.success("Category updated successfully");
+                }
+            } else {
+                const res = await api.post("/category", catData);
+                if (res.data.success) {
+                    setDbCategories([...dbCategories, res.data.category]);
+                    toast.success("Category added successfully");
+                }
+            }
+        } catch (error) {
+            toast.error("Failed to save category");
+        }
+    };
+
 
     const fetchCategories = async () => {
         try {
@@ -56,6 +81,7 @@ const MenuStock = () => {
     const [stockFilter, setStockFilter] = useState("all");
     const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState(null);
     const [editingFood, setEditingFood] = useState(null);
 
     const handleEditFood = (food) => {
@@ -155,7 +181,7 @@ const MenuStock = () => {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <button 
-                        onClick={() => setIsCategoryModalOpen(true)}
+                        onClick={() => { setEditingCategory(null); setIsCategoryModalOpen(true); }}
                         style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
                     >
                         <FiPlus size={18} /> Add Category
@@ -272,6 +298,31 @@ const MenuStock = () => {
                             <FiXCircle size={14} />
                             <span>86 All Category Dishes</span>
                         </button>
+                    
+                        <button
+                            type="button"
+                            className="bulk-btn"
+                            style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}
+                            onClick={() => {
+                                setEditingCategory(dbCategories.find(c => c.slug === selectedCategory));
+                                setIsCategoryModalOpen(true);
+                            }}
+                        >
+                            <FiEdit2 size={14} />
+                            <span>Edit</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="bulk-btn out"
+                            style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
+                            onClick={() => {
+                                const cat = dbCategories.find(c => c.slug === selectedCategory);
+                                if(cat) handleDeleteCategory(cat._id);
+                            }}
+                        >
+                            <FiTrash2 size={14} />
+                            <span>Delete</span>
+                        </button>
                     </div>
                 </div>
             )}
@@ -349,7 +400,7 @@ const MenuStock = () => {
                     )}
                 </div>
             </div>
-            <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleSaveCategory} />
+            <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleSaveCategory} categoryToEdit={editingCategory} />
         <FoodModal isOpen={isFoodModalOpen} onClose={() => setIsFoodModalOpen(false)} foodToEdit={editingFood} onSave={handleSaveFood} dbCategories={dbCategories} />
         </div>
     );
