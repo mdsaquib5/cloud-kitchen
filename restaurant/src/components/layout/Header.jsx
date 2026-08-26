@@ -33,7 +33,7 @@ const Header = () => {
                             <span className="cart-badge">{cartCount}</span>
                         </Link>
                         {mounted ? (
-                            <Link href={isAuthenticated ? "/kitchen" : "/login"} className="login-cta-btn">
+                            <Link href={isAuthenticated ? "/profile" : "/profile"} className="login-cta-btn">
                                 {isAuthenticated ? <FiUser size={16} /> : <FiLogIn size={16} />}
                                 <span>{isAuthenticated ? "Account" : "Login"}</span>
                             </Link>
