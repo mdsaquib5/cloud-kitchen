@@ -12,10 +12,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
         category: dbCategories[0]?._id || "",
         description: "",
         image: "",
-        isVeg: true,
-        isFeatured: false,
-        isPopular: false,
-        allowInstructions: true,
+        
         portions: [{ portionName: "Half", price: 0 }, { portionName: "Full", price: 0 }],
         addOns: []
     });
@@ -30,7 +27,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
         } else {
             setFormData({
                 title: "", category: dbCategories[0]?._id || "", description: "", image: "",
-                isVeg: true, isFeatured: false, isPopular: false, allowInstructions: true,
+                
                 portions: [{ portionName: "Half", price: 0 }, { portionName: "Full", price: 0 }],
                 addOns: []
             });
@@ -115,12 +112,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                         )}
                     </div>
                     
-                    <div className="checkbox-group-row">
-                        <label><input type="checkbox" checked={formData.isVeg} onChange={(e) => setFormData({...formData, isVeg: e.target.checked})} /> Veg</label>
-                        <label><input type="checkbox" checked={formData.isPopular} onChange={(e) => setFormData({...formData, isPopular: e.target.checked})} /> Popular</label>
-                        <label><input type="checkbox" checked={formData.isFeatured} onChange={(e) => setFormData({...formData, isFeatured: e.target.checked})} /> Featured</label>
-                        <label><input type="checkbox" checked={formData.allowInstructions} onChange={(e) => setFormData({...formData, allowInstructions: e.target.checked})} /> Allow Cooking Instructions</label>
-                    </div>
+                    
 
                     <div className="form-section">
                         <h4>Portions & Pricing</h4>
@@ -149,7 +141,12 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                 </div>
                 <div className="modal-footer">
                     <button onClick={onClose} className="btn-secondary">Cancel</button>
-                    <button onClick={() => { onSave(formData); onClose(); }} className="btn-primary">Save Dish</button>
+                    <button onClick={() => { 
+                        if(!formData.title.trim()) return toast.error("Please enter a dish title");
+                        if(!formData.image) return toast.error("Please upload an image first");
+                        onSave(formData); 
+                        onClose(); 
+                    }} className="btn-primary">Save Dish</button>
                 </div>
             </div>
             

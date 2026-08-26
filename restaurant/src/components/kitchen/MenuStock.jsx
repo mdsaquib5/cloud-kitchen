@@ -238,7 +238,7 @@ const MenuStock = () => {
                     const catOutCount = productsList.filter((p) => p.category === cat.slug && !p.inStock).length;
                     return (
                         <button
-                            key={cat.id}
+                            key={cat._id}
                             type="button"
                             className={`cat-tab-pill ${selectedCategory === cat.slug ? "active" : ""}`}
                             onClick={() => setSelectedCategory(cat.slug)}
@@ -298,7 +298,7 @@ const MenuStock = () => {
                                 </div>
 
                                 <div className="col-category">
-                                    <span className="cat-chip">{dish.categoryName || dish.category}</span>
+                                    <span className="cat-chip">{dish.categoryName || (dish.category && dish.category.title) || (typeof dish.category === "string" ? dish.category : "Unknown Category")}</span>
                                 </div>
 
                                 <div className="col-price">

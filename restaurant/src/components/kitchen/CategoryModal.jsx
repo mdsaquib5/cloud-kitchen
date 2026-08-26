@@ -68,7 +68,12 @@ const CategoryModal = ({ isOpen, onClose, onSave }) => {
                 </div>
                 <div className="modal-footer">
                     <button onClick={onClose} className="btn-secondary">Cancel</button>
-                    <button onClick={() => { onSave(formData); onClose(); }} className="btn-primary">Save</button>
+                    <button onClick={() => { 
+                        if(!formData.title.trim()) return toast.error("Please enter a title");
+                        if(!formData.image) return toast.error("Please upload an image first");
+                        onSave(formData); 
+                        onClose(); 
+                    }} className="btn-primary">Save</button>
                 </div>
             </div>
             
