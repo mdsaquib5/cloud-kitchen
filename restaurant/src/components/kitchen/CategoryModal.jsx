@@ -55,8 +55,15 @@ const CategoryModal = ({ isOpen, onClose, onSave }) => {
                         <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="form-input" rows="3"></textarea>
                     </div>
                     <div className="form-group">
-                        <label>Image URL</label>
-                        <input type="text" value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} className="form-input" placeholder="/choose1.png" />
+                        <label>Upload Image</label>
+                        <input type="file" accept="image/*" onChange={handleImageUpload} className="form-input" style={{ padding: '8px' }} />
+                        {isUploading && <span style={{ fontSize: '12px', color: '#3b82f6' }}>Uploading to Cloudflare R2...</span>}
+                        {formData.image && (
+                            <div style={{ marginTop: '10px' }}>
+                                <img src={formData.image} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }} />
+                                <p style={{ fontSize: '11px', color: '#666', marginTop: '4px', wordBreak: 'break-all' }}>{formData.image}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="modal-footer">
