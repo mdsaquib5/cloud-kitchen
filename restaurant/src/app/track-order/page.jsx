@@ -300,7 +300,7 @@ const TrackOrder = () => {
                                     <span>Delivery Partner Fee</span>
                                     <span>
                                         {orderMode === "delivery"
-                                            ? `₹₹{(activeOrder?.deliveryFee || 5.00).toFixed(2)}`
+                                            ? `₹${(activeOrder?.deliveryFee || 5.00).toFixed(2)}`
                                             : "FREE"}
                                     </span>
                                 </div>

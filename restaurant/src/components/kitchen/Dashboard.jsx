@@ -149,7 +149,7 @@ const Dashboard = () => {
                             qty: i.quantity,
                             price: i.price
                         })),
-                        total: o.totalAmount,
+                        total: (o.totals?.grandTotal || 0),
                         address: o.customer.address || "No address provided",
                         notes: o.items.map(i => i.cookingNote).filter(Boolean).join(", ")
                     };
@@ -169,7 +169,7 @@ const Dashboard = () => {
                 const today = new Date().setHours(0,0,0,0);
                 const todaysOrdersList = data.orders.filter(o => new Date(o.createdAt) >= today);
                 setTodaysOrders(todaysOrdersList.length);
-                const revenue = todaysOrdersList.reduce((acc, o) => acc + o.totalAmount, 0);
+                const revenue = todaysOrdersList.reduce((acc, o) => acc + (o.totals?.grandTotal || 0), 0);
                 setTodaysRevenue(revenue);
             }
         } catch (error) {

@@ -124,7 +124,7 @@ const History = () => {
                             paymentMode: o.paymentMethod === "cod" ? "CASH" : "ONLINE",
                             paymentStatus: o.paymentStatus === "completed" ? "PAID" : (o.status === "CANCELLED" ? "REFUNDED" : "PENDING"),
                             orderStatus: o.status,
-                            total: o.totalAmount,
+                            total: (o.totals?.grandTotal || 0),
                         };
                     });
                 

@@ -115,7 +115,7 @@ const Customers = () => {
 
                     // Update stats
                     customerMap[phone].totalOrders += 1;
-                    customerMap[phone].totalSpend += o.totalAmount;
+                    customerMap[phone].totalSpend += (o.totals?.grandTotal || 0);
                     
                     const orderDate = new Date(o.createdAt);
                     if (orderDate > customerMap[phone].lastOrderDate) {

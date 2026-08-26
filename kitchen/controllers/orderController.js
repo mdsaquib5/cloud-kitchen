@@ -58,8 +58,8 @@ export const getAllOrders = async (req, res, next) => {
 export const updateOrderStatus = async (req, res, next) => {
     try {
         const { status } = req.body;
-        const order = await Order.findOneAndUpdate(
-            { orderId: req.params.orderId },
+        const order = await Order.findByIdAndUpdate(
+            req.params.orderId,
             { status },
             { new: true }
         );

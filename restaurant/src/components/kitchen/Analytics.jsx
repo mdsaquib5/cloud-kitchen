@@ -56,7 +56,7 @@ const Analytics = () => {
 
                 data.orders.forEach(o => {
                     if (o.status !== "CANCELLED") {
-                        revenue += o.totalAmount;
+                        revenue += (o.totals?.grandTotal || 0);
                         
                         o.items.forEach(item => {
                             if (!itemTracker[item.title]) {

@@ -99,7 +99,7 @@ const Dispatch = () => {
                             customerName: o.customer.name,
                             customerPhone: o.customer.phone,
                             address: o.customer.address || "No Address Provided",
-                            orderValue: o.totalAmount,
+                            orderValue: (o.totals?.grandTotal || 0),
                             itemsCount: o.items.reduce((acc, item) => acc + item.quantity, 0),
                             status: o.status === "READY_FOR_PICKUP" ? "RIDER_ASSIGNED" : "OUT_FOR_DELIVERY",
                             provider: isDelivery ? "Shadowfax" : "Self-Pickup",
