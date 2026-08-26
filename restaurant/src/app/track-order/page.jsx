@@ -30,7 +30,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Order #${orderId} received & confirmed`,
+            desc: `Order #₹{orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -50,7 +50,7 @@ const TrackOrder = () => {
         {
             id: 3,
             title: "Delivered",
-            time: `Est. ${activeOrder?.eta || "20-30 Mins"}`,
+            time: `Est. ₹{activeOrder?.eta || "20-30 Mins"}`,
             desc: "Enjoy your hot, authentic delicious food",
             icon: <FiCheck size={18} />,
         },
@@ -61,7 +61,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Takeaway order #${orderId} received & confirmed`,
+            desc: `Takeaway order #₹{orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -74,7 +74,7 @@ const TrackOrder = () => {
         {
             id: 2,
             title: "Ready for Pickup",
-            time: `Slot: ${activeOrder?.pickupSlot || "15"} Mins`,
+            time: `Slot: ₹{activeOrder?.pickupSlot || "15"} Mins`,
             desc: "Your order is ready at the kitchen counter",
             icon: <FaStoreAlt size={16} />,
         },
@@ -92,7 +92,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Table #${activeOrder?.tableNo || "T-04"} order sent to kitchen`,
+            desc: `Table #₹{activeOrder?.tableNo || "T-04"} order sent to kitchen`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -112,8 +112,8 @@ const TrackOrder = () => {
         {
             id: 3,
             title: "Served at Table",
-            time: `Table #${activeOrder?.tableNo || "T-04"}`,
-            desc: `Served fresh to your table #${activeOrder?.tableNo || "T-04"}`,
+            time: `Table #₹{activeOrder?.tableNo || "T-04"}`,
+            desc: `Served fresh to your table #₹{activeOrder?.tableNo || "T-04"}`,
             icon: <FiCheck size={18} />,
         },
     ];
@@ -166,8 +166,8 @@ const TrackOrder = () => {
                                         {orderMode === "delivery"
                                             ? "Home Delivery"
                                             : orderMode === "takeaway"
-                                            ? `Takeaway (Pickup in ${activeOrder?.pickupSlot || 15}m)`
-                                            : `Dine-In (Table ${activeOrder?.tableNo || "04"})`}
+                                            ? `Takeaway (Pickup in ₹{activeOrder?.pickupSlot || 15}m)`
+                                            : `Dine-In (Table ₹{activeOrder?.tableNo || "04"})`}
                                     </span>
                                 </span>
                             </div>
@@ -184,7 +184,7 @@ const TrackOrder = () => {
                                     return (
                                         <div
                                             key={step.id}
-                                            className={`timeline-step-item ${
+                                            className={`timeline-step-item ₹{
                                                 isDone ? "step-done" : isCurrent ? "step-current" : "step-pending"
                                             }`}
                                         >
@@ -256,7 +256,7 @@ const TrackOrder = () => {
                                         ? "Flat 402, Royal Palms Residency, DLF Phase 3, Gurugram"
                                         : orderMode === "takeaway"
                                         ? "Your's Kitchen Counter, Sector 29 Cyber Hub, Gurugram"
-                                        : `Main Dining Hall, Table #${activeOrder?.tableNo || "04"} (Ground Floor)`}
+                                        : `Main Dining Hall, Table #₹{activeOrder?.tableNo || "04"} (Ground Floor)`}
                                 </p>
                             </div>
                         </div>
@@ -285,7 +285,7 @@ const TrackOrder = () => {
                                             </span>
                                         </div>
                                         <span className="track-item-price">
-                                            ${((item.unitPrice || item.rawPrice || 25) * item.quantity).toFixed(2)}
+                                            ₹{((item.unitPrice || 50) * item.quantity).toFixed(2)}
                                         </span>
                                     </div>
                                 ))}
@@ -294,34 +294,34 @@ const TrackOrder = () => {
                             <div className="track-price-breakdown">
                                 <div className="breakdown-row">
                                     <span>Item Total</span>
-                                    <span>${(activeOrder?.subtotal || 58.58).toFixed(2)}</span>
+                                    <span>₹{(activeOrder?.subtotal || 58.58).toFixed(2)}</span>
                                 </div>
                                 <div className="breakdown-row">
                                     <span>Delivery Partner Fee</span>
                                     <span>
                                         {orderMode === "delivery"
-                                            ? `$${(activeOrder?.deliveryFee || 5.00).toFixed(2)}`
+                                            ? `₹₹{(activeOrder?.deliveryFee || 5.00).toFixed(2)}`
                                             : "FREE"}
                                     </span>
                                 </div>
                                 <div className="breakdown-row">
                                     <span>Platform Fee</span>
-                                    <span>${(activeOrder?.platformFee || 2.00).toFixed(2)}</span>
+                                    <span>₹{(activeOrder?.platformFee || 2.00).toFixed(2)}</span>
                                 </div>
                                 {activeOrder?.discount > 0 && (
                                     <div className="breakdown-row">
                                         <span>Discount</span>
-                                        <span className="discount-val">-${activeOrder.discount.toFixed(2)}</span>
+                                        <span className="discount-val">-₹{activeOrder.discount.toFixed(2)}</span>
                                     </div>
                                 )}
                                 <div className="breakdown-row">
                                     <span>Taxes & GST (5%)</span>
-                                    <span>${(activeOrder?.tax || 2.92).toFixed(2)}</span>
+                                    <span>₹{(activeOrder?.tax || 2.92).toFixed(2)}</span>
                                 </div>
                                 <div className="breakdown-row total-row">
                                     <span>Total Amount Paid</span>
                                     <span className="grand-total-val">
-                                        ${(activeOrder?.grandTotal || 68.50).toFixed(2)}
+                                        ₹{(activeOrder?.grandTotal || 68.50).toFixed(2)}
                                     </span>
                                 </div>
                             </div>

@@ -14,6 +14,11 @@ const ProCard = ({ item, prod, onOpenModal }) => {
         }
     };
 
+    // Calculate price display
+    const priceText = product.portions && product.portions.length > 0 
+        ? `₹${product.portions[0].price}` 
+        : "₹50"; // default
+
     return (
         <div className="product-card" onClick={handleCardClick}>
             <button
@@ -27,13 +32,8 @@ const ProCard = ({ item, prod, onOpenModal }) => {
 
             <div className="product-item">
                 <div className="prod-holder">
-                    <Image
-                        src={product.image}
-                        width={280}
-                        height={280}
-                        alt={product.title}
-                        className="prod-img"
-                    />
+                    {/* Using standard img for external URLs to avoid config issues */}
+                    <Image src={product.image} alt={product.title} width={280} height={280} className="prod-img" style={{ borderRadius: "10px" }} />
                 </div>
             </div>
 
@@ -48,8 +48,7 @@ const ProCard = ({ item, prod, onOpenModal }) => {
                 </button>
 
                 <div className="pricing">
-                    <div className="discount-percent">{product.discount}</div>
-                    <div className="price">₹{product.price}</div>
+                    <div className="price">{priceText}</div>
                 </div>
 
                 <h3 className="prod-title">{product.title}</h3>

@@ -1,175 +1,36 @@
-"use client";
+import React, { Suspense } from "react";
+import FoodsClient from "./FoodsClient";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { FiSearch, FiSliders } from "react-icons/fi";
-import ProCard from "@/components/shared/ProCard";
-import ProductModal from "@/components/shared/ProductModal";
-import { CATEGORIES, PRODUCTS } from "@/constant/product";
+async function getMenuData() {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+    const [catRes, prodRes] = await Promise.all([
+      fetch(`${apiUrl}/menu/categories`, { cache: 'no-store' }),
+      fetch(`${apiUrl}/menu/foods`, { cache: 'no-store' })
+    ]);
 
-const FoodsContent = () => {
-    const searchParams = useSearchParams();
-    const categoryParam = searchParams.get("category");
+    let categories = { success: false, categories: [] };
+    let products = { success: false, foods: [] };
 
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState("default");
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    if (catRes.ok) categories = await catRes.json();
+    if (prodRes.ok) products = await prodRes.json();
 
-    useEffect(() => {
-        if (categoryParam) {
-            setSelectedCategory(categoryParam);
-        }
-    }, [categoryParam]);
-
-    const filteredList = PRODUCTS.filter((item) => {
-        const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-        const matchesSearch =
-            searchQuery === "" ||
-            item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.categoryName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.cuisine?.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return matchesCategory && matchesSearch;
-    }).sort((a, b) => {
-        if (sortBy === "price-low") return (a.rawPrice || 0) - (b.rawPrice || 0);
-        if (sortBy === "price-high") return (b.rawPrice || 0) - (a.rawPrice || 0);
-        if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
-        return 0;
-    });
-
-    const handleOpenModal = (prod) => {
-        setSelectedProduct(prod);
-        setIsModalOpen(true);
+    return {
+      categories: categories.success ? categories.categories : [],
+      products: products.success ? products.foods : []
     };
+  } catch (error) {
+    console.error("Error fetching menu data", error);
+    return { categories: [], products: [] };
+  }
+}
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedProduct(null);
-    };
+export default async function FoodsPage() {
+  const { categories, products } = await getMenuData();
 
-    return (
-        <div className="inner-wrapper foods-page-wrapper">
-            <div className="container">
-                <div className="foods-header-banner">
-                    <h1 className="foods-page-title">Explore Our Full Menu</h1>
-                    <p className="foods-page-subtitle">
-                        Fresh, tasty & made with love — Hot Momos, Sizzling Chaap, Chowmein, Rolls, Burgers & Special Combos.
-                    </p>
-                </div>
-
-                <div className="foods-control-bar">
-                    <div className="foods-search-box">
-                        <FiSearch size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search momos, chaap, chowmein, burger, rolls..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="foods-search-input"
-                        />
-                    </div>
-
-                    <div className="foods-filter-actions">
-                        <div className="sort-select-box">
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="foods-sort-select"
-                            >
-                                <option value="default">Default Sorting</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                                <option value="rating">Highest Rated</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="foods-category-pills-row">
-                    <button
-                        type="button"
-                        className={`cat-pill-btn ${selectedCategory === "all" ? "active" : ""}`}
-                        onClick={() => setSelectedCategory("all")}
-                    >
-                        <span>All Items</span>
-                        <span className="pill-count">{PRODUCTS.length}</span>
-                    </button>
-                    {CATEGORIES.map((cat) => {
-                        const count = PRODUCTS.filter((p) => p.category === cat.slug).length;
-                        return (
-                            <button
-                                key={cat.id}
-                                type="button"
-                                className={`cat-pill-btn ${selectedCategory === cat.slug ? "active" : ""}`}
-                                onClick={() => setSelectedCategory(cat.slug)}
-                            >
-                                <span>{cat.title}</span>
-                                {count > 0 && <span className="pill-count">{count}</span>}
-                            </button>
-                        );
-                    })}
-                </div>
-
-                <div className="foods-results-meta">
-                    <span className="results-count-text">
-                        Showing <strong>{filteredList.length}</strong> fresh dishes
-                    </span>
-                    {(selectedCategory !== "all" || searchQuery !== "") && (
-                        <button
-                            type="button"
-                            className="clear-filters-btn"
-                            onClick={() => {
-                                setSelectedCategory("all");
-                                setSearchQuery("");
-                                setSortBy("default");
-                            }}
-                        >
-                            Reset Filters
-                        </button>
-                    )}
-                </div>
-
-                {filteredList.length > 0 ? (
-                    <div className="products-grid foods-grid">
-                        {filteredList.map((prod) => (
-                            <ProCard key={prod.id} prod={prod} onOpenModal={handleOpenModal} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="no-foods-found">
-                        <h3>No dishes matched your criteria</h3>
-                        <p>Try clearing your search query or selecting another food category.</p>
-                        <button
-                            type="button"
-                            className="reset-search-btn"
-                            onClick={() => {
-                                setSelectedCategory("all");
-                                setSearchQuery("");
-                            }}
-                        >
-                            Show All Dishes
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            <ProductModal
-                product={selectedProduct}
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-            />
-        </div>
-    );
-};
-
-const Foods = () => {
-    return (
-        <Suspense fallback={<div>Loading menu...</div>}>
-            <FoodsContent />
-        </Suspense>
-    );
-};
-
-export default Foods;
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px', color: '#666' }}>Loading menu...</div>}>
+      <FoodsClient initialCategories={categories} initialProducts={products} />
+    </Suspense>
+  );
+}

@@ -5,12 +5,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import SectionTitle from "../layout/SectionTitle";
 import CategoryCard from "../shared/CategoryCard";
-import { CATEGORIES } from "@/constant/product";
 
 import "swiper/css";
 import "swiper/css/pagination";
 
-const Categories = () => {
+const Categories = ({ initialCategories = [] }) => {
+    if (initialCategories.length === 0) return null;
+
     return (
         <section>
             <div className="container">
@@ -49,8 +50,8 @@ const Categories = () => {
                         }}
                         className="categories-swiper"
                     >
-                        {CATEGORIES.map((item, index) => (
-                            <SwiperSlide key={index}>
+                        {initialCategories.map((item, index) => (
+                            <SwiperSlide key={item._id || index}>
                                 <CategoryCard item={item} />
                             </SwiperSlide>
                         ))}

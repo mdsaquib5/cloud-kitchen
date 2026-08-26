@@ -61,8 +61,61 @@ const mockStationTickets = [
 ];
 
 const Preparing = () => {
-    const [tickets, setTickets] = useState(mockStationTickets);
+
+    const [tickets, setTickets] = useState([]);
     const [selectedStation, setSelectedStation] = useState("all");
+    const [loading, setLoading] = useState(true);
+
+    const fetchOrders = async () => {
+        try {
+            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const data = await res.json();
+            if (data.success) {
+                // Filter orders that need preparation
+                const prepOrders = data.orders.filter(
+                    o => o.status === "PLACED" || o.status === "PREPARING"
+                ).map(o => {
+                    // Calculate elapsed time roughly (for demo)
+                    const placedTime = new Date(o.createdAt);
+                    const now = new Date();
+                    const diffMs = now - placedTime;
+                    const elapsedMinutes = Math.floor(diffMs / 60000);
+
+                    return {
+                        id: o._id,
+                        displayId: o._id.substring(o._id.length - 6).toUpperCase(),
+                        customerName: o.customer.name,
+                        orderType: o.orderType,
+                        elapsedMinutes: elapsedMinutes,
+                        targetMinutes: o.orderType === "delivery" ? 25 : 15,
+                        station: "Main Kitchen",
+                        urgent: elapsedMinutes > 15,
+                        notes: o.items.map(i => i.cookingNote).filter(Boolean).join(", "),
+                        items: o.items.map((item, idx) => ({
+                            id: `${o._id}-${idx}`,
+                            name: item.title,
+                            portion: item.portionLabel || "Standard",
+                            qty: item.quantity,
+                            done: false
+                        }))
+                    };
+                });
+                setTickets(prepOrders);
+            }
+        } catch (error) {
+            console.error("Failed to fetch prep orders", error);
+            toast.error("Failed to load live orders");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchOrders();
+        // Poll every 10 seconds for new orders
+        const interval = setInterval(fetchOrders, 10000);
+        return () => clearInterval(interval);
+    }, []);
 
     const toggleItemDone = (ticketId, itemId) => {
         setTickets((prev) =>
@@ -78,9 +131,28 @@ const Preparing = () => {
         );
     };
 
-    const markAllReady = (ticketId) => {
-        setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-        toast.success(`Order #${ticketId} fully cooked and moved to Ready!`);
+    const markAllReady = async (ticketId) => {
+        try {
+            const orderToUpdate = tickets.find(t => t.id === ticketId);
+            const newStatus = orderToUpdate?.orderType === "delivery" ? "OUT_FOR_DELIVERY" : "READY_FOR_PICKUP";
+
+            const res = await fetch(`http://localhost:4000/api/orders/admin/status/${ticketId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+                toast.success(`Order #${orderToUpdate.displayId} fully cooked and moved to Ready!`);
+            } else {
+                toast.error("Failed to update status");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Error updating order");
+        }
     };
 
     const filteredTickets = tickets.filter((t) => {
@@ -135,7 +207,7 @@ const Preparing = () => {
                         >
                             <div className="p-ticket-header">
                                 <div className="p-id-box">
-                                    <strong className="p-order-id">#{ticket.id}</strong>
+                                    <strong className="p-order-id">#{ticket.displayId}</strong>
                                     <span className="p-station-badge">{ticket.station}</span>
                                 </div>
 

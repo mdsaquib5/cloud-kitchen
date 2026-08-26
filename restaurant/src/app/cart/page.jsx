@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiShoppingBag } from "react-icons/fi";
+import { FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiShoppingBag, FiTruck, FiBriefcase } from "react-icons/fi";
 import EmptyState from "@/components/shared/EmptyState";
 import { useStore } from "@/store/useStore";
 
@@ -15,6 +15,8 @@ const Cart = () => {
     const removeFromCart = useStore((state) => state.removeFromCart);
     const clearCart = useStore((state) => state.clearCart);
     const getCartTotals = useStore((state) => state.getCartTotals);
+    const orderType = useStore((state) => state.orderType);
+    const setOrderType = useStore((state) => state.setOrderType);
 
     useEffect(() => {
         setMounted(true);
@@ -73,8 +75,8 @@ const Cart = () => {
                                     </thead>
                                     <tbody>
                                         {cart.map((item) => {
-                                            const itemKey = item.cartItemId || item.id;
-                                            const itemUnitPrice = item.unitPrice || item.rawPrice || 25;
+                                            const itemKey = item.cartItemId || item.id || item._id;
+                                            const itemUnitPrice = item.unitPrice || (item.portions && item.portions.length > 0 ? item.portions[0].price : 50);
                                             const subtotal = (itemUnitPrice * item.quantity).toFixed(2);
 
                                             return (
@@ -97,11 +99,21 @@ const Cart = () => {
                                                                         {item.portionLabel}
                                                                     </div>
                                                                 )}
+                                                                {item.addons && item.addons.length > 0 && (
+                                                                    <div className="cart-item-addons" style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                                                        + {item.addons.map(a => a.name).join(', ')}
+                                                                    </div>
+                                                                )}
+                                                                {item.cookingNote && (
+                                                                    <div className="cart-item-note" style={{ fontSize: '11px', color: '#ff7e67', fontStyle: 'italic', marginTop: '4px' }}>
+                                                                        Note: {item.cookingNote}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="td-price">
-                                                        <span className="cart-price-val">${itemUnitPrice.toFixed(2)}</span>
+                                                        <span className="cart-price-val">₹{itemUnitPrice.toFixed(2)}</span>
                                                     </td>
                                                     <td className="td-qty">
                                                         <div className="qty-control-pill">
@@ -125,7 +137,7 @@ const Cart = () => {
                                                         </div>
                                                     </td>
                                                     <td className="td-subtotal">
-                                                        <span className="cart-subtotal-val">${subtotal}</span>
+                                                        <span className="cart-subtotal-val">₹{subtotal}</span>
                                                     </td>
                                                     <td className="td-action">
                                                         <button
@@ -151,33 +163,35 @@ const Cart = () => {
                             <div className="summary-rows">
                                 <div className="summary-row">
                                     <span className="summary-label">Items Total ({cart.reduce((s, i) => s + i.quantity, 0)})</span>
-                                    <span className="summary-val">${totals.subtotal.toFixed(2)}</span>
+                                    <span className="summary-val">₹{totals.subtotal.toFixed(2)}</span>
                                 </div>
-                                <div className="summary-row">
-                                    <span className="summary-label">Delivery Fee</span>
-                                    <span className="summary-val">${totals.deliveryFee.toFixed(2)}</span>
-                                </div>
+                                {orderType === "delivery" && (
+                                    <div className="summary-row">
+                                        <span className="summary-label">Delivery Fee</span>
+                                        <span className="summary-val">₹{totals.deliveryFee.toFixed(2)}</span>
+                                    </div>
+                                )}
                                 <div className="summary-row">
                                     <span className="summary-label">Platform Fee</span>
-                                    <span className="summary-val">${totals.platformFee.toFixed(2)}</span>
+                                    <span className="summary-val">₹{totals.platformFee.toFixed(2)}</span>
                                 </div>
                                 {totals.discount > 0 && (
                                     <div className="summary-row">
                                         <span className="summary-label">Discount</span>
-                                        <span className="summary-val discount-val">-${totals.discount.toFixed(2)}</span>
+                                        <span className="summary-val discount-val">-₹{totals.discount.toFixed(2)}</span>
                                     </div>
                                 )}
                                 <div className="summary-row">
                                     <span className="summary-label">Taxes (GST 5%)</span>
-                                    <span className="summary-val">${totals.tax.toFixed(2)}</span>
+                                    <span className="summary-val">₹{totals.tax.toFixed(2)}</span>
                                 </div>
                             </div>
 
                             <div className="summary-divider"></div>
 
                             <div className="summary-total-row">
-                                <span className="total-label">Total</span>
-                                <span className="total-val">${totals.grandTotal.toFixed(2)}</span>
+                                <span className="total-label">Total Amount</span>
+                                <span className="total-val">₹{totals.grandTotal.toFixed(2)}</span>
                             </div>
 
                             <Link href="/checkout" className="checkout-btn">

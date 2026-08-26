@@ -41,39 +41,7 @@ export const useStore = create(
             appliedCoupon: null,
             discountAmount: 0,
 
-            activeOrder: {
-                id: "YK-84920",
-                orderType: "delivery",
-                items: [
-                    {
-                        id: "prod-1",
-                        title: "Special Handi Dum Biryani",
-                        image: "/cat-image.png",
-                        price: "$30.06",
-                        unitPrice: 30.06,
-                        quantity: 1,
-                        portionLabel: "Regular / Half",
-                    },
-                    {
-                        id: "prod-2",
-                        title: "Smoky Tandoori Chicken Tikka",
-                        image: "/choose1.png",
-                        price: "$28.52",
-                        unitPrice: 28.52,
-                        quantity: 1,
-                        portionLabel: "Regular / Half",
-                    },
-                ],
-                subtotal: 58.58,
-                deliveryFee: 5.00,
-                platformFee: 2.00,
-                tax: 2.92,
-                discount: 0,
-                grandTotal: 68.50,
-                status: "RIDER_ASSIGNED",
-                eta: "20-25 Mins",
-                placedAt: "12:30 PM",
-            },
+            activeOrder: null,
 
             setOrderType: (type) => set({ orderType: type }),
             setPickupSlot: (slot) => set({ pickupSlot: slot }),
@@ -91,13 +59,13 @@ export const useStore = create(
                     quantity = 1,
                 } = customOptions;
 
-                const basePrice = product.rawPrice || 25.00;
+                const basePrice = product.portions && product.portions.length > 0 ? product.portions[0].price : 50.00;
                 const addonsPrice = addons.reduce((sum, item) => sum + (item.price || 0), 0);
                 const itemUnitPrice = basePrice + portionExtra + addonsPrice;
-                const cartItemId = `${product.id}-${portion}-${addons.map((a) => a.id).sort().join("-")}`;
+                const cartItemId = `${product._id}-${portion}-${addons.map((a) => a.id || a._id || a.name).sort().join("-")}`;
 
                 set((state) => {
-                    const existingIndex = state.cart.findIndex((item) => (item.cartItemId || item.id) === cartItemId);
+                    const existingIndex = state.cart.findIndex((item) => (item.cartItemId || item._id) === cartItemId);
                     if (existingIndex > -1) {
                         const updatedCart = [...state.cart];
                         updatedCart[existingIndex].quantity += quantity;
@@ -128,14 +96,14 @@ export const useStore = create(
                 }
                 set((state) => ({
                     cart: state.cart.map((item) =>
-                        (item.cartItemId || item.id) === cartItemId ? { ...item, quantity: newQty } : item
+                        (item.cartItemId || item._id) === cartItemId ? { ...item, quantity: newQty } : item
                     ),
                 }));
             },
 
             removeFromCart: (cartItemId) => {
                 set((state) => ({
-                    cart: state.cart.filter((item) => (item.cartItemId || item.id) !== cartItemId),
+                    cart: state.cart.filter((item) => (item.cartItemId || item._id) !== cartItemId),
                 }));
             },
 
@@ -158,11 +126,11 @@ export const useStore = create(
 
             createOrder: (formData = {}) => {
                 const { cart, orderType, pickupSlot, tableNo, appliedCoupon } = get();
-                const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || item.rawPrice || 25) * item.quantity, 0);
+                const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || (item.portions && item.portions.length > 0 ? item.portions[0].price : 50)) * item.quantity, 0);
                 const deliveryFee = orderType === "delivery" ? 5.00 : 0.00;
                 const platformFee = 2.00;
                 const discount = appliedCoupon === "BIOFF10" ? subtotal * 0.1 : appliedCoupon === "BURG05" ? 5.00 : 0.00;
-                const tax = subtotal * 0.05;
+                const tax = subtotal * 0.05; // 5% GST
                 const grandTotal = Math.max(0, subtotal + deliveryFee + platformFee + tax - discount);
 
                 const newOrder = {
@@ -195,11 +163,11 @@ export const useStore = create(
 
             getCartTotals: () => {
                 const { cart, orderType, appliedCoupon } = get();
-                const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || item.rawPrice || 25) * item.quantity, 0);
+                const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || (item.portions && item.portions.length > 0 ? item.portions[0].price : 50)) * item.quantity, 0);
                 const deliveryFee = orderType === "delivery" ? 5.00 : 0.00;
                 const platformFee = 2.00;
                 const discount = appliedCoupon === "BIOFF10" ? subtotal * 0.1 : appliedCoupon === "BURG05" ? 5.00 : 0.00;
-                const tax = subtotal * 0.05;
+                const tax = subtotal * 0.05; // 5% GST
                 const grandTotal = Math.max(0, subtotal + deliveryFee + platformFee + tax - discount);
 
                 return {
