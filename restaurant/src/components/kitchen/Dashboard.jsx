@@ -116,19 +116,110 @@ const initialOrders = [
 ];
 
 const Dashboard = () => {
-    const [orders, setOrders] = useState(initialOrders);
+
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [todaysRevenue, setTodaysRevenue] = useState(0);
+    const [todaysOrders, setTodaysOrders] = useState(0);
+
+    const fetchOrders = async () => {
+        try {
+            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const data = await res.json();
+            if (data.success) {
+                // Map the backend orders to the KDS format
+                const kdsOrders = data.orders.map(o => {
+                    const placedTime = new Date(o.createdAt);
+                    const now = new Date();
+                    const diffMs = now - placedTime;
+                    const elapsedMinutes = Math.floor(diffMs / 60000);
+
+                    return {
+                        id: o._id.substring(o._id.length - 6).toUpperCase(),
+                        originalId: o._id,
+                        customerName: o.customer.name,
+                        phone: o.customer.phone,
+                        orderType: o.orderType || "delivery",
+                        orderTime: elapsedMinutes + "m ago",
+                        status: o.status, // PLACED, PREPARING, READY_FOR_PICKUP/OUT_FOR_DELIVERY, COMPLETED
+                        urgent: elapsedMinutes > 10 && o.status === "PLACED",
+                        items: o.items.map(i => ({
+                            name: i.title,
+                            portion: i.portionLabel || "Standard",
+                            qty: i.quantity,
+                            price: i.price
+                        })),
+                        total: o.totalAmount,
+                        address: o.customer.address || "No address provided",
+                        notes: o.items.map(i => i.cookingNote).filter(Boolean).join(", ")
+                    };
+                });
+                
+                // Keep only active orders for the board (ignore COMPLETED or CANCELLED)
+                const activeOrders = kdsOrders.filter(o => 
+                    o.status === "PLACED" || 
+                    o.status === "PREPARING" || 
+                    o.status === "READY_FOR_PICKUP" ||
+                    o.status === "OUT_FOR_DELIVERY"
+                );
+                
+                setOrders(activeOrders);
+
+                // Calculate today's stats
+                const today = new Date().setHours(0,0,0,0);
+                const todaysOrdersList = data.orders.filter(o => new Date(o.createdAt) >= today);
+                setTodaysOrders(todaysOrdersList.length);
+                const revenue = todaysOrdersList.reduce((acc, o) => acc + o.totalAmount, 0);
+                setTodaysRevenue(revenue);
+            }
+        } catch (error) {
+            console.error("Failed to fetch dashboard orders", error);
+            toast.error("Failed to load live orders");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [autoPrint, setAutoPrint] = useState(true);
 
-    const updateOrderStatus = (orderId, nextStatus) => {
-        setOrders(
-            orders.map((order) =>
-                order.id === orderId ? { ...order, status: nextStatus } : order
-            )
-        );
-        toast.success(`Order #${orderId} moved to ${nextStatus}!`);
+    const updateOrderStatus = async (orderId, nextStatus) => {
+        try {
+            const orderToUpdate = orders.find(o => o.id === orderId);
+            if (!orderToUpdate) return;
+            
+            // Adjust status mapping for backend
+            let backendStatus = nextStatus;
+            if (nextStatus === "READY") {
+                backendStatus = orderToUpdate.orderType === "takeaway" ? "READY_FOR_PICKUP" : "OUT_FOR_DELIVERY";
+            } else if (nextStatus === "COMPLETED") {
+                backendStatus = "DELIVERED";
+            }
+            
+            const res = await fetch(`http://localhost:4000/api/orders/admin/status/${orderToUpdate.originalId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: backendStatus })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                fetchOrders();
+                toast.success(`Order #${orderId} moved to ${nextStatus}!`);
+            } else {
+                toast.error("Failed to update status");
+            }
+        } catch (error) {
+            toast.error("Error updating order status");
+        }
     };
 
     const handlePrintKOT = (order) => {
@@ -150,7 +241,7 @@ const Dashboard = () => {
 
     const placedCount = orders.filter((o) => o.status === "PLACED").length;
     const prepCount = orders.filter((o) => o.status === "PREPARING").length;
-    const readyCount = orders.filter((o) => o.status === "READY").length;
+    const readyCount = orders.filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY").length;
 
     return (
         <div className="kds-screen">
@@ -423,12 +514,12 @@ const Dashboard = () => {
                             <span className="col-indicator ready"></span>
                             <h3>READY FOR DISPATCH</h3>
                         </div>
-                        <span className="col-count">{filteredOrders.filter((o) => o.status === "READY").length}</span>
+                        <span className="col-count">{filteredOrders.filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY").length}</span>
                     </div>
 
                     <div className="col-tickets-flow">
                         {filteredOrders
-                            .filter((o) => o.status === "READY")
+                            .filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY")
                             .map((order) => (
                                 <div key={order.id} className="kds-ticket ready-ticket">
                                     <div className="ticket-header">
@@ -489,11 +580,11 @@ const Dashboard = () => {
             <div className="kds-bottom-bar">
                 <div className="bottom-stat">
                     <span className="b-label">Today's Revenue:</span>
-                    <strong className="b-val">₹4,890</strong>
+                    <strong className="b-val">₹{todaysRevenue}</strong>
                 </div>
                 <div className="bottom-stat">
                     <span className="b-label">Total Orders Today:</span>
-                    <strong className="b-val">28 Orders</strong>
+                    <strong className="b-val">{todaysOrders} Orders</strong>
                 </div>
                 <div className="bottom-stat">
                     <span className="b-label">Active 3PL Fleet:</span>

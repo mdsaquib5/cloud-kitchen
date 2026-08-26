@@ -39,14 +39,19 @@ const Login = () => {
                     router.push("/");
                 }
             } else {
-                const res = await api.post("/user/login", {
+                const endpoint = formData.email === "admin@yourskitchen.com" ? "/user/admin-login" : "/user/login";
+                const res = await api.post(endpoint, {
                     email: formData.email,
                     password: formData.password
                 });
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
                     toast.success("Logged in successfully!");
-                    router.push("/");
+                    if (res.data.user?.role === "admin" || res.data.user?.name === "Admin") {
+                        router.push("/kitchen/preparing");
+                    } else {
+                        router.push("/");
+                    }
                 }
             }
         } catch (error) {

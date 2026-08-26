@@ -91,3 +91,21 @@ export const getProfile = async (req, res, next) => {
         res.status(200).json({ success: true, user: req.user });
     } catch (error) { next(error); }
 };
+
+export const adminLogin = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Hardcoded admin credentials for MVP
+        if (email === "admin@yourskitchen.com" && password === "password123") {
+            const token = jwt.sign(
+                { id: "admin_id_123", role: "admin", name: "Admin" }, 
+                process.env.ACCESS_TOKEN_SECRET || "fallback_secret_for_mvp", 
+                { expiresIn: "1d" }
+            );
+            return res.status(200).json({ success: true, message: "Admin login successful", accessToken: token, user: { name: "Admin", email } });
+        }
+        
+        return res.status(401).json({ success: false, message: "Invalid admin credentials." });
+    } catch (error) { next(error); }
+};
