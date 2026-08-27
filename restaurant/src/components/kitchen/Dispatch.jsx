@@ -177,24 +177,7 @@ const Dispatch = () => {
                     <p>Automated multi-provider rider waterfall (Shadowfax, Borzo, Porter &amp; Shiprocket).</p>
                 </div>
 
-                <div className="dispatch-kpi-strip">
-                    <div className="kpi-box active-riders">
-                        <FaMotorcycle size={18} />
-                        <div className="kpi-meta">
-                            <span className="kpi-num">3</span>
-                            <span className="kpi-text">Active Dispatches</span>
-                        </div>
-                    </div>
-                    <div className="kpi-box waterfall-rate">
-                        <FiShield size={18} />
-                        <div className="kpi-meta">
-                            <span className="kpi-num">98.4%</span>
-                            <span className="kpi-text">3PL SLA Match</span>
-                        </div>
-                    </div>
                 </div>
-            </div>
-
             <div className="dispatch-controls-bar">
                 <div className="dispatch-search-field">
                     <FiSearch className="search-ico" size={16} />

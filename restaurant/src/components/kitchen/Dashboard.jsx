@@ -13,8 +13,7 @@ import {
     FiChevronRight,
     FiPackage,
     FiAlertCircle,
-    FiWifi,
-} from "react-icons/fi";
+    FiWifi, FiBell} from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils, FaCircle } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -257,52 +256,42 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="kds-metrics-strip">
-                    <div className="metric-chip new">
-                        <span className="m-label">New Orders</span>
-                        <span className="m-val">{placedCount}</span>
-                    </div>
-                    <div className="metric-chip prep">
-                        <span className="m-label">In Kitchen</span>
-                        <span className="m-val">{prepCount}</span>
-                    </div>
-                    <div className="metric-chip ready">
-                        <span className="m-label">Ready for Pickup</span>
-                        <span className="m-val">{readyCount}</span>
-                    </div>
-                    <div className="metric-chip avg">
-                        <span className="m-label">Avg Prep Time</span>
-                        <span className="m-val">11.4m</span>
-                    </div>
-                </div>
-
                 <div className="kds-controls-cluster">
                     <button
                         type="button"
-                        className={`kds-pill-btn ${soundEnabled ? "active" : ""}`}
                         onClick={() => setSoundEnabled(!soundEnabled)}
+                        style={{
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            padding: '0',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            background: soundEnabled ? '#ffe4e6' : '#f3f4f6',
+                            color: soundEnabled ? '#f01543' : '#9ca3af',
+                            border: soundEnabled ? '1px solid #fecdd3' : '1px solid #e5e7eb',
+                            boxShadow: soundEnabled ? '0 2px 8px rgba(240, 21, 67, 0.25)' : 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                        }}
+                        title={soundEnabled ? "Sound ON" : "Sound OFF"}
                     >
-                        {soundEnabled ? <FiVolume2 size={15} /> : <FiVolumeX size={15} />}
-                        <span>{soundEnabled ? "Sound ON" : "Muted"}</span>
+                        {soundEnabled ? <FiBell size={20} style={{ animation: 'shake 2s infinite ease-in-out' }} /> : <FiVolumeX size={20} />}
                     </button>
+                    
+                    <style>{`
+                        @keyframes shake {
+                            0%, 100% { transform: rotate(0deg); }
+                            10% { transform: rotate(15deg); }
+                            20% { transform: rotate(-10deg); }
+                            30% { transform: rotate(5deg); }
+                            40% { transform: rotate(-5deg); }
+                            50% { transform: rotate(0deg); }
+                        }
+                    `}</style>
 
-                    <button
-                        type="button"
-                        className={`kds-pill-btn ${autoPrint ? "active" : ""}`}
-                        onClick={() => setAutoPrint(!autoPrint)}
-                    >
-                        <FiPrinter size={15} />
-                        <span>Auto-Print ({autoPrint ? "ON" : "OFF"})</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        className="kds-refresh-btn"
-                        onClick={() => toast.info("Orders refreshed from server")}
-                        aria-label="Refresh orders"
-                    >
-                        <FiRefreshCw size={15} />
-                    </button>
+                    
                 </div>
             </div>
 

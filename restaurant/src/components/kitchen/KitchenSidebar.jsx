@@ -27,14 +27,7 @@ const KitchenSidebar = () => {
             badge: "3",
             badgeType: "hot",
         },
-        {
-            id: "preparing",
-            label: "Kitchen Station",
-            href: "/kitchen/preparing",
-            icon: <FiShoppingBag size={19} />,
-            badge: "2",
-            badgeType: "warm",
-        },
+        
         {
             id: "dispatch",
             label: "3PL & Dispatch",

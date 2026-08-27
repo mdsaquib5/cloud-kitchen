@@ -146,6 +146,8 @@ const History = () => {
     }, []);
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [typeFilter, setTypeFilter] = useState("all");
 
@@ -176,6 +178,14 @@ const History = () => {
     const totalRevenue = ordersList
         .filter((o) => o.paymentStatus === "PAID")
         .reduce((sum, o) => sum + o.total, 0);
+
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <div className="history-screen">
@@ -208,7 +218,7 @@ const History = () => {
                         type="text"
                         placeholder="Search by Order #ID, Customer Name, Phone, UPI..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                         className="history-input"
                     />
                 </div>
@@ -287,7 +297,7 @@ const History = () => {
 
                 <div className="history-items-rows">
                     {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order) => (
+                        currentOrders.map((order) => (
                             <div key={order.id} className="history-item-row">
                                 <div className="col-id">
                                     <span className="order-id-tag">#{order.id}</span>
@@ -352,6 +362,30 @@ const History = () => {
                     )}
                 </div>
             </div>
+            
+            {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '20px', padding: '15px' }}>
+                    <button 
+                        onClick={() => paginate(currentPage - 1)} 
+                        disabled={currentPage === 1}
+                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === 1 ? '#f3f4f6' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
+                    >
+                        Previous
+                    </button>
+                    
+                    <span style={{ fontSize: '0.9rem', color: '#4b5563', fontWeight: '500' }}>
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    
+                    <button 
+                        onClick={() => paginate(currentPage + 1)} 
+                        disabled={currentPage === totalPages}
+                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === totalPages ? '#f3f4f6' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontWeight: '500' }}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

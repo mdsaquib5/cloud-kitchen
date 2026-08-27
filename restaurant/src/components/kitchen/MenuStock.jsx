@@ -192,22 +192,7 @@ const MenuStock = () => {
                     >
                         <FiPlus size={18} /> Add New Dish
                     </button>
-                    <div className="stock-kpi-row" style={{margin: 0}}>
-                </div>
-                    <div className="stock-kpi in-stock">
-                        <FiCheckCircle size={18} />
-                        <div className="kpi-info">
-                            <span className="kpi-val">{totalInStock}</span>
-                            <span className="kpi-lbl">Active Dishes</span>
-                        </div>
-                    </div>
-                    <div className="stock-kpi out-stock">
-                        <FiXCircle size={18} />
-                        <div className="kpi-info">
-                            <span className="kpi-val">{totalOutOfStock}</span>
-                            <span className="kpi-lbl">86&apos;d (Out of Stock)</span>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 
