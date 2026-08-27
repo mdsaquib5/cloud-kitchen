@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,6 +17,29 @@ import Logo from "../shared/Logo";
 
 const KitchenSidebar = () => {
     const pathname = usePathname();
+    const [liveOrdersCount, setLiveOrdersCount] = useState(0);
+
+    useEffect(() => {
+        const fetchLiveCount = async () => {
+            try {
+                const res = await fetch("http://localhost:4000/api/orders/admin/all");
+                const data = await res.json();
+                if (data.success && data.orders) {
+                    // Count only active orders
+                    const count = data.orders.filter(
+                        (o) => o.status !== "DELIVERED" && o.status !== "CANCELLED" && o.status !== "COMPLETED"
+                    ).length;
+                    setLiveOrdersCount(count);
+                }
+            } catch (error) {
+                console.error("Failed to fetch live order count:", error);
+            }
+        };
+
+        fetchLiveCount();
+        const interval = setInterval(fetchLiveCount, 10000); // Poll every 10 seconds
+        return () => clearInterval(interval);
+    }, []);
 
     const mainNav = [
         {
@@ -24,7 +47,7 @@ const KitchenSidebar = () => {
             label: "Live KDS Orders",
             href: "/kitchen",
             icon: <FiGrid size={19} />,
-            badge: "3",
+            badge: liveOrdersCount > 0 ? liveOrdersCount.toString() : null,
             badgeType: "hot",
         },
         
