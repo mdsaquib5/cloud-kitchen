@@ -32,14 +32,14 @@ const TrackOrder = () => {
 
     // Real-time tracking poll
     useEffect(() => {
-        if (!isMounted || !activeOrder || !activeOrder._id) return;
+        if (!isMounted || !activeOrder || !(activeOrder.orderId || activeOrder.id)) return;
         
         // Stop polling if delivered or cancelled
         if (activeOrder.status === "DELIVERED" || activeOrder.status === "CANCELLED") return;
 
         const fetchOrderLive = async () => {
             try {
-                const res = await fetch(`http://localhost:4000/api/orders/track/${activeOrder._id}`);
+                const res = await fetch(`http://localhost:4000/api/orders/track/${activeOrder.orderId || activeOrder.id}`);
                 const data = await res.json();
                 if (data.success && data.order) {
                     const latest = data.order;
