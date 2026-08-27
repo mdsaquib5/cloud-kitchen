@@ -406,9 +406,25 @@ const Dashboard = () => {
                                                     
                                                 </div>
                                                 {item.addons && item.addons.length > 0 && (
-                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
-                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
-                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px', paddingLeft: '28px', paddingRight: '8px' }}>
+                                                          {item.addons.map((a, i) => (
+                                                              <div key={i} style={{ 
+                                                                  display: 'flex', 
+                                                                  alignItems: 'center', 
+                                                                  border: '1px solid #e2e8f0', 
+                                                                  borderRadius: '4px', 
+                                                                  padding: '4px 8px', 
+                                                                  backgroundColor: '#f8fafc',
+                                                                  fontSize: '11px',
+                                                                  color: '#0f172a'
+                                                              }}>
+                                                                  <div style={{ width: '12px', height: '12px', border: '1px solid #cbd5e1', borderRadius: '2px', marginRight: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+                                                                    <div style={{ width: '6px', height: '6px', backgroundColor: '#3b82f6', borderRadius: '1px' }}></div>
+                                                                  </div>
+                                                                  <span style={{ fontWeight: '600' }}>{a.name}</span>
+                                                              </div>
+                                                          ))}
+                                                      </div>
                                                 )}
                                             </div>
                                         ))}
@@ -482,9 +498,25 @@ const Dashboard = () => {
                                                     </div>
                                                 </div>
                                                 {item.addons && item.addons.length > 0 && (
-                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
-                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
-                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px', paddingLeft: '28px', paddingRight: '8px' }}>
+                                                          {item.addons.map((a, i) => (
+                                                              <div key={i} style={{ 
+                                                                  display: 'flex', 
+                                                                  alignItems: 'center', 
+                                                                  border: '1px solid #e2e8f0', 
+                                                                  borderRadius: '4px', 
+                                                                  padding: '4px 8px', 
+                                                                  backgroundColor: '#f8fafc',
+                                                                  fontSize: '11px',
+                                                                  color: '#0f172a'
+                                                              }}>
+                                                                  <div style={{ width: '12px', height: '12px', border: '1px solid #cbd5e1', borderRadius: '2px', marginRight: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+                                                                    <div style={{ width: '6px', height: '6px', backgroundColor: '#3b82f6', borderRadius: '1px' }}></div>
+                                                                  </div>
+                                                                  <span style={{ fontWeight: '600' }}>{a.name}</span>
+                                                              </div>
+                                                          ))}
+                                                      </div>
                                                 )}
                                             </div>
                                         ))}
@@ -564,9 +596,25 @@ const Dashboard = () => {
                                                     </div>
                                                 </div>
                                                 {item.addons && item.addons.length > 0 && (
-                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
-                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
-                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px', paddingLeft: '28px', paddingRight: '8px' }}>
+                                                          {item.addons.map((a, i) => (
+                                                              <div key={i} style={{ 
+                                                                  display: 'flex', 
+                                                                  alignItems: 'center', 
+                                                                  border: '1px solid #e2e8f0', 
+                                                                  borderRadius: '4px', 
+                                                                  padding: '4px 8px', 
+                                                                  backgroundColor: '#f8fafc',
+                                                                  fontSize: '11px',
+                                                                  color: '#0f172a'
+                                                              }}>
+                                                                  <div style={{ width: '12px', height: '12px', border: '1px solid #cbd5e1', borderRadius: '2px', marginRight: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+                                                                    <div style={{ width: '6px', height: '6px', backgroundColor: '#3b82f6', borderRadius: '1px' }}></div>
+                                                                  </div>
+                                                                  <span style={{ fontWeight: '600' }}>{a.name}</span>
+                                                              </div>
+                                                          ))}
+                                                      </div>
                                                 )}
                                             </div>
                                         ))}

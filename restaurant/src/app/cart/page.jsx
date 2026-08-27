@@ -6,8 +6,12 @@ import Link from "next/link";
 import { FiTrash2, FiPlus, FiMinus, FiArrowLeft, FiShoppingBag, FiTruck, FiBriefcase } from "react-icons/fi";
 import EmptyState from "@/components/shared/EmptyState";
 import { useStore } from "@/store/useStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const Cart = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
     const cart = useStore((state) => state.cart);
@@ -22,7 +26,15 @@ const Cart = () => {
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        if (mounted && !isAuthenticated) {
+            router.push('/login');
+        }
+    }, [mounted, isAuthenticated, router]);
+
     const totals = getCartTotals();
+
+    if (!isAuthenticated) return null;
 
     if (!mounted) {
         return (

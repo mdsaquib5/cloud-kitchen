@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import {
     FiUser,
     FiMapPin,
@@ -24,9 +24,12 @@ import {
 import { FaMotorcycle, FaStoreAlt, FaUtensils, FaStar } from "react-icons/fa";
 import { toast } from "sonner";
 import { useStore } from "@/store/useStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 import api from "@/services/api";
 
 const Checkout = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [firstName, setFirstName] = useState("");
@@ -61,6 +64,12 @@ const Checkout = () => {
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (mounted && !isAuthenticated) {
+            router.push('/login');
+        }
+    }, [mounted, isAuthenticated, router]);
 
     const totals = getCartTotals();
 
@@ -124,7 +133,7 @@ const Checkout = () => {
             if (res.data.success) {
                 toast.success(`Order #${res.data.order.orderId} Placed Successfully! 🎉 Tracking live now.`);
                 clearCart();
-                useStore.setState({ activeOrder: res.data.order });
+                useStore.getState().addActiveOrder(res.data.order);
                 addPastOrder(res.data.order);
                 router.push(`/track-order?id=${res.data.order.orderId}`);
             }
@@ -136,6 +145,8 @@ const Checkout = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (!isAuthenticated) return null;
 
     if (!mounted) {
         return <div style={{padding: '50px', textAlign: 'center'}}>Loading...</div>;

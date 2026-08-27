@@ -15,10 +15,14 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const TrackOrder = () => {
-    const activeOrder = useStore((state) => state.activeOrder);
-    const setActiveOrder = useStore((state) => state.setActiveOrder);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const router = useRouter();
+    const activeOrders = useStore((state) => state.activeOrders || []);
+    const updateActiveOrder = useStore((state) => state.updateActiveOrder);
     
     // Fix hydration flicker
     const [isMounted, setIsMounted] = useState(false);
@@ -29,27 +33,28 @@ const TrackOrder = () => {
 
     // Real-time tracking poll
     useEffect(() => {
-        if (!isMounted || !activeOrder || !(activeOrder.orderId || activeOrder.id)) return;
+        if (!isMounted || activeOrders.length === 0) return;
         
-        // Stop polling if delivered or cancelled
-        if (activeOrder.status === "DELIVERED" || activeOrder.status === "CANCELLED") return;
-
         const fetchOrderLive = async () => {
             try {
-                const idToFetch = activeOrder.orderId || activeOrder.id;
-                const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
-                const data = await res.json();
-                if (data.success && data.order) {
-                    const latest = data.order;
-                    const mergedOrder = {
-                        ...activeOrder,
-                        status: latest.status,
-                        rider: latest.rider || activeOrder.rider,
-                        eta: latest.eta || activeOrder.eta,
-                        totals: latest.totals || activeOrder.totals
-                    };
-                    setActiveOrder(mergedOrder);
-                }
+                await Promise.all(activeOrders.map(async (order) => {
+                    if (order.status === "DELIVERED" || order.status === "CANCELLED") return;
+                    
+                    const idToFetch = order.orderId || order.id;
+                    if (!idToFetch) return;
+                    
+                    const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
+                    const data = await res.json();
+                    if (data.success && data.order) {
+                        const latest = data.order;
+                        updateActiveOrder(idToFetch, {
+                            status: latest.status,
+                            rider: latest.rider || order.rider,
+                            eta: latest.eta || order.eta,
+                            totals: latest.totals || order.totals
+                        });
+                    }
+                }));
             } catch (error) {
                 console.error("Live tracking error:", error);
             }
@@ -57,7 +62,7 @@ const TrackOrder = () => {
 
         const intervalId = setInterval(fetchOrderLive, 10000);
         return () => clearInterval(intervalId);
-    }, [isMounted, activeOrder, setActiveOrder]);
+    }, [isMounted, activeOrders, updateActiveOrder]);
 
     if (!isMounted) {
         return (
@@ -68,7 +73,7 @@ const TrackOrder = () => {
         );
     }
 
-    if (!activeOrder) {
+    if (activeOrders.length === 0) {
         return (
             <div className="inner-wrapper track-page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
                 <div style={{ textAlign: 'center' }}>
@@ -83,118 +88,6 @@ const TrackOrder = () => {
         );
     }
 
-    const orderMode = activeOrder.orderType || "delivery";
-    const orderedItems = activeOrder.items || [];
-    const orderId = activeOrder.orderId || activeOrder.id || activeOrder._id?.substring(activeOrder._id.length - 6).toUpperCase();
-
-    // Determine current step based on order status
-    let stepIndex = 0;
-    const status = activeOrder.status || "PENDING";
-    if (status === "CONFIRMED") stepIndex = 0;
-    else if (status === "PREPARING") stepIndex = 1;
-    else if (status === "READY_FOR_PICKUP" || status === "OUT_FOR_DELIVERY") stepIndex = 2;
-    else if (status === "DELIVERED") stepIndex = 3;
-
-    const deliverySteps = [
-        {
-            id: 0,
-            title: "Order Placed",
-            time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            desc: `Order #${orderId} received & confirmed`,
-            icon: <FiCheckCircle size={18} />,
-        },
-        {
-            id: 1,
-            title: "Kitchen Preparing",
-            time: "In Progress",
-            desc: "Chef is handcrafting your gourmet meal",
-            icon: <FaUtensils size={16} />,
-        },
-        {
-            id: 2,
-            title: "Rider Assigned & On the Way",
-            time: "Live Dispatch",
-            desc: activeOrder.rider ? `Rider ${activeOrder.rider.name} is arriving` : "Assigning rider...",
-            icon: <FaMotorcycle size={17} />,
-        },
-        {
-            id: 3,
-            title: "Delivered",
-            time: activeOrder.eta || "Est. Time",
-            desc: "Enjoy your hot, authentic delicious food",
-            icon: <FiCheck size={18} />,
-        },
-    ];
-
-    const takeawaySteps = [
-        {
-            id: 0,
-            title: "Order Placed",
-            time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            desc: `Takeaway order #${orderId} received & confirmed`,
-            icon: <FiCheckCircle size={18} />,
-        },
-        {
-            id: 1,
-            title: "Kitchen Preparing",
-            time: "In Progress",
-            desc: "Chef is packing your meal hot & fresh",
-            icon: <FaUtensils size={16} />,
-        },
-        {
-            id: 2,
-            title: "Ready for Pickup",
-            time: `Slot: ${activeOrder.pickupSlot || "15"} Mins`,
-            desc: "Your order is ready at the kitchen counter",
-            icon: <FaStoreAlt size={16} />,
-        },
-        {
-            id: 3,
-            title: "Picked Up",
-            time: "Est. Handover",
-            desc: "Order handed over to customer",
-            icon: <FiCheck size={18} />,
-        },
-    ];
-
-    const dineInSteps = [
-        {
-            id: 0,
-            title: "Order Placed",
-            time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            desc: `Table #${activeOrder.tableNo || "T-04"} order sent to kitchen`,
-            icon: <FiCheckCircle size={18} />,
-        },
-        {
-            id: 1,
-            title: "Kitchen Cooking",
-            time: "In Progress",
-            desc: "Fresh sizzlers & gravies on the flame",
-            icon: <FaUtensils size={16} />,
-        },
-        {
-            id: 2,
-            title: "Food Ready",
-            time: "Plating Done",
-            desc: "Plating and garnishing completed",
-            icon: <FaUtensils size={16} />,
-        },
-        {
-            id: 3,
-            title: "Served at Table",
-            time: `Table #${activeOrder.tableNo || "T-04"}`,
-            desc: `Served fresh to your table #${activeOrder.tableNo || "T-04"}`,
-            icon: <FiCheck size={18} />,
-        },
-    ];
-
-    const activeSteps =
-        orderMode === "delivery"
-            ? deliverySteps
-            : orderMode === "takeaway"
-            ? takeawaySteps
-            : dineInSteps;
-
     return (
         <div className="inner-wrapper track-page-wrapper">
             <div className="container">
@@ -204,6 +97,44 @@ const TrackOrder = () => {
                         <span>Continue Ordering</span>
                     </Link>
                 </div>
+                
+                {activeOrders.map((activeOrder, index) => {
+                    const orderMode = activeOrder.orderType || "delivery";
+                    const orderedItems = activeOrder.items || [];
+                    const orderId = activeOrder.orderId || activeOrder.id || activeOrder._id?.substring(activeOrder._id.length - 6).toUpperCase();
+
+                    let stepIndex = 0;
+                    const status = activeOrder.status || "PENDING";
+                    if (status === "CONFIRMED") stepIndex = 0;
+                    else if (status === "PREPARING") stepIndex = 1;
+                    else if (status === "READY_FOR_PICKUP" || status === "OUT_FOR_DELIVERY") stepIndex = 2;
+                    else if (status === "DELIVERED") stepIndex = 3;
+
+                    const deliverySteps = [
+                        { id: 0, title: "Order Placed", time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), desc: `Order #${orderId} received & confirmed`, icon: <FiCheckCircle size={18} /> },
+                        { id: 1, title: "Kitchen Preparing", time: "In Progress", desc: "Chef is handcrafting your gourmet meal", icon: <FaUtensils size={16} /> },
+                        { id: 2, title: "Rider Assigned & On the Way", time: "Live Dispatch", desc: activeOrder.rider ? `Rider ${activeOrder.rider.name} is arriving` : "Assigning rider...", icon: <FaMotorcycle size={17} /> },
+                        { id: 3, title: "Delivered", time: activeOrder.eta || "Est. Time", desc: "Enjoy your hot, authentic delicious food", icon: <FiCheck size={18} /> },
+                    ];
+
+                    const takeawaySteps = [
+                        { id: 0, title: "Order Placed", time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), desc: `Takeaway order #${orderId} received & confirmed`, icon: <FiCheckCircle size={18} /> },
+                        { id: 1, title: "Kitchen Preparing", time: "In Progress", desc: "Chef is packing your meal hot & fresh", icon: <FaUtensils size={16} /> },
+                        { id: 2, title: "Ready for Pickup", time: `Slot: ${activeOrder.pickupSlot || "15"} Mins`, desc: "Your order is ready at the kitchen counter", icon: <FaStoreAlt size={16} /> },
+                        { id: 3, title: "Picked Up", time: "Est. Handover", desc: "Order handed over to customer", icon: <FiCheck size={18} /> },
+                    ];
+
+                    const dineInSteps = [
+                        { id: 0, title: "Order Placed", time: activeOrder.placedAt || new Date(activeOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), desc: `Table #${activeOrder.tableNo || "T-04"} order sent to kitchen`, icon: <FiCheckCircle size={18} /> },
+                        { id: 1, title: "Kitchen Cooking", time: "In Progress", desc: "Fresh sizzlers & gravies on the flame", icon: <FaUtensils size={16} /> },
+                        { id: 2, title: "Food Ready", time: "Plating Done", desc: "Plating and garnishing completed", icon: <FaUtensils size={16} /> },
+                        { id: 3, title: "Served at Table", time: `Table #${activeOrder.tableNo || "T-04"}`, desc: `Served fresh to your table #${activeOrder.tableNo || "T-04"}`, icon: <FiCheck size={18} /> },
+                    ];
+
+                    const activeSteps = orderMode === "delivery" ? deliverySteps : orderMode === "takeaway" ? takeawaySteps : dineInSteps;
+
+                    return (
+                        <div key={orderId || index} style={{ marginBottom: '40px', paddingBottom: '40px', borderBottom: index < activeOrders.length - 1 ? '2px dashed #e2e8f0' : 'none' }}>
 
                 <div className="track-layout-grid">
                     <div className="track-main-col">
@@ -401,6 +332,8 @@ const TrackOrder = () => {
                         </div>
                     </div>
                 </div>
+                    );
+                })}
             </div>
         </div>
     );

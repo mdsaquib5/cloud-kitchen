@@ -44,8 +44,11 @@ export const useStore = create(
             pastOrders: [],
             addPastOrder: (order) => set((state) => ({ pastOrders: [order, ...(state.pastOrders || [])] })),
 
-            activeOrder: null,
-            setActiveOrder: (order) => set({ activeOrder: order }),
+            activeOrders: [],
+            addActiveOrder: (order) => set((state) => ({ activeOrders: [...(state.activeOrders || []), order] })),
+            updateActiveOrder: (orderId, latestData) => set((state) => ({
+                activeOrders: (state.activeOrders || []).map(o => (o.id === orderId || o.orderId === orderId) ? { ...o, ...latestData } : o)
+            })),
 
             setOrderType: (type) => set({ orderType: type }),
             setPickupSlot: (slot) => set({ pickupSlot: slot }),
@@ -155,12 +158,12 @@ export const useStore = create(
                     placedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                 };
 
-                set({
-                    activeOrder: newOrder,
+                set((state) => ({
+                    activeOrders: [...(state.activeOrders || []), newOrder],
                     cart: [],
                     appliedCoupon: null,
                     discountAmount: 0,
-                });
+                }));
 
                 return newOrder;
             },

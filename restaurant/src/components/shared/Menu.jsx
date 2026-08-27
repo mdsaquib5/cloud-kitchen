@@ -38,60 +38,22 @@ const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) 
                             <span>Home</span>
                         </Link>
                     </li>
-
-                    <li className={`has-dropdown ${isDropdownOpen ? "open" : ""}`}>
-                        <button
-                            type="button"
-                            className="nav-link dropdown-toggle-btn"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setIsDropdownOpen(!isDropdownOpen);
-                            }}
-                        >
+                    <li>
+                        <Link href="/#categories" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                             <FaUtensils className="nav-icon" />
-                            <span>Menu</span>
-                            <FaChevronDown className="arrow-icon" />
-                        </button>
-                        <div className="dropdown-menu">
-                            {CATEGORIES.slice(0, 8).map((cat) => (
-                                <Link
-                                    key={cat.id}
-                                    href={cat.href}
-                                    className="dropdown-item"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    <span>{cat.title}</span>
-                                </Link>
-                            ))}
-                        </div>
-                    </li>
-
-                    <li>
-                        <Link href="/foods?category=kurkure-momos" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaFire className="nav-icon fire-icon" />
-                            <span>Kurkure Momos</span>
-                            <span className="badge-hot">HOT</span>
+                            <span>Items</span>
                         </Link>
                     </li>
-
                     <li>
-                        <Link href="/foods?category=chaap" className="nav-link veg-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaLeaf className="nav-icon veg-icon" />
-                            <span>Chaap Special</span>
+                        <Link href="/#popular-foods" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                            <FaFire className="nav-icon" />
+                            <span>Dishes</span>
                         </Link>
                     </li>
-
                     <li>
-                        <Link href="/foods?category=combos" className="nav-link special-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaPercent className="nav-icon fire-icon" />
-                            <span>Combo Offers</span>
-                        </Link>
-                    </li>
-
-                    <li>
-                        <Link href="/contact" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaPhoneAlt className="nav-icon" />
-                            <span>Contact</span>
+                        <Link href="/track-order" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                            <FaMotorcycle className="nav-icon" />
+                            <span>Track Order</span>
                         </Link>
                     </li>
                 </ul>
