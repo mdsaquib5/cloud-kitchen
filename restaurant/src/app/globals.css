@@ -7489,3 +7489,154 @@ a.contact-val:hover {
 .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
 .btn-primary { background: #e11d48; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 600; }
 .modal-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; background: #fff; }
+
+/* Tracking Modal Styles */
+.tracking-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+.tracking-modal-content {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: #f3f4f6;
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4b5563;
+}
+.modal-close-btn:hover { background: #e5e7eb; }
+.tm-header h3 { margin: 0 0 5px 0; font-size: 1.6rem; color: #0f172a; font-weight: 700; letter-spacing: -0.5px; }
+.tm-header p { margin: 0; color: #64748b; font-size: 0.95rem; font-weight: 500; }
+.tm-body { margin-top: 25px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.mini-timeline-container {
+    padding: 10px 15px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+.mini-timeline { 
+    display: flex;
+    flex-direction: column;
+}
+.mini-step { 
+    display: flex; 
+    gap: 20px; 
+    position: relative;
+}
+.ms-icon-col { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    width: 40px; 
+}
+.ms-icon-wrap {
+    position: relative;
+    width: 40px; 
+    height: 40px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: #fff;
+    z-index: 2;
+}
+.ms-icon { 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: #f1f5f9; 
+    color: #94a3b8;
+    transition: all 0.3s ease;
+}
+.ms-line {
+    flex: 1; 
+    width: 2px; 
+    background: #e2e8f0; 
+    margin: 0;
+    min-height: 25px;
+    transition: all 0.3s ease;
+}
+
+/* Done State */
+.mini-step.done .ms-icon {
+    background: #10b981; 
+    color: white;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+.mini-step.done .ms-line { 
+    background: #10b981; 
+}
+
+/* Current State */
+.mini-step.current .ms-icon {
+    background: #f01543; 
+    color: white;
+    box-shadow: 0 0 0 6px rgba(240, 21, 67, 0.15);
+    animation: tmPulse 2s infinite;
+}
+.mini-step.current .ms-line {
+    background: #e2e8f0;
+    background-image: linear-gradient(to bottom, #f01543 50%, transparent 50%);
+    background-size: 100% 8px;
+    animation: tmDash 1s linear infinite;
+}
+
+.ms-content {
+    padding-bottom: 25px;
+    padding-top: 8px;
+}
+.mini-step:last-child .ms-content {
+    padding-bottom: 5px;
+}
+.ms-content h4 { 
+    margin: 0 0 4px 0; 
+    font-size: 1.1rem; 
+    color: #0f172a; 
+    font-weight: 600;
+}
+.ms-content p { 
+    margin: 0; 
+    font-size: 0.9rem; 
+    color: #64748b; 
+}
+
+.mini-step.pending .ms-content h4, 
+.mini-step.pending .ms-content p { 
+    color: #94a3b8; 
+}
+
+@keyframes tmPulse {
+    0% { box-shadow: 0 0 0 0 rgba(240, 21, 67, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(240, 21, 67, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 21, 67, 0); }
+}
+@keyframes tmDash {
+    to { background-position: 0 8px; }
+}

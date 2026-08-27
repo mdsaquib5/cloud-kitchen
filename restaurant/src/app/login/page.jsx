@@ -48,7 +48,7 @@ const Login = () => {
                     setAuth(res.data.user, res.data.accessToken);
                     toast.success("Logged in successfully!");
                     if (res.data.user?.role === "admin" || res.data.user?.name === "Admin") {
-                        router.push("/kitchen/preparing");
+                        router.push("/");
                     } else {
                         router.push("/");
                     }
@@ -164,8 +164,8 @@ const Login = () => {
 
                                 <button type="submit" className="auth-submit-btn" disabled={loading}>
                                     <span>
-                                        {loading 
-                                            ? "Processing..." 
+                                        {loading
+                                            ? "Processing..."
                                             : currentState === "login" ? "Login Account" : "Create Account"
                                         }
                                     </span>

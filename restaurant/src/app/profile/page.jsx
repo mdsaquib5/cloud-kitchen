@@ -6,11 +6,12 @@ import Link from "next/link";
 import { FiArrowLeft, FiClock, FiMapPin, FiX, FiCheckCircle } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Profile = () => {
     const [mounted, setMounted] = useState(false);
     const pastOrders = useStore((state) => state.pastOrders) || [];
-    
+
     // Tracking Modal State
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [liveStatus, setLiveStatus] = useState(null);
@@ -20,17 +21,19 @@ const Profile = () => {
         setMounted(true);
     }, []);
 
-    
+
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const clearAuth = useAuthStore((state) => state.clearAuth);
+
     // Authentication check
     useEffect(() => {
-        const hasToken = document.cookie.split('; ').find(row => row.startsWith('token='));
-        if (!hasToken) {
+        if (mounted && !isAuthenticated) {
             window.location.href = '/login';
         }
-    }, []);
+    }, [mounted, isAuthenticated]);
 
     const handleLogout = () => {
-        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        clearAuth();
         window.location.href = '/login';
     };
 
@@ -38,10 +41,10 @@ const Profile = () => {
         setSelectedOrder(order);
         setIsTracking(true);
         setLiveStatus(order); // fallback to stored state initially
-        
+
         try {
             const idToFetch = order.orderId || order.id || order._id;
-            if(!idToFetch) return;
+            if (!idToFetch) return;
             const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
             const data = await res.json();
             if (data.success && data.order) {
@@ -58,7 +61,7 @@ const Profile = () => {
         setLiveStatus(null);
     };
 
-    if (!mounted) return <div style={{padding: '50px', textAlign: 'center'}}>Loading profile...</div>;
+    if (!mounted) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading profile...</div>;
 
     return (
         <div className="inner-wrapper profile-page-wrapper">
@@ -71,8 +74,8 @@ const Profile = () => {
                 </div>
 
                 <div className="profile-header">
-                    <h2>Orders & Reordering</h2>
-                    <button 
+                    <h2>Order History</h2>
+                    <button
                         onClick={handleLogout}
                         style={{
                             background: '#fee2e2',
@@ -109,7 +112,7 @@ const Profile = () => {
                         {pastOrders.map((order, idx) => {
                             const orderId = order.orderId || order.id || (order._id ? order._id.substring(order._id.length - 6).toUpperCase() : `ORD${idx}`);
                             const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
-                            
+
                             // Determine status color
                             const status = (order.status || "PENDING").toLowerCase();
                             let statusClass = "inprogress";
@@ -120,18 +123,18 @@ const Profile = () => {
                                 <div key={orderId + idx} className="past-order-card">
                                     <div className="po-img-wrap">
                                         {firstItem && firstItem.image ? (
-                                            <Image 
-                                                src={firstItem.image} 
-                                                alt={firstItem.title} 
-                                                width={100} 
-                                                height={80} 
+                                            <Image
+                                                src={firstItem.image}
+                                                alt={firstItem.title}
+                                                width={100}
+                                                height={80}
                                                 className="po-img"
                                             />
                                         ) : (
                                             <div className="po-img-placeholder"><FaUtensils size={24} /></div>
                                         )}
                                     </div>
-                                    
+
                                     <div className="po-main-info">
                                         <h4 className="po-title">
                                             {firstItem ? firstItem.title : "Custom Order"}
@@ -181,7 +184,7 @@ const Profile = () => {
                         <button className="modal-close-btn" onClick={closeTracking}>
                             <FiX size={20} />
                         </button>
-                        
+
                         <div className="tm-header">
                             <h3>Live Order Tracking</h3>
                             <p>Order #{selectedOrder.orderId || selectedOrder.id}</p>
@@ -193,7 +196,7 @@ const Profile = () => {
                     </div>
                 </div>
             )}
-            
+
             <style jsx>{`
                 .profile-header {
                     display: flex;
@@ -367,7 +370,7 @@ const TrackingTimeline = ({ order }) => {
     if (!order) return null;
 
     const orderMode = order.orderType || "delivery";
-    
+
     let stepIndex = 0;
     const status = order.status || "PENDING";
     if (status === "CONFIRMED") stepIndex = 0;
@@ -405,7 +408,7 @@ const TrackingTimeline = ({ order }) => {
                     const isDone = idx < stepIndex;
                     const isCurrent = idx === stepIndex;
                     const statusClass = isDone ? "done" : isCurrent ? "current" : "pending";
-                    
+
                     return (
                         <div key={step.id} className={`mini-step ${statusClass}`}>
                             <div className="ms-icon-col">
