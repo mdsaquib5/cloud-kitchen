@@ -3,17 +3,16 @@ import React, { useState, useEffect } from "react";
 import api from "@/services/api";
 import { toast } from "sonner";
 import { FiX, FiPlus, FiTrash2 } from "react-icons/fi";
-import { CATEGORIES } from "@/constant/product";
 
 const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
-        category: dbCategories[0]?._id || "",
+        category: "",
         description: "",
         image: "",
-        
-        portions: [{ portionName: "Half", price: 0 }, { portionName: "Full", price: 0 }],
+
+        portions: [{ portionName: "Half", price: "" }, { portionName: "Full", price: "" }],
         addOns: []
     });
 
@@ -21,14 +20,14 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
         if (foodToEdit) {
             setFormData({
                 ...foodToEdit,
-                portions: foodToEdit.portions || [{ portionName: "Half", price: foodToEdit.halfPrice || 0 }, { portionName: "Full", price: foodToEdit.fullPrice || 0 }],
+                portions: foodToEdit.portions || [{ portionName: "Half", price: foodToEdit.halfPrice !== undefined ? foodToEdit.halfPrice : "" }, { portionName: "Full", price: foodToEdit.fullPrice !== undefined ? foodToEdit.fullPrice : "" }],
                 addOns: foodToEdit.addOns || []
             });
         } else {
             setFormData({
-                title: "", category: dbCategories[0]?._id || "", description: "", image: "",
-                
-                portions: [{ portionName: "Half", price: 0 }, { portionName: "Full", price: 0 }],
+                title: "", category: "", description: "", image: "",
+
+                portions: [{ portionName: "Half", price: "" }, { portionName: "Full", price: "" }],
                 addOns: []
             });
         }
@@ -58,7 +57,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
             setIsUploading(false);
         }
     };
-    
+
 
     const handlePortionChange = (index, field, value) => {
         const newPortions = [...formData.portions];
@@ -72,7 +71,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
         setFormData({ ...formData, addOns: newAddOns });
     };
 
-    const addAddOn = () => setFormData({ ...formData, addOns: [...formData.addOns, { name: "", price: 0 }] });
+    const addAddOn = () => setFormData({ ...formData, addOns: [...formData.addOns, { name: "", price: "" }] });
     const removeAddOn = (index) => {
         const newAddOns = formData.addOns.filter((_, i) => i !== index);
         setFormData({ ...formData, addOns: newAddOns });
@@ -88,17 +87,18 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                 <div className="modal-body">
                     <div className="form-group">
                         <label>Dish Title</label>
-                        <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="form-input" placeholder="e.g. Paneer Tikka" />
+                        <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="form-input" placeholder="e.g. Paneer Tikka" />
                     </div>
                     <div className="form-group">
                         <label>Category</label>
-                        <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="form-input">
+                        <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="form-input">
+                            <option value="">Select a Category</option>
                             {dbCategories.map(c => <option key={c.slug} value={c._id}>{c.title}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
                         <label>Description</label>
-                        <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="form-input" rows="3"></textarea>
+                        <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="form-input" rows="3"></textarea>
                     </div>
                     <div className="form-group">
                         <label>Upload Image</label>
@@ -111,19 +111,19 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                             </div>
                         )}
                     </div>
-                    
-                    
+
+
 
                     <div className="form-section">
                         <h4>Portions & Pricing</h4>
                         {formData.portions.map((portion, idx) => (
                             <div key={idx} className="dynamic-row">
                                 <input type="text" value={portion.portionName} onChange={(e) => handlePortionChange(idx, "portionName", e.target.value)} className="form-input small-input" placeholder="Portion (Half/Full/Quarter)" />
-                                <input type="number" value={portion.price} onChange={(e) => handlePortionChange(idx, "price", Number(e.target.value))} className="form-input small-input" placeholder="Price ₹" />
-                                {idx > 0 && <button onClick={() => setFormData({...formData, portions: formData.portions.filter((_, i) => i !== idx)})} className="btn-icon danger"><FiTrash2 /></button>}
+                                <input type="number" value={portion.price} onChange={(e) => handlePortionChange(idx, "price", e.target.value === "" ? "" : Number(e.target.value))} className="form-input small-input" placeholder="Price ₹" />
+                                {idx > 0 && <button onClick={() => setFormData({ ...formData, portions: formData.portions.filter((_, i) => i !== idx) })} className="btn-icon danger"><FiTrash2 /></button>}
                             </div>
                         ))}
-                        <button className="btn-secondary small" onClick={() => setFormData({...formData, portions: [...formData.portions, { portionName: "", price: 0 }]})}><FiPlus /> Add Portion</button>
+                        <button className="btn-secondary small" onClick={() => setFormData({ ...formData, portions: [...formData.portions, { portionName: "", price: "" }] })}><FiPlus /> Add Portion</button>
                     </div>
 
                     <div className="form-section">
@@ -131,7 +131,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                         {formData.addOns.map((addon, idx) => (
                             <div key={idx} className="dynamic-row">
                                 <input type="text" value={addon.name} onChange={(e) => handleAddOnChange(idx, "name", e.target.value)} className="form-input" placeholder="Add-on Name (e.g. Extra Mayo)" />
-                                <input type="number" value={addon.price} onChange={(e) => handleAddOnChange(idx, "price", Number(e.target.value))} className="form-input small-input" placeholder="Price ₹" />
+                                <input type="number" value={addon.price} onChange={(e) => handleAddOnChange(idx, "price", e.target.value === "" ? "" : Number(e.target.value))} className="form-input small-input" placeholder="Price ₹" />
                                 <button onClick={() => removeAddOn(idx)} className="btn-icon danger"><FiTrash2 /></button>
                             </div>
                         ))}
@@ -141,15 +141,15 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                 </div>
                 <div className="modal-footer">
                     <button onClick={onClose} className="btn-secondary">Cancel</button>
-                    <button onClick={() => { 
-                        if(!formData.title.trim()) return toast.error("Please enter a dish title");
-                        if(!formData.image) return toast.error("Please upload an image first");
-                        onSave(formData); 
-                        onClose(); 
+                    <button onClick={() => {
+                        if (!formData.title.trim()) return toast.error("Please enter a dish title");
+                        if (!formData.image) return toast.error("Please upload an image first");
+                        onSave(formData);
+                        onClose();
                     }} className="btn-primary">Save Dish</button>
                 </div>
             </div>
-            
+
         </div>
     );
 };

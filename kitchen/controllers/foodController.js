@@ -7,7 +7,8 @@ export const createFood = async (req, res, next) => {
         if (!title) return res.status(400).json({ success: false, message: "Title is required" });
 
         const slug = slugify(title, { lower: true }) + "-" + Date.now().toString().slice(-4);
-        const food = await Food.create({ ...req.body, slug });
+        let food = await Food.create({ ...req.body, slug });
+        food = await food.populate("category", "title slug");
         res.status(201).json({ success: true, food });
     } catch (error) { next(error); }
 };

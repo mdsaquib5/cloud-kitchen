@@ -36,6 +36,7 @@ const MenuStock = () => {
                 const res = await api.delete(`/category/${catId}`);
                 if (res.data.success) {
                     setDbCategories(dbCategories.filter(c => c._id !== catId));
+                    setProductsList(prev => prev.filter(p => p.category !== catId && p.category?._id !== catId));
                     setSelectedCategory("all");
                     toast.success("Category deleted successfully");
                 }
@@ -140,7 +141,7 @@ const MenuStock = () => {
     const toggleCategoryStock = (categorySlug, makeAvailable) => {
         setProductsList((prev) =>
             prev.map((item) => {
-                if (item.category === categorySlug) {
+                if (item.category === categorySlug || item.category?.slug === categorySlug) {
                     return { ...item, inStock: makeAvailable };
                 }
                 return item;
@@ -155,7 +156,7 @@ const MenuStock = () => {
     };
 
     const filteredItems = productsList.filter((item) => {
-        const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+        const matchesCategory = selectedCategory === "all" || item.category === selectedCategory || item.category?.slug === selectedCategory;
         const matchesSearch =
             searchQuery === "" ||
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -245,8 +246,8 @@ const MenuStock = () => {
                     <span className="pill-badge">{productsList.length}</span>
                 </button>
                 {dbCategories.map((cat) => {
-                    const catCount = productsList.filter((p) => p.category === cat.slug).length;
-                    const catOutCount = productsList.filter((p) => p.category === cat.slug && !p.inStock).length;
+                    const catCount = productsList.filter((p) => p.category === cat.slug || p.category?.slug === cat.slug).length;
+                    const catOutCount = productsList.filter((p) => (p.category === cat.slug || p.category?.slug === cat.slug) && !p.inStock).length;
                     return (
                         <button
                             key={cat._id}

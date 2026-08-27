@@ -146,7 +146,8 @@ const Dashboard = () => {
                             name: i.title,
                             portion: i.portionLabel || "Standard",
                             qty: i.quantity,
-                            price: i.price
+                            price: i.price,
+                            addons: i.addons || []
                         })),
                         total: (o.totals?.grandTotal || 0),
                         address: o.customer.address || "No address provided",
@@ -395,13 +396,20 @@ const Dashboard = () => {
 
                                     <div className="ticket-items">
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="ticket-item-row">
-                                                <span className="item-qty">{item.qty}x</span>
-                                                <div className="item-details">
-                                                    <span className="item-name">{item.name}</span>
-                                                    <span className="item-portion">{item.portion}</span>
+                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                                                <div className="ticket-item-row" style={{ marginBottom: 0 }}>
+                                                    <span className="item-qty">{item.qty}x</span>
+                                                    <div className="item-details">
+                                                        <span className="item-name">{item.name}</span>
+                                                        <span className="item-portion">{item.portion}</span>
+                                                    </div>
+                                                    
                                                 </div>
-                                                <span className="item-price">₹{item.price}</span>
+                                                {item.addons && item.addons.length > 0 && (
+                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
+                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -465,12 +473,19 @@ const Dashboard = () => {
 
                                     <div className="ticket-items">
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="ticket-item-row">
-                                                <span className="item-qty prep">{item.qty}x</span>
-                                                <div className="item-details">
-                                                    <span className="item-name">{item.name}</span>
-                                                    <span className="item-portion">{item.portion}</span>
+                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                                                <div className="ticket-item-row" style={{ marginBottom: 0 }}>
+                                                    <span className="item-qty prep">{item.qty}x</span>
+                                                    <div className="item-details">
+                                                        <span className="item-name">{item.name}</span>
+                                                        <span className="item-portion">{item.portion}</span>
+                                                    </div>
                                                 </div>
+                                                {item.addons && item.addons.length > 0 && (
+                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
+                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -541,11 +556,18 @@ const Dashboard = () => {
 
                                     <div className="ticket-items">
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="ticket-item-row">
-                                                <span className="item-qty done">{item.qty}x</span>
-                                                <div className="item-details">
-                                                    <span className="item-name">{item.name}</span>
+                                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                                                <div className="ticket-item-row" style={{ marginBottom: 0 }}>
+                                                    <span className="item-qty done">{item.qty}x</span>
+                                                    <div className="item-details">
+                                                        <span className="item-name">{item.name}</span>
+                                                    </div>
                                                 </div>
+                                                {item.addons && item.addons.length > 0 && (
+                                                    <div style={{ fontSize: '11px', color: '#ef4444', paddingLeft: '32px', fontWeight: '500' }}>
+                                                        + Extras: {item.addons.map(a => a.name).join(', ')}
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
