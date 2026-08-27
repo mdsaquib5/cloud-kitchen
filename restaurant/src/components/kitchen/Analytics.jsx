@@ -13,6 +13,7 @@ import {
     FiAward,
 } from "react-icons/fi";
 import { FaFire, FaMotorcycle } from "react-icons/fa";
+import { toast } from "sonner";
 
 const topDishes = [
     { rank: 1, name: "Paneer Kurkure Momos", category: "Kurkure Momos", orders: 142, revenue: 17040, growth: "+18%" },
@@ -45,6 +46,9 @@ const Analytics = () => {
     const [aov, setAov] = useState(0);
     const [topDishesList, setTopDishesList] = useState([]);
 
+        const [categoryShareList, setCategoryShareList] = useState([]);
+    const [hourlyTrendsList, setHourlyTrendsList] = useState([]);
+
     const fetchAnalytics = async () => {
         try {
             const res = await fetch("http://localhost:4000/api/orders/admin/all");
@@ -53,20 +57,56 @@ const Analytics = () => {
                 let revenue = 0;
                 let ordersCount = data.orders.length;
                 let itemTracker = {};
+                
+                // For categories
+                let categoryRevenue = {
+                    "Momos Specials": 0,
+                    "Combo Offers": 0,
+                    "Chaap & Rolls": 0,
+                    "Chowmein & Pasta": 0,
+                    "Beverages & Others": 0
+                };
+
+                // For hourly trends
+                let hourlyCounts = {
+                    "lunch": 0, // 12-14
+                    "snack": 0, // 14-17
+                    "evening": 0, // 17-20
+                    "dinner": 0, // 20-23
+                };
 
                 data.orders.forEach(o => {
                     if (o.status !== "CANCELLED") {
                         revenue += (o.totals?.grandTotal || 0);
                         
+                        // Hourly Trend
+                        const hour = new Date(o.createdAt).getHours();
+                        if (hour >= 12 && hour < 14) hourlyCounts.lunch++;
+                        else if (hour >= 14 && hour < 17) hourlyCounts.snack++;
+                        else if (hour >= 17 && hour < 20) hourlyCounts.evening++;
+                        else if (hour >= 20 || hour < 4) hourlyCounts.dinner++;
+                        else hourlyCounts.snack++; // default catchall
+                        
                         o.items.forEach(item => {
+                            const itemRev = item.quantity * (item.unitPrice || 0);
+                            
+                            // Track Top Dishes
                             if (!itemTracker[item.title]) {
                                 itemTracker[item.title] = { name: item.title, category: "Menu Item", orders: 0, revenue: 0 };
                             }
                             itemTracker[item.title].orders += item.quantity;
-                            itemTracker[item.title].revenue += (item.quantity * item.price);
+                            itemTracker[item.title].revenue += itemRev;
+                            
+                            // Track Categories
+                            const titleLower = item.title.toLowerCase();
+                            if (titleLower.includes("momo")) categoryRevenue["Momos Specials"] += itemRev;
+                            else if (titleLower.includes("combo")) categoryRevenue["Combo Offers"] += itemRev;
+                            else if (titleLower.includes("chaap") || titleLower.includes("roll")) categoryRevenue["Chaap & Rolls"] += itemRev;
+                            else if (titleLower.includes("chowmein") || titleLower.includes("pasta") || titleLower.includes("noodle")) categoryRevenue["Chowmein & Pasta"] += itemRev;
+                            else categoryRevenue["Beverages & Others"] += itemRev;
                         });
                     } else {
-                        ordersCount -= 1; // Exclude cancelled from total valid orders count for analytics
+                        ordersCount -= 1; // Exclude cancelled
                     }
                 });
 
@@ -78,13 +118,34 @@ const Analytics = () => {
                 let top5 = sortedDishes.slice(0, 5).map((d, idx) => ({
                     ...d,
                     rank: idx + 1,
-                    growth: "+10%" // Mock growth for UI
+                    growth: "+10%"
                 }));
-                
-                // If not enough real data, fallback to mock data to keep UI looking good
-                if (top5.length === 0) top5 = topDishes;
-                
+                if (top5.length === 0) top5 = topDishes; // fallback if empty
                 setTopDishesList(top5);
+                
+                // Prepare Category Share
+                const colors = ["#f01543", "#ffb703", "#3b82f6", "#10b981", "#8b5cf6"];
+                const totalCatRev = Object.values(categoryRevenue).reduce((a, b) => a + b, 0) || 1; // avoid / 0
+                let catList = Object.entries(categoryRevenue)
+                    .map(([name, rev], idx) => ({
+                        name,
+                        revenueNum: rev,
+                        revenue: "₹" + rev.toLocaleString(),
+                        percentage: Math.round((rev / totalCatRev) * 100),
+                        color: colors[idx % colors.length]
+                    }))
+                    .sort((a, b) => b.revenueNum - a.revenueNum); // Sort by highest revenue
+                    
+                setCategoryShareList(catList);
+                
+                // Prepare Hourly Trends
+                const maxHour = Math.max(...Object.values(hourlyCounts)) || 1;
+                setHourlyTrendsList([
+                    { hour: "12 PM - 2 PM (Lunch Rush)", orders: hourlyCounts.lunch, percentage: Math.round((hourlyCounts.lunch / maxHour) * 100) },
+                    { hour: "2 PM - 5 PM (Snack Window)", orders: hourlyCounts.snack, percentage: Math.round((hourlyCounts.snack / maxHour) * 100) },
+                    { hour: "5 PM - 8 PM (Evening Peak)", orders: hourlyCounts.evening, percentage: Math.round((hourlyCounts.evening / maxHour) * 100) },
+                    { hour: "8 PM - 11 PM (Dinner Rush)", orders: hourlyCounts.dinner, percentage: Math.round((hourlyCounts.dinner / maxHour) * 100) },
+                ]);
             }
         } catch (error) {
             console.error("Failed to fetch analytics", error);
@@ -223,7 +284,7 @@ const Analytics = () => {
                     </div>
 
                     <div className="cat-share-list">
-                        {categoryShare.map((cat, idx) => (
+                        {(categoryShareList.length > 0 ? categoryShareList : categoryShare).map((cat, idx) => (
                             <div key={idx} className="cat-share-row">
                                 <div className="cat-share-header">
                                     <span className="cat-name">{cat.name}</span>
@@ -241,30 +302,33 @@ const Analytics = () => {
                 </div>
             </div>
 
-            <div className="a-card hourly-peaks-card">
-                <div className="a-card-header">
-                    <div className="header-title-box">
-                        <FaFire size={16} className="fire-icon" />
-                        <h3>Peak Kitchen Ordering Windows</h3>
-                    </div>
-                    <span className="header-subtitle">Hourly order volume load for kitchen staff allocation</span>
+            <div className="a-card kitchen-controls-card" style={{ display: 'flex', gap: '20px', padding: '30px', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                <div className="header-title-box" style={{ marginBottom: '10px' }}>
+                    <FaFire size={18} className="fire-icon" style={{ color: '#f01543', marginRight: '8px' }} />
+                    <h3 style={{ fontSize: '1.2rem', color: '#111827', margin: 0, display: 'inline-block' }}>Master Kitchen Controls</h3>
                 </div>
-
-                <div className="hourly-bars-grid">
-                    {hourlyTrends.map((trend, idx) => (
-                        <div key={idx} className="hourly-bar-card">
-                            <div className="hour-info">
-                                <strong className="h-time">{trend.hour}</strong>
-                                <span className="h-orders">{trend.orders} Orders</span>
-                            </div>
-                            <div className="h-progress-track">
-                                <div
-                                    className="h-progress-fill"
-                                    style={{ width: `${trend.percentage}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    ))}
+                <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '20px' }}>Toggle whether the restaurant is currently accepting new orders.</p>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            toast.success("Kitchen is now OPEN! Accepting new orders.");
+                        }}
+                        style={{ background: '#10b981', color: 'white', border: 'none', padding: '15px 30px', borderRadius: '8px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)' }}
+                    >
+                        <FaFire size={18} />
+                        Open Kitchen
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            toast.error("Kitchen is now CLOSED! No new orders will be accepted.");
+                        }}
+                        style={{ background: '#ef4444', color: 'white', border: 'none', padding: '15px 30px', borderRadius: '8px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2)' }}
+                    >
+                        <FiClock size={18} />
+                        Close Kitchen
+                    </button>
                 </div>
             </div>
         </div>

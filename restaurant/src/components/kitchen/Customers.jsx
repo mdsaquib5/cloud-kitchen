@@ -102,7 +102,7 @@ const Customers = () => {
 
                     if (!customerMap[phone]) {
                         customerMap[phone] = {
-                            id: "CUST-" + phone.substring(phone.length - 4),
+                            id: "CUST-" + phone.replace(/\D/g, ""), // Fixed: using full phone number to prevent key collisions
                             name: o.customer.name || "Unknown",
                             phone: phone,
                             address: o.customer.address || "No Address Provided",
