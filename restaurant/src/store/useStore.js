@@ -42,6 +42,7 @@ export const useStore = create(
             discountAmount: 0,
 
             activeOrder: null,
+            setActiveOrder: (order) => set({ activeOrder: order }),
 
             setOrderType: (type) => set({ orderType: type }),
             setPickupSlot: (slot) => set({ pickupSlot: slot }),
