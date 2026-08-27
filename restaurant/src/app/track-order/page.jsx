@@ -30,7 +30,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Order #₹{orderId} received & confirmed`,
+            desc: `Order #${orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -61,7 +61,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Takeaway order #₹{orderId} received & confirmed`,
+            desc: `Takeaway order #${orderId} received & confirmed`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -74,7 +74,7 @@ const TrackOrder = () => {
         {
             id: 2,
             title: "Ready for Pickup",
-            time: `Slot: ₹{activeOrder?.pickupSlot || "15"} Mins`,
+            time: `Slot: ${activeOrder?.pickupSlot || "15"} Mins`,
             desc: "Your order is ready at the kitchen counter",
             icon: <FaStoreAlt size={16} />,
         },
@@ -92,7 +92,7 @@ const TrackOrder = () => {
             id: 0,
             title: "Order Placed",
             time: activeOrder?.placedAt || "12:30 PM",
-            desc: `Table #₹{activeOrder?.tableNo || "T-04"} order sent to kitchen`,
+            desc: `Table #${activeOrder?.tableNo || "T-04"} order sent to kitchen`,
             icon: <FiCheckCircle size={18} />,
         },
         {
@@ -112,8 +112,8 @@ const TrackOrder = () => {
         {
             id: 3,
             title: "Served at Table",
-            time: `Table #₹{activeOrder?.tableNo || "T-04"}`,
-            desc: `Served fresh to your table #₹{activeOrder?.tableNo || "T-04"}`,
+            time: `Table #${activeOrder?.tableNo || "T-04"}`,
+            desc: `Served fresh to your table #${activeOrder?.tableNo || "T-04"}`,
             icon: <FiCheck size={18} />,
         },
     ];
@@ -166,8 +166,8 @@ const TrackOrder = () => {
                                         {orderMode === "delivery"
                                             ? "Home Delivery"
                                             : orderMode === "takeaway"
-                                            ? `Takeaway (Pickup in ₹{activeOrder?.pickupSlot || 15}m)`
-                                            : `Dine-In (Table ₹{activeOrder?.tableNo || "04"})`}
+                                            ? `Takeaway (Pickup in ${activeOrder?.pickupSlot || 15}m)`
+                                            : `Dine-In (Table ${activeOrder?.tableNo || "04"})`}
                                     </span>
                                 </span>
                             </div>
