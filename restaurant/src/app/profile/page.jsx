@@ -62,6 +62,7 @@ const Profile = () => {
     };
 
     if (!mounted) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading profile...</div>;
+    if (!isAuthenticated) return <div style={{ padding: '50px', textAlign: 'center' }}>Redirecting to login...</div>;
 
     return (
         <div className="inner-wrapper profile-page-wrapper">

@@ -3,14 +3,14 @@ import slugify from "slugify";
 
 export const createCategory = async (req, res, next) => {
     try {
-        const { title, description, image } = req.body;
-        if (!title || !image) return res.status(400).json({ success: false, message: "Title and Image are required" });
+        const { title } = req.body;
+        if (!title) return res.status(400).json({ success: false, message: "Title is required" });
 
         const slug = slugify(title, { lower: true });
         const exists = await Category.findOne({ slug });
         if (exists) return res.status(400).json({ success: false, message: "Category already exists" });
 
-        const category = await Category.create({ title, slug, description, image });
+        const category = await Category.create({ title, slug });
         res.status(201).json({ success: true, category });
     } catch (error) { next(error); }
 };

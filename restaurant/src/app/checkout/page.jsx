@@ -122,9 +122,7 @@ const Checkout = () => {
             const res = await api.post("/orders", orderPayload);
             
             if (res.data.success) {
-                toast.success(`Order Placed Successfully!`, {
-                    description: `Order #${res.data.order.orderId} is confirmed. Tracking live now.`,
-                });
+                toast.success(`Order #${res.data.order.orderId} Placed Successfully! 🎉 Tracking live now.`);
                 clearCart();
                 useStore.setState({ activeOrder: res.data.order });
                 addPastOrder(res.data.order);
@@ -132,7 +130,8 @@ const Checkout = () => {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to place order. Please try again.");
+            // Global interceptor will handle the error toast, but we can log it
+            console.error("Order placement failed:", error);
         } finally {
             setIsSubmitting(false);
         }

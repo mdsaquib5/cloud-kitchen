@@ -63,9 +63,7 @@ const ProductModal = ({ product, isOpen, onClose }) => {
             quantity,
         });
 
-        toast.success(`Added ${quantity}x ${product.title} to cart!`, {
-            description: `${selectedPortionObj?.portionName || "Regular"} • ₹${totalPrice}`,
-        });
+        toast.success(`Added ${quantity} x "${product.title}" (${selectedPortionObj?.portionName || "Regular"}) to bag! 🛍️`);
 
         setIsAdded(true);
         setTimeout(() => {

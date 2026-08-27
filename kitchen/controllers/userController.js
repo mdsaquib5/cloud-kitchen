@@ -11,7 +11,7 @@ export const signup = async (req, res, next) => {
         }
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(409).json({ success: false, message: "Email already in use." });
+            return res.status(409).json({ success: false, message: "Account already exists! Please login instead. 👋" });
         }
         const user = await User.create({ name, email, phone, password });
         const { accessToken, refreshToken } = generateTokens(user._id);
@@ -32,8 +32,11 @@ export const login = async (req, res, next) => {
             return res.status(400).json({ success: false, message: "Please provide email and password." });
         }
         const user = await User.findOne({ email }).select("+password");
-        if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ success: false, message: "Invalid email or password." });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Account doesn't exist. Please sign up first! 👋" });
+        }
+        if (!(await user.comparePassword(password))) {
+            return res.status(401).json({ success: false, message: "Incorrect password. Please try again." });
         }
         const { accessToken, refreshToken } = generateTokens(user._id);
         user.refreshToken = await bcrypt.hash(refreshToken, 10);

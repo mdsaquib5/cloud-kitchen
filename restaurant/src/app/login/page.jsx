@@ -35,7 +35,7 @@ const Login = () => {
                 const res = await api.post("/user/signup", formData);
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
-                    toast.success("Account created successfully!");
+                    toast.success("Welcome to Yours Kitchen! 👋");
                     router.push("/");
                 }
             } else {
@@ -46,7 +46,7 @@ const Login = () => {
                 });
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
-                    toast.success("Logged in successfully!");
+                    toast.success("Welcome back! 👋");
                     if (res.data.user?.role === "admin" || res.data.user?.name === "Admin") {
                         router.push("/");
                     } else {
@@ -55,8 +55,8 @@ const Login = () => {
                 }
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || "Something went wrong";
-            toast.error(errorMsg);
+            // Global API interceptor will handle the error toast
+            console.error("Login/Signup failed:", error.response?.data?.message || error.message);
         } finally {
             setLoading(false);
         }
