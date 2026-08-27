@@ -41,6 +41,9 @@ export const useStore = create(
             appliedCoupon: null,
             discountAmount: 0,
 
+            pastOrders: [],
+            addPastOrder: (order) => set((state) => ({ pastOrders: [order, ...(state.pastOrders || [])] })),
+
             activeOrder: null,
             setActiveOrder: (order) => set({ activeOrder: order }),
 

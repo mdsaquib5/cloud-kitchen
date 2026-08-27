@@ -56,6 +56,7 @@ const Checkout = () => {
     const appliedCoupon = useStore((state) => state.appliedCoupon);
     const clearCart = useStore((state) => state.clearCart);
     const getCartTotals = useStore((state) => state.getCartTotals);
+    const addPastOrder = useStore((state) => state.addPastOrder);
 
     useEffect(() => {
         setMounted(true);
@@ -126,6 +127,7 @@ const Checkout = () => {
                 });
                 clearCart();
                 useStore.setState({ activeOrder: res.data.order });
+                addPastOrder(res.data.order);
                 router.push(`/track-order?id=${res.data.order.orderId}`);
             }
         } catch (error) {
