@@ -90,7 +90,7 @@ const Dispatch = () => {
             const data = await res.json();
             if (data.success) {
                 const activeDispatches = data.orders
-                    .filter(o => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY")
+                    .filter(o => o.orderType === "delivery" && (o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY"))
                     .map(o => {
                         const isDelivery = o.orderType === "delivery";
                         return {

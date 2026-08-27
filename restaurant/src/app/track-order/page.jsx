@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from 'next/navigation';
 import {
     FiCheckCircle,
     FiClock,
@@ -11,7 +10,6 @@ import {
     FiPhone,
     FiMessageSquare,
     FiArrowLeft,
-    FiShoppingBag,
     FiCheck,
     FiShield,
 } from "react-icons/fi";
@@ -19,9 +17,8 @@ import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
 
 const TrackOrder = () => {
-        const activeOrder = useStore((state) => state.activeOrder);
+    const activeOrder = useStore((state) => state.activeOrder);
     const setActiveOrder = useStore((state) => state.setActiveOrder);
-    const [currentStepIndex, setCurrentStepIndex] = useState(2);
     
     // Fix hydration flicker
     const [isMounted, setIsMounted] = useState(false);
@@ -39,12 +36,11 @@ const TrackOrder = () => {
 
         const fetchOrderLive = async () => {
             try {
-                const res = await fetch(`http://localhost:4000/api/orders/track/${activeOrder.orderId || activeOrder.id}`);
+                const idToFetch = activeOrder.orderId || activeOrder.id;
+                const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
                 const data = await res.json();
                 if (data.success && data.order) {
                     const latest = data.order;
-                    // Retain store-specific metadata (like local ETA calculations, etc)
-                    // but update server state
                     const mergedOrder = {
                         ...activeOrder,
                         status: latest.status,
@@ -61,7 +57,7 @@ const TrackOrder = () => {
 
         const intervalId = setInterval(fetchOrderLive, 10000);
         return () => clearInterval(intervalId);
-    }, [isMounted, activeOrder]);
+    }, [isMounted, activeOrder, setActiveOrder]);
 
     if (!isMounted) {
         return (
@@ -89,7 +85,7 @@ const TrackOrder = () => {
 
     const orderMode = activeOrder.orderType || "delivery";
     const orderedItems = activeOrder.items || [];
-    const orderId = activeOrder.id || activeOrder._id?.substring(activeOrder._id.length - 6).toUpperCase();
+    const orderId = activeOrder.orderId || activeOrder.id || activeOrder._id?.substring(activeOrder._id.length - 6).toUpperCase();
 
     // Determine current step based on order status
     let stepIndex = 0;

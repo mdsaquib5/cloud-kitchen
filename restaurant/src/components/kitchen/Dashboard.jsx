@@ -198,7 +198,7 @@ const Dashboard = () => {
             // Adjust status mapping for backend
             let backendStatus = nextStatus;
             if (nextStatus === "READY") {
-                backendStatus = orderToUpdate.orderType === "takeaway" ? "READY_FOR_PICKUP" : "OUT_FOR_DELIVERY";
+                backendStatus = orderToUpdate.orderType === "delivery" ? "OUT_FOR_DELIVERY" : "READY_FOR_PICKUP";
             } else if (nextStatus === "COMPLETED") {
                 backendStatus = "DELIVERED";
             }
