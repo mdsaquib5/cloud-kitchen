@@ -49,6 +49,9 @@ export const useStore = create(
             updateActiveOrder: (orderId, latestData) => set((state) => ({
                 activeOrders: (state.activeOrders || []).map(o => (o.id === orderId || o.orderId === orderId) ? { ...o, ...latestData } : o)
             })),
+            removeActiveOrder: (orderId) => set((state) => ({
+                activeOrders: (state.activeOrders || []).filter(o => o.id !== orderId && o.orderId !== orderId)
+            })),
 
             setOrderType: (type) => set({ orderType: type }),
             setPickupSlot: (slot) => set({ pickupSlot: slot }),

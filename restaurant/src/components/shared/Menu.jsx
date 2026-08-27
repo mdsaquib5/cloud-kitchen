@@ -4,15 +4,11 @@ import {
     FaHome,
     FaUtensils,
     FaFire,
-    FaLeaf,
-    FaPercent,
-    FaPhoneAlt,
-    FaChevronDown,
+    FaMotorcycle,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
-import { CATEGORIES } from "@/constant/product";
 
-const Menu = ({ isMenuOpen, setIsMenuOpen, isDropdownOpen, setIsDropdownOpen }) => {
+const Menu = ({ isMenuOpen, setIsMenuOpen }) => {
     return (
         <div className={`menu-bars ${isMenuOpen ? "active" : ""}`}>
             <div className="drawer-header">

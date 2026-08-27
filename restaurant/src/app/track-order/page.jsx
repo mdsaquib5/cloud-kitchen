@@ -17,12 +17,14 @@ import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import EmptyState from "@/components/shared/EmptyState";
 
 const TrackOrder = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const router = useRouter();
     const activeOrders = useStore((state) => state.activeOrders || []);
     const updateActiveOrder = useStore((state) => state.updateActiveOrder);
+    const removeActiveOrder = useStore((state) => state.removeActiveOrder);
     
     // Fix hydration flicker
     const [isMounted, setIsMounted] = useState(false);
@@ -47,12 +49,16 @@ const TrackOrder = () => {
                     const data = await res.json();
                     if (data.success && data.order) {
                         const latest = data.order;
-                        updateActiveOrder(idToFetch, {
-                            status: latest.status,
-                            rider: latest.rider || order.rider,
-                            eta: latest.eta || order.eta,
-                            totals: latest.totals || order.totals
-                        });
+                        if (latest.status === "DELIVERED" || latest.status === "CANCELLED" || latest.status === "COMPLETED") {
+                            removeActiveOrder(idToFetch);
+                        } else {
+                            updateActiveOrder(idToFetch, {
+                                status: latest.status,
+                                rider: latest.rider || order.rider,
+                                eta: latest.eta || order.eta,
+                                totals: latest.totals || order.totals
+                            });
+                        }
                     }
                 }));
             } catch (error) {
@@ -76,13 +82,14 @@ const TrackOrder = () => {
     if (activeOrders.length === 0) {
         return (
             <div className="inner-wrapper track-page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <h2>No Active Order Found</h2>
-                    <p>It seems you don't have an ongoing order to track.</p>
-                    <Link href="/foods" className="back-to-shop-link" style={{ marginTop: '20px', display: 'inline-flex' }}>
-                        <FiArrowLeft size={16} />
-                        <span>Continue Ordering</span>
-                    </Link>
+                <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
+                    <EmptyState 
+                        title="No Active Order Found"
+                        description="It seems you don't have any ongoing orders to track right now."
+                        buttonText="Start a New Order"
+                        buttonHref="/foods"
+                        icon={<FaMotorcycle size={48} />}
+                    />
                 </div>
             </div>
         );
@@ -331,6 +338,7 @@ const TrackOrder = () => {
                             </div>
                         </div>
                     </div>
+                </div>
                 </div>
                     );
                 })}

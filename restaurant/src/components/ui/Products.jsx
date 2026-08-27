@@ -28,7 +28,7 @@ const Products = ({ initialCategories = [], initialProducts = [] }) => {
     };
 
     return (
-        <section className="product-bg">
+        <section id="popular-foods" className="product-bg">
             <div className="container">
                 <SectionTitle
                     title="Popular Food Items"

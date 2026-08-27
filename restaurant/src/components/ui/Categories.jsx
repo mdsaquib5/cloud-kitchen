@@ -13,7 +13,7 @@ const Categories = ({ initialCategories = [] }) => {
     if (initialCategories.length === 0) return null;
 
     return (
-        <section>
+        <section id="categories">
             <div className="container">
                 <SectionTitle
                     title="Top Categories"
