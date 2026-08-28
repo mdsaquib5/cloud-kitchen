@@ -3807,6 +3807,10 @@ a.contact-val:hover {
     color: #94a3b8;
 }
 
+.step-heading-row .step-title {
+    color: var(--dark);
+}
+
 .step-time {
     font-size: 12px;
     font-weight: 700;
