@@ -5,7 +5,7 @@ import {
     FaUtensils,
     FaFire,
     FaMotorcycle,
-    FaPhone,
+    FaPhoneAlt,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
@@ -55,7 +55,7 @@ const Menu = ({ isMenuOpen, setIsMenuOpen }) => {
                     </li>
                     <li>
                         <Link href="/contact" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                            <FaPhone className="nav-icon" />
+                            <FaPhoneAlt className="nav-icon" />
                             <span>Contact</span>
                         </Link>
                     </li>
