@@ -38,7 +38,7 @@ const ProCard = ({ item, prod, onOpenModal }) => {
                 )}
                 <div className="prod-holder" style={{ position: 'relative' }}>
                     {/* Using standard img for external URLs to avoid config issues */}
-                    <Image src={product.image} alt={product.title} width={280} height={280} className="prod-img" style={{ borderRadius: "10px" }} />
+                    <Image src={product.image} alt={product.title} width={280} height={280} className="prod-img" sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" loading="lazy" style={{ borderRadius: "10px", objectFit: "cover" }} />
                 </div>
             </div>
 

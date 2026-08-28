@@ -82,7 +82,12 @@ const Checkout = () => {
                 totals
             };
 
-            const res = await api.post("/orders", orderPayload);
+            const token = useAuthStore.getState().accessToken;
+            const res = await api.post("/orders", orderPayload, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
             if (res.data.success) {
                 toast.success(`Order #${res.data.order.orderId} Placed Successfully! 🎉 Tracking live now.`);

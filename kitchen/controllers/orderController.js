@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import Order from "../models/orderModel.js";
 
 // Customer places a new order
@@ -5,30 +6,42 @@ export const createOrder = async (req, res, next) => {
     try {
         const { customer, items, orderType, paymentMethod, totals } = req.body;
 
-        // Generate a random order ID (e.g. YK-12345)
+        let userId = null;
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            const token = req.headers.authorization.split(" ")[1];
+            try {
+                const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+                userId = decoded.id;
+            } catch (err) {
+                console.log("Invalid token during checkout, proceeding as guest.");
+            }
+        }
+
         const orderId = `YK-${Math.floor(10000 + Math.random() * 90000)}`;
 
         const newOrder = new Order({
-            orderId,
-            customer,
-            items,
-            orderType,
-            paymentMethod,
-            totals,
-            status: "PLACED",
-            paymentStatus: paymentMethod === "cash" ? "pending" : "paid"
+
+            userId,
+    orderId,
+    customer,
+    items,
+    orderType,
+    paymentMethod,
+    totals,
+    status: "PLACED",
+        paymentStatus: paymentMethod === "cash" ? "pending" : "paid"
         });
 
-        await newOrder.save();
+await newOrder.save();
 
-        res.status(201).json({
-            success: true,
-            message: "Order placed successfully",
-            order: newOrder
-        });
+res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order: newOrder
+});
     } catch (error) {
-        next(error);
-    }
+    next(error);
+}
 };
 
 // Customer checks order status
@@ -71,3 +84,14 @@ export const updateOrderStatus = async (req, res, next) => {
         next(error);
     }
 };
+
+// Customer gets their own orders
+export const getUserOrders = async (req, res, next) => {
+    try {
+        const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, orders });
+    } catch (error) {
+        next(error);
+    }
+};
+

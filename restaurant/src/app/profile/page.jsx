@@ -1,16 +1,17 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiArrowLeft, FiX, FiCheckCircle } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
-import { useStore } from "@/store/useStore";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const Profile = () => {
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
-    const pastOrders = useStore((state) => state.pastOrders) || [];
+    const [pastOrders, setPastOrders] = useState([]);
 
     // Tracking Modal State
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -25,16 +26,37 @@ const Profile = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const clearAuth = useAuthStore((state) => state.clearAuth);
 
+    const fetchUserOrders = async (token) => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/user`, {
+                headers: {
+                    'Authorization': "Bearer " + token
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPastOrders(data.orders);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user orders:", error);
+        }
+    };
+
     // Authentication check
     useEffect(() => {
-        if (mounted && !isAuthenticated) {
-            window.location.href = '/login';
+        if (mounted) {
+            const token = useAuthStore.getState().accessToken;
+            if (!useAuthStore.getState().isAuthenticated || !token) {
+                router.push("/login");
+            } else {
+                fetchUserOrders(token);
+            }
         }
-    }, [mounted, isAuthenticated]);
+    }, [mounted]);
 
     const handleLogout = () => {
         clearAuth();
-        window.location.href = '/login';
+        router.push("/login");
     };
 
     const handleTrackOrder = async (order) => {
@@ -198,7 +220,7 @@ const Profile = () => {
                 </div>
             )}
 
-            
+
         </div>
     );
 };
@@ -263,9 +285,10 @@ const TrackingTimeline = ({ order }) => {
                     );
                 })}
             </div>
-            
+
         </div>
     );
 }
 
 export default Profile;
+

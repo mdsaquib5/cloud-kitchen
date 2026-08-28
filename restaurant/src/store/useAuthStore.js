@@ -1,3 +1,4 @@
+import { useStore } from "./useStore";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -18,11 +19,14 @@ export const useAuthStore = create(
                 accessToken
             }),
 
-            clearAuth: () => set({
-                user: null,
-                accessToken: null,
-                isAuthenticated: false
-            })
+            clearAuth: () => {
+                useStore.getState().clearCart();
+                set({
+                    user: null,
+                    accessToken: null,
+                    isAuthenticated: false
+                });
+            }
         }),
         {
             name: "yours-kitchen-auth", // unique key for localStorage
