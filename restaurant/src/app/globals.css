@@ -4288,12 +4288,14 @@ a.contact-val:hover {
     display: flex;
     align-items: center;
     gap: 8px;
+    overflow-x: auto;
 }
 
 .kds-tab {
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
     padding: 8px 14px;
     border-radius: 8px;
     border: 1px solid #edf0f5;
@@ -4697,6 +4699,8 @@ a.contact-val:hover {
     padding: 12px 20px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
     justify-content: space-between;
     box-shadow: 0 2px 10px #00092905;
 }
@@ -5799,6 +5803,7 @@ a.contact-val:hover {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .filter-group {
@@ -6138,6 +6143,7 @@ a.contact-val:hover {
 .cust-filter-pills {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
