@@ -408,23 +408,7 @@
         height: 30px;
     }
 
-    .product-filter-tabs {
-        gap: 8px;
-        margin-bottom: 30px;
-    }
 
-    .filter-tab-btn {
-        padding: 8px 14px;
-        border-radius: 2px;
-    }
-
-    .tab-icon {
-        font-size: 15px;
-    }
-
-    .tab-label {
-        font-size: 12px;
-    }
 
     .main-footer {
         padding-top: 50px;
