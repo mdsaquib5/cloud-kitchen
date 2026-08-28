@@ -246,16 +246,6 @@ const Dashboard = () => {
     return (
         <div className="kds-screen">
             <div className="kds-top-bar">
-                <div className="kds-live-status">
-                    <div className="live-dot-wrap">
-                        <FaCircle className="pulse-green" size={10} />
-                        <span className="live-title">Kitchen Online</span>
-                    </div>
-                    <div className="connection-pill">
-                        <FiWifi size={13} />
-                        <span>Connected</span>
-                    </div>
-                </div>
 
                 <div className="kds-controls-cluster">
                     <button
