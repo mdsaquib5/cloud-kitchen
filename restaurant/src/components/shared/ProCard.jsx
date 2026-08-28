@@ -15,8 +15,8 @@ const ProCard = ({ item, prod, onOpenModal }) => {
     };
 
     // Calculate price display
-    const priceText = product.portions && product.portions.length > 0 
-        ? `₹${product.portions[0].price}` 
+    const priceText = product.portions && product.portions.length > 0
+        ? `₹${product.portions[0].price}`
         : "₹50"; // default
 
     return (
@@ -31,7 +31,12 @@ const ProCard = ({ item, prod, onOpenModal }) => {
             </button>
 
             <div className="product-item">
-                <div className="prod-holder">
+                {product.category && (
+                    <span className="prod-cat-badge">
+                        {typeof product.category === 'object' ? (product.category.title || product.category.name) : product.category}
+                    </span>
+                )}
+                <div className="prod-holder" style={{ position: 'relative' }}>
                     {/* Using standard img for external URLs to avoid config issues */}
                     <Image src={product.image} alt={product.title} width={280} height={280} className="prod-img" style={{ borderRadius: "10px" }} />
                 </div>

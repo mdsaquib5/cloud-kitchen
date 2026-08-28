@@ -2771,7 +2771,7 @@ a.contact-val:hover {
 
 .auth-banner-side {
     position: relative;
-    background: url('/frame1.png') center / cover no-repeat;
+    background: url('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner4.webp') center / cover no-repeat;
     display: flex;
     align-items: flex-end;
     padding: 40px 35px;
@@ -7798,4 +7798,21 @@ a.contact-val:hover {
     to {
         background-position: 0 8px;
     }
+}
+
+/* Category Badge */
+.prod-cat-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(240, 21, 67, 0.3);
 }
