@@ -10,11 +10,11 @@ import "swiper/css/navigation";
 
 const Hero = () => {
     const banners = [
-        { id: 1, src: "/frame1.png", alt: "Special Dish Banner 1" },
-        { id: 2, src: "/frame2.png", alt: "Special Dish Banner 2" },
-        { id: 3, src: "/frame3.png", alt: "Special Dish Banner 3" },
-        { id: 4, src: "/frame4.png", alt: "Special Dish Banner 4" },
-        { id: 5, src: "/frame5.png", alt: "Special Dish Banner 5" },
+        { id: 1, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner1.webp", alt: "Special Dish Banner 1" },
+        { id: 2, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner2.webp", alt: "Special Dish Banner 2" },
+        { id: 3, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner3.webp", alt: "Special Dish Banner 3" },
+        { id: 4, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner4.webp", alt: "Special Dish Banner 4" },
+        { id: 5, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/static-media/banner-image/banner5.webp", alt: "Special Dish Banner 5" },
     ];
 
     return (
