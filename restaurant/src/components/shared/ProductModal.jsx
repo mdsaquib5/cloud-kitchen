@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FiX, FiPlus, FiMinus, FiShoppingBag, FiCheck } from "react-icons/fi";
-import { FaStar } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
 import { toast } from "sonner";
 
@@ -43,12 +42,8 @@ const ProductModal = ({ product, isOpen, onClose }) => {
     };
 
     const selectedPortionObj = portionOptions.find((p) => (p._id || p.portionName) === selectedPortionId) || portionOptions[0];
-    
-    // In our new schema, the portion price IS the base price for that size.
-    // The previous code had a base price + "extra" difference. 
-    // Now we'll just use the selected portion's price directly.
     const baseItemPrice = selectedPortionObj ? selectedPortionObj.price : 50.00;
-    
+
     const addonsTotal = selectedAddons.reduce((sum, item) => sum + item.price, 0);
     const unitPrice = baseItemPrice + addonsTotal;
     const totalPrice = (unitPrice * quantity).toFixed(2);
@@ -57,7 +52,7 @@ const ProductModal = ({ product, isOpen, onClose }) => {
         addToCart(product, {
             portion: selectedPortionId,
             portionLabel: selectedPortionObj?.portionName || "Standard",
-            portionExtra: 0, // Since baseItemPrice already reflects the full portion price
+            portionExtra: 0,
             addons: selectedAddons,
             cookingNote,
             quantity,
@@ -83,12 +78,6 @@ const ProductModal = ({ product, isOpen, onClose }) => {
                     <div className="modal-media-col">
                         <div className="modal-img-wrap">
                             <Image src={product.image} alt={product.title} width={400} height={400} className="modal-product-img" />
-                            {product.isVeg !== undefined && (
-                                <div className="modal-dietary-badge">
-                                    <span className={product.isVeg ? "diet-dot veg" : "diet-dot non-veg"}></span>
-                                    <span>{product.isVeg ? "Pure Veg" : "Non-Veg"}</span>
-                                </div>
-                            )}
                         </div>
                     </div>
 
@@ -96,17 +85,7 @@ const ProductModal = ({ product, isOpen, onClose }) => {
                         <div className="modal-header-info">
                             <div className="modal-category-tag">{product.category?.title || product.categoryName || "Speciality"}</div>
                             <h2 className="modal-product-title">{product.title}</h2>
-                            
-                            <div className="modal-rating-row">
-                                <div className="stars-pill">
-                                    <FaStar size={13} className="star-gold" />
-                                    <span>{product.rating || 5}.0</span>
-                                </div>
-                                <span className="reviews-count">({product.ratingCount || 100}+ reviews)</span>
-                            </div>
-
                             <p className="modal-product-desc">{product.description}</p>
-                            
                             <div className="modal-price-box">
                                 <span className="modal-current-price">₹{unitPrice.toFixed(2)}</span>
                             </div>

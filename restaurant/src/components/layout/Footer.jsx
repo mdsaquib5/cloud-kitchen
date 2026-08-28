@@ -31,22 +31,8 @@ const Footer = () => {
                             />
                         </Link>
                         <p className="footer-brand-desc">
-                            Your's Kitchen brings royal culinary traditions and modern cloud kitchen excellence to your table. 100% fresh, hygienic, and prepared with authentic master recipes.
+                            Shree Shyaam brings you the authentic taste of street food and modern fast food excellence right to your table. 100% fresh, hygienic, and prepared with love.
                         </p>
-                        <div className="footer-social-links">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Instagram">
-                                <FaInstagram size={16} />
-                            </a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="YouTube">
-                                <FaYoutube size={16} />
-                            </a>
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Facebook">
-                                <FaFacebookF size={15} />
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Twitter">
-                                <FaTwitter size={15} />
-                            </a>
-                        </div>
                     </div>
 
                     <div className="footer-col links-col">
@@ -59,27 +45,9 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/menu">
+                                <Link href="/#popular-foods">
                                     <FiChevronRight className="link-arrow" />
                                     <span>Explore Menu</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/menu/todays-special">
-                                    <FiChevronRight className="link-arrow" />
-                                    <span>Today's Special</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/menu/veg">
-                                    <FiChevronRight className="link-arrow" />
-                                    <span>Pure Veg Foods</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/menu/non-veg">
-                                    <FiChevronRight className="link-arrow" />
-                                    <span>Non-Veg Specials</span>
                                 </Link>
                             </li>
                             <li>
@@ -91,7 +59,7 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="footer-col policies-col">
+                    {/* <div className="footer-col policies-col">
                         <h4 className="footer-heading">Support & Policies</h4>
                         <ul className="footer-links-list">
                             <li>
@@ -131,7 +99,7 @@ const Footer = () => {
                                 </Link>
                             </li>
                         </ul>
-                    </div>
+                    </div> */}
 
                     <div className="footer-col contact-col">
                         <h4 className="footer-heading">Kitchen Contact</h4>
@@ -170,16 +138,13 @@ const Footer = () => {
 
                 <div className="footer-bottom-bar">
                     <p className="copyright-text">
-                        © {new Date().getFullYear()} <span className="brand-highlight">Your's Kitchen</span>. All Rights Reserved.
+                        © {new Date().getFullYear()} <span className="brand-highlight">Shree Shyaam</span>. All Rights Reserved.
                     </p>
                     <div className="footer-credits">
                         <span>Developed by </span>
                         <a href="https://noohark.com" target="_blank" rel="noopener noreferrer" className="developer-link">
                             NoohArk
                         </a>
-                    </div>
-                    <div className="footer-bottom-badges">
-                        <span className="secure-badge">100% Direct UPI & Card Payment Safe</span>
                     </div>
                 </div>
             </div>

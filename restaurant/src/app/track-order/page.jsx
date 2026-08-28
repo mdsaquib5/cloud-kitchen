@@ -15,13 +15,9 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
 import EmptyState from "@/components/shared/EmptyState";
 
 const TrackOrder = () => {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const router = useRouter();
     const activeOrders = useStore((state) => state.activeOrders || []);
     const updateActiveOrder = useStore((state) => state.updateActiveOrder);
     const removeActiveOrder = useStore((state) => state.removeActiveOrder);
@@ -45,7 +41,7 @@ const TrackOrder = () => {
                     const idToFetch = order.orderId || order.id;
                     if (!idToFetch) return;
 
-                    const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/track/${idToFetch}`);
                     const data = await res.json();
                     if (data.success && data.order) {
                         const latest = data.order;

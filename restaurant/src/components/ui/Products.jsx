@@ -7,7 +7,7 @@ import SectionTitle from "../layout/SectionTitle";
 import ProCard from "../shared/ProCard";
 import ProductModal from "../shared/ProductModal";
 
-const Products = ({ initialCategories = [], initialProducts = [] }) => {
+const Products = ({ initialProducts = [] }) => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,9 +28,6 @@ const Products = ({ initialCategories = [], initialProducts = [] }) => {
                     title="Popular Food Items"
                     description="Crispy, savory & signature delicacies prepared fresh on every order."
                 />
-
-                
-
                 <div className="products-grid">
                     {initialProducts.slice(0, 10).map((item, index) => (
                         <ProCard key={item._id || index} item={item} onOpenModal={handleOpenModal} />
@@ -44,7 +41,6 @@ const Products = ({ initialCategories = [], initialProducts = [] }) => {
                     </Link>
                 </div>
             </div>
-
             <ProductModal
                 product={selectedProduct}
                 isOpen={isModalOpen}

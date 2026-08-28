@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiSearch, FiSliders } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import ProCard from "@/components/shared/ProCard";
 import ProductModal from "@/components/shared/ProductModal";
 
