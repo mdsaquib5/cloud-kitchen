@@ -127,10 +127,10 @@ const History = () => {
                             total: (o.totals?.grandTotal || 0),
                         };
                     });
-                
+
                 // Sort by date descending
                 historyOrders.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
-                
+
                 setOrdersList(historyOrders);
             }
         } catch (error) {
@@ -184,7 +184,7 @@ const History = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-    
+
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
@@ -204,10 +204,6 @@ const History = () => {
                         <span className="kpi-title">Total Orders</span>
                         <span className="kpi-amount">{ordersList.length} Orders</span>
                     </div>
-                    <button type="button" className="export-btn" onClick={handleExportCSV}>
-                        <FiDownloadCloud size={16} />
-                        <span>Export CSV</span>
-                    </button>
                 </div>
             </div>
 
@@ -362,23 +358,23 @@ const History = () => {
                     )}
                 </div>
             </div>
-            
+
             {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '20px', padding: '15px' }}>
-                    <button 
-                        onClick={() => paginate(currentPage - 1)} 
+                    <button
+                        onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
                         style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === 1 ? '#f3f4f6' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                     >
                         Previous
                     </button>
-                    
+
                     <span style={{ fontSize: '0.9rem', color: '#4b5563', fontWeight: '500' }}>
                         Page {currentPage} of {totalPages}
                     </span>
-                    
-                    <button 
-                        onClick={() => paginate(currentPage + 1)} 
+
+                    <button
+                        onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
                         style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === totalPages ? '#f3f4f6' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontWeight: '500' }}
                     >

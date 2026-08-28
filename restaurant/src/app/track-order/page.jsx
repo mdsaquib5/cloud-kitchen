@@ -25,10 +25,10 @@ const TrackOrder = () => {
     const activeOrders = useStore((state) => state.activeOrders || []);
     const updateActiveOrder = useStore((state) => state.updateActiveOrder);
     const removeActiveOrder = useStore((state) => state.removeActiveOrder);
-    
+
     // Fix hydration flicker
     const [isMounted, setIsMounted] = useState(false);
-    
+
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -36,20 +36,21 @@ const TrackOrder = () => {
     // Real-time tracking poll
     useEffect(() => {
         if (!isMounted || activeOrders.length === 0) return;
-        
+
         const fetchOrderLive = async () => {
             try {
                 await Promise.all(activeOrders.map(async (order) => {
                     if (order.status === "DELIVERED" || order.status === "CANCELLED") return;
-                    
+
                     const idToFetch = order.orderId || order.id;
                     if (!idToFetch) return;
-                    
+
                     const res = await fetch(`http://localhost:4000/api/orders/track/${idToFetch}`);
                     const data = await res.json();
                     if (data.success && data.order) {
                         const latest = data.order;
-                        if (latest.status === "DELIVERED" || latest.status === "CANCELLED" || latest.status === "COMPLETED") {
+                        const finalStatuses = ["DELIVERED", "CANCELLED", "COMPLETED", "PICKED_UP", "PICKEDUP"];
+                        if (finalStatuses.includes(latest.status)) {
                             removeActiveOrder(idToFetch);
                         } else {
                             updateActiveOrder(idToFetch, {
@@ -58,6 +59,11 @@ const TrackOrder = () => {
                                 eta: latest.eta || order.eta,
                                 totals: latest.totals || order.totals
                             });
+                        }
+                    } else {
+                        // If order is not found on backend (e.g. database cleared), remove it from local state
+                        if (res.status === 404 || !data.success) {
+                            removeActiveOrder(idToFetch);
                         }
                     }
                 }));
@@ -83,7 +89,7 @@ const TrackOrder = () => {
         return (
             <div className="inner-wrapper track-page-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
                 <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
-                    <EmptyState 
+                    <EmptyState
                         title="No Active Order Found"
                         description="It seems you don't have any ongoing orders to track right now."
                         buttonText="Start a New Order"
@@ -104,7 +110,7 @@ const TrackOrder = () => {
                         <span>Continue Ordering</span>
                     </Link>
                 </div>
-                
+
                 {activeOrders.map((activeOrder, index) => {
                     const orderMode = activeOrder.orderType || "delivery";
                     const orderedItems = activeOrder.items || [];
@@ -143,203 +149,202 @@ const TrackOrder = () => {
                     return (
                         <div key={orderId || index} style={{ marginBottom: '40px', paddingBottom: '40px', borderBottom: index < activeOrders.length - 1 ? '2px dashed #e2e8f0' : 'none' }}>
 
-                <div className="track-layout-grid">
-                    <div className="track-main-col">
-                        <div className="track-status-banner">
-                            <div className="status-live-pill">
-                                <span className="live-pulse-dot"></span>
-                                <span>LIVE TRACKING</span>
-                            </div>
+                            <div className="track-layout-grid">
+                                <div className="track-main-col">
+                                    <div className="track-status-banner">
+                                        <div className="status-live-pill">
+                                            <span className="live-pulse-dot"></span>
+                                            <span>LIVE TRACKING</span>
+                                        </div>
 
-                            <div className="status-eta-block">
-                                <div className="eta-time-wrap">
-                                    <FiClock size={24} className="eta-icon" />
-                                    <div>
-                                        <h2 className="eta-heading">{activeOrder.eta || (orderMode === "takeaway" ? "15-20 Mins" : "30-40 Mins")}</h2>
-                                        <p className="eta-subtext">Estimated {orderMode === "takeaway" ? "Pickup" : "Arrival"} Time</p>
-                                    </div>
-                                </div>
-                                <div className="order-id-badge">
-                                    <span>Order ID:</span>
-                                    <strong>#{orderId}</strong>
-                                </div>
-                            </div>
-
-                            <div className="order-mode-badge-display">
-                                <span className="mode-badge-label">
-                                    {orderMode === "delivery" && <FaMotorcycle size={14} />}
-                                    {orderMode === "takeaway" && <FaStoreAlt size={14} />}
-                                    {orderMode === "dine-in" && <FaUtensils size={14} />}
-                                    <span>
-                                        {orderMode === "delivery"
-                                            ? "Home Delivery"
-                                            : orderMode === "takeaway"
-                                            ? `Takeaway (Pickup in ${activeOrder.pickupSlot || 15}m)`
-                                            : `Dine-In (Table ${activeOrder.tableNo || "04"})`}
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="track-timeline-card">
-                            <h3 className="track-card-title">Order Status Progress</h3>
-
-                            <div className="timeline-stepper">
-                                {activeSteps.map((step, idx) => {
-                                    const isDone = idx < stepIndex;
-                                    const isCurrent = idx === stepIndex;
-
-                                    return (
-                                        <div
-                                            key={step.id}
-                                            className={`timeline-step-item ${
-                                                isDone ? "step-done" : isCurrent ? "step-current" : "step-pending"
-                                            }`}
-                                        >
-                                            <div className="step-node-col">
-                                                <div className="step-icon-circle">
-                                                    {step.icon}
+                                        <div className="status-eta-block">
+                                            <div className="eta-time-wrap">
+                                                <FiClock size={24} className="eta-icon" />
+                                                <div>
+                                                    <h2 className="eta-heading">{activeOrder.eta || (orderMode === "takeaway" ? "15-20 Mins" : "30-40 Mins")}</h2>
+                                                    <p className="eta-subtext">Estimated {orderMode === "takeaway" ? "Pickup" : "Arrival"} Time</p>
                                                 </div>
-                                                {idx < activeSteps.length - 1 && (
-                                                    <div className="step-connector-line"></div>
-                                                )}
                                             </div>
-
-                                            <div className="step-content-col">
-                                                <div className="step-heading-row">
-                                                    <h4 className="step-title">{step.title}</h4>
-                                                    <span className="step-time">{step.time}</span>
-                                                </div>
-                                                <p className="step-desc">{step.desc}</p>
+                                            <div className="order-id-badge">
+                                                <span>Order ID:</span>
+                                                <strong>#{orderId}</strong>
                                             </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
 
-                        {orderMode === "delivery" && activeOrder.rider && (
-                            <div className="rider-contact-card">
-                                <div className="rider-avatar-wrap">
-                                    <div className="rider-avatar-placeholder">
-                                        <FaMotorcycle size={22} />
-                                    </div>
-                                    <div>
-                                        <h4 className="rider-name">{activeOrder.rider.name}</h4>
-                                        <p className="rider-service">Delivery Partner ({activeOrder.rider.provider || 'Express'})</p>
-                                        {activeOrder.rider.otp && (
-                                            <div className="otp-verification-pill">
-                                                <span>Delivery OTP:</span>
-                                                <strong>{activeOrder.rider.otp}</strong>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="rider-action-btns">
-                                    {activeOrder.rider.phone && (
-                                        <a href={`tel:${activeOrder.rider.phone}`} className="rider-btn call-btn">
-                                            <FiPhone size={15} />
-                                            <span>Call</span>
-                                        </a>
-                                    )}
-                                    {activeOrder.rider.phone && (
-                                        <a href={`https://wa.me/${activeOrder.rider.phone.replace(/[^0-9]/g, '')}`} className="rider-btn chat-btn" target="_blank" rel="noopener noreferrer">
-                                            <FiMessageSquare size={15} />
-                                            <span>WhatsApp</span>
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeOrder.customer?.address && (
-                            <div className="delivery-destination-card">
-                                <div className="dest-icon-wrap">
-                                    <FiMapPin size={20} />
-                                </div>
-                                <div className="dest-info">
-                                    <h4 className="dest-title">Delivery Destination</h4>
-                                    <p className="dest-address">{activeOrder.customer.address}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="track-sidebar-col">
-                        <div className="track-summary-card">
-                            <h3 className="track-card-title">Order Items ({orderedItems.length})</h3>
-
-                            <div className="track-items-list">
-                                {orderedItems.map((item, index) => (
-                                    <div key={item.cartItemId || item.id || item._id || index} className="track-item-row">
-                                        {item.image && (
-                                            <div className="track-item-img-wrap">
-                                                <Image
-                                                    src={item.image}
-                                                    alt={item.title || "Item"}
-                                                    width={48}
-                                                    height={48}
-                                                    className="track-item-img"
-                                                />
-                                            </div>
-                                        )}
-                                        <div className="track-item-info">
-                                            <h5 className="track-item-name">{item.title}</h5>
-                                            <span className="track-item-qty">
-                                                Qty: {item.quantity} {item.portionLabel ? `• Portion: ${item.portionLabel}` : ''}
+                                        <div className="order-mode-badge-display">
+                                            <span className="mode-badge-label">
+                                                {orderMode === "delivery" && <FaMotorcycle size={14} />}
+                                                {orderMode === "takeaway" && <FaStoreAlt size={14} />}
+                                                {orderMode === "dine-in" && <FaUtensils size={14} />}
+                                                <span>
+                                                    {orderMode === "delivery"
+                                                        ? "Home Delivery"
+                                                        : orderMode === "takeaway"
+                                                            ? `Takeaway (Pickup in ${activeOrder.pickupSlot || 15}m)`
+                                                            : `Dine-In (Table ${activeOrder.tableNo || "04"})`}
+                                                </span>
                                             </span>
                                         </div>
-                                        <span className="track-item-price">
-                                            ₹{((item.unitPrice || item.price || 0) * item.quantity).toFixed(2)}
-                                        </span>
                                     </div>
-                                ))}
-                            </div>
 
-                            <div className="track-price-breakdown">
-                                <div className="breakdown-row">
-                                    <span>Item Total</span>
-                                    <span>₹{(activeOrder.totals?.subtotal || activeOrder.subtotal || 0).toFixed(2)}</span>
-                                </div>
-                                <div className="breakdown-row">
-                                    <span>Delivery Partner Fee</span>
-                                    <span>
-                                        {orderMode === "delivery" && (activeOrder.totals?.deliveryFee || activeOrder.deliveryFee)
-                                            ? `₹${(activeOrder.totals?.deliveryFee || activeOrder.deliveryFee).toFixed(2)}`
-                                            : "FREE"}
-                                    </span>
-                                </div>
-                                <div className="breakdown-row">
-                                    <span>Platform Fee</span>
-                                    <span>₹{(activeOrder.totals?.platformFee || activeOrder.platformFee || 0).toFixed(2)}</span>
-                                </div>
-                                {(activeOrder.totals?.discount > 0 || activeOrder.discount > 0) && (
-                                    <div className="breakdown-row">
-                                        <span>Discount</span>
-                                        <span className="discount-val">-₹{(activeOrder.totals?.discount || activeOrder.discount || 0).toFixed(2)}</span>
+                                    <div className="track-timeline-card">
+                                        <h3 className="track-card-title">Order Status Progress</h3>
+
+                                        <div className="timeline-stepper">
+                                            {activeSteps.map((step, idx) => {
+                                                const isDone = idx < stepIndex;
+                                                const isCurrent = idx === stepIndex;
+
+                                                return (
+                                                    <div
+                                                        key={step.id}
+                                                        className={`timeline-step-item ${isDone ? "step-done" : isCurrent ? "step-current" : "step-pending"
+                                                            }`}
+                                                    >
+                                                        <div className="step-node-col">
+                                                            <div className="step-icon-circle">
+                                                                {step.icon}
+                                                            </div>
+                                                            {idx < activeSteps.length - 1 && (
+                                                                <div className="step-connector-line"></div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="step-content-col">
+                                                            <div className="step-heading-row">
+                                                                <h4 className="step-title">{step.title}</h4>
+                                                                <span className="step-time">{step.time}</span>
+                                                            </div>
+                                                            <p className="step-desc">{step.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                )}
-                                <div className="breakdown-row">
-                                    <span>Taxes & GST (5%)</span>
-                                    <span>₹{(activeOrder.totals?.tax || activeOrder.tax || 0).toFixed(2)}</span>
-                                </div>
-                                <div className="breakdown-row total-row">
-                                    <span>Total Amount Paid</span>
-                                    <span className="grand-total-val">
-                                        ₹{(activeOrder.totals?.grandTotal || activeOrder.grandTotal || 0).toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
 
-                            <div className="track-security-badge">
-                                <FiShield size={16} className="security-icon" />
-                                <span>Verified Instant Kitchen State Machine</span>
+                                    {orderMode === "delivery" && activeOrder.rider && (
+                                        <div className="rider-contact-card">
+                                            <div className="rider-avatar-wrap">
+                                                <div className="rider-avatar-placeholder">
+                                                    <FaMotorcycle size={22} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="rider-name">{activeOrder.rider.name}</h4>
+                                                    <p className="rider-service">Delivery Partner ({activeOrder.rider.provider || 'Express'})</p>
+                                                    {activeOrder.rider.otp && (
+                                                        <div className="otp-verification-pill">
+                                                            <span>Delivery OTP:</span>
+                                                            <strong>{activeOrder.rider.otp}</strong>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="rider-action-btns">
+                                                {activeOrder.rider.phone && (
+                                                    <a href={`tel:${activeOrder.rider.phone}`} className="rider-btn call-btn">
+                                                        <FiPhone size={15} />
+                                                        <span>Call</span>
+                                                    </a>
+                                                )}
+                                                {activeOrder.rider.phone && (
+                                                    <a href={`https://wa.me/${activeOrder.rider.phone.replace(/[^0-9]/g, '')}`} className="rider-btn chat-btn" target="_blank" rel="noopener noreferrer">
+                                                        <FiMessageSquare size={15} />
+                                                        <span>WhatsApp</span>
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {activeOrder.customer?.address && (
+                                        <div className="delivery-destination-card">
+                                            <div className="dest-icon-wrap">
+                                                <FiMapPin size={20} />
+                                            </div>
+                                            <div className="dest-info">
+                                                <h4 className="dest-title">Delivery Destination</h4>
+                                                <p className="dest-address">{activeOrder.customer.address}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="track-sidebar-col">
+                                    <div className="track-summary-card">
+                                        <h3 className="track-card-title">Order Items ({orderedItems.length})</h3>
+
+                                        <div className="track-items-list">
+                                            {orderedItems.map((item, index) => (
+                                                <div key={item.cartItemId || item.id || item._id || index} className="track-item-row">
+                                                    {item.image && (
+                                                        <div className="track-item-img-wrap">
+                                                            <Image
+                                                                src={item.image}
+                                                                alt={item.title || "Item"}
+                                                                width={48}
+                                                                height={48}
+                                                                className="track-item-img"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="track-item-info">
+                                                        <h5 className="track-item-name">{item.title}</h5>
+                                                        <span className="track-item-qty">
+                                                            Qty: {item.quantity} {item.portionLabel ? `• Portion: ${item.portionLabel}` : ''}
+                                                        </span>
+                                                    </div>
+                                                    <span className="track-item-price">
+                                                        ₹{((item.unitPrice || item.price || 0) * item.quantity).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="track-price-breakdown">
+                                            <div className="breakdown-row">
+                                                <span>Item Total</span>
+                                                <span>₹{(activeOrder.totals?.subtotal || activeOrder.subtotal || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="breakdown-row">
+                                                <span>Delivery Partner Fee</span>
+                                                <span>
+                                                    {orderMode === "delivery" && (activeOrder.totals?.deliveryFee || activeOrder.deliveryFee)
+                                                        ? `₹${(activeOrder.totals?.deliveryFee || activeOrder.deliveryFee).toFixed(2)}`
+                                                        : "FREE"}
+                                                </span>
+                                            </div>
+                                            <div className="breakdown-row">
+                                                <span>Platform Fee</span>
+                                                <span>₹{(activeOrder.totals?.platformFee || activeOrder.platformFee || 0).toFixed(2)}</span>
+                                            </div>
+                                            {(activeOrder.totals?.discount > 0 || activeOrder.discount > 0) && (
+                                                <div className="breakdown-row">
+                                                    <span>Discount</span>
+                                                    <span className="discount-val">-₹{(activeOrder.totals?.discount || activeOrder.discount || 0).toFixed(2)}</span>
+                                                </div>
+                                            )}
+                                            <div className="breakdown-row">
+                                                <span>Taxes & GST (5%)</span>
+                                                <span>₹{(activeOrder.totals?.tax || activeOrder.tax || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="breakdown-row total-row">
+                                                <span>Total Amount Paid</span>
+                                                <span className="grand-total-val">
+                                                    ₹{(activeOrder.totals?.grandTotal || activeOrder.grandTotal || 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="track-security-badge">
+                                            <FiShield size={16} className="security-icon" />
+                                            <span>Verified Instant Kitchen State Machine</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                </div>
                     );
                 })}
             </div>
