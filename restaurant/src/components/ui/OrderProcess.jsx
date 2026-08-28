@@ -36,7 +36,7 @@ const OrderProcess = () => {
                 <div className="order-process-grid">
                     <div className="process-thumb-wrap">
                         <Image
-                            src="/process-themb.png"
+                            src="https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/process-themb.webp"
                             alt="Ordering Process Illustration"
                             width={540}
                             height={480}

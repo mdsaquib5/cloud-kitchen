@@ -495,7 +495,7 @@ header {
 }
 
 .why-choose-card-banner {
-    background: url(/choose-bg.png) center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
+    background: url('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/choose-bg.webp') center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
     border-radius: 10px;
     padding: 50px 30px;
     box-shadow: 0 20px 50px #00000033;
@@ -787,7 +787,7 @@ header {
 
 .main-footer {
     position: relative;
-    background: url(/footer-bg.png) center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
+    background: url('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/footer-bg.webp') center / cover no-repeat, linear-gradient(#000929e3 0%, #000517e3 100%);
     color: var(--white);
     padding-top: 80px;
     padding-bottom: 30px;
@@ -1165,7 +1165,7 @@ a.contact-val:hover {
 }
 
 .cta-banner {
-    background: url('/cta-bg.jpg') center / cover no-repeat;
+    background: url('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/cta-bg.webp') center / cover no-repeat;
     border-radius: 20px;
     padding: 60px 70px;
     display: flex;
@@ -3858,7 +3858,7 @@ a.contact-val:hover {
 .step-title {
     font-size: 15px;
     font-weight: 800;
-    color: var(--dark);
+    color: var(--white);
 }
 
 .step-pending .step-title {

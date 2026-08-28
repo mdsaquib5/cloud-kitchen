@@ -6,12 +6,12 @@ import SectionTitle from "../layout/SectionTitle";
 
 const WhyChooseUs = () => {
     const galleryItems = [
-        { id: 1, src: "/choose1.png", alt: "Sizzling Gourmet Delights" },
-        { id: 2, src: "/choose2.png", alt: "Rich Handcrafted Soups" },
-        { id: 3, src: "/choose3.png", alt: "Steaming Fresh Wok Specialties" },
-        { id: 4, src: "/choose4.png", alt: "Authentic Claypot Curries" },
-        { id: 5, src: "/choose1.png", alt: "Signature Grilled Dishes" },
-        { id: 6, src: "/choose3.png", alt: "Hot Sizzling Kebabs" },
+        { id: 1, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-1.jpg", alt: "Sizzling Gourmet Delights" },
+        { id: 2, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-2.jpg", alt: "Rich Handcrafted Soups" },
+        { id: 3, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-3.jpg", alt: "Steaming Fresh Wok Specialties" },
+        { id: 4, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-4.jpg", alt: "Authentic Claypot Curries" },
+        { id: 5, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-5.jpg", alt: "Signature Grilled Dishes" },
+        { id: 6, src: "https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/why-chooose/food-6.jpg", alt: "Hot Sizzling Kebabs" },
     ];
 
     const features = [

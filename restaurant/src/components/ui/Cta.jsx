@@ -22,7 +22,7 @@ const Cta = () => {
 
                     <div className="cta-image-wrap">
                         <Image
-                            src="/delivery-man.png"
+                            src="https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/delivery-man.webp"
                             alt="Fast Delivery Rider"
                             width={520}
                             height={440}
