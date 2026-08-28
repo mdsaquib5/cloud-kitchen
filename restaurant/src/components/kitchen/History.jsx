@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import {
     FiSearch,
     FiPrinter,
-    FiDownloadCloud,
-    FiCalendar,
     FiClock,
     FiCheckCircle,
     FiXCircle,
@@ -14,86 +12,6 @@ import {
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
 
-const mockHistoryOrders = [
-    {
-        id: "YK-84910",
-        customerName: "Rohan Kapoor",
-        phone: "+91 98101 23456",
-        orderType: "delivery",
-        dateTime: "Today, 02:45 PM",
-        itemsSummary: "2x Paneer Kurkure Momos (Full), 1x Cold Coffee",
-        itemsCount: 3,
-        paymentMode: "UPI / QR",
-        paymentStatus: "PAID",
-        orderStatus: "COMPLETED",
-        total: 290,
-    },
-    {
-        id: "YK-84909",
-        customerName: "Aakash Mehta",
-        phone: "+91 98223 34455",
-        orderType: "takeaway",
-        dateTime: "Today, 02:15 PM",
-        itemsSummary: "1x ₹179 Mega Feast Combo, 1x Veg Spring Roll",
-        itemsCount: 2,
-        paymentMode: "CASH",
-        paymentStatus: "PAID",
-        orderStatus: "COMPLETED",
-        total: 229,
-    },
-    {
-        id: "YK-84908",
-        customerName: "Table 02 (Dining)",
-        phone: "+91 99112 23344",
-        orderType: "dine-in",
-        dateTime: "Today, 01:30 PM",
-        itemsSummary: "1x Butter Malai Chaap, 1x Singapuri Chowmein",
-        itemsCount: 2,
-        paymentMode: "CARD / POS",
-        paymentStatus: "PAID",
-        orderStatus: "COMPLETED",
-        total: 200,
-    },
-    {
-        id: "YK-84907",
-        customerName: "Simran Kaur",
-        phone: "+91 98770 12345",
-        orderType: "delivery",
-        dateTime: "Today, 01:05 PM",
-        itemsSummary: "2x Paneer Samosa, 1x Red Sauce Pasta",
-        itemsCount: 3,
-        paymentMode: "ONLINE / RAZORPAY",
-        paymentStatus: "PAID",
-        orderStatus: "COMPLETED",
-        total: 180,
-    },
-    {
-        id: "YK-84906",
-        customerName: "Kunal Bansal",
-        phone: "+91 98110 99887",
-        orderType: "delivery",
-        dateTime: "Today, 12:40 PM",
-        itemsSummary: "1x Honey Chilli Potato, 1x Cheese Burger",
-        itemsCount: 2,
-        paymentMode: "UPI / QR",
-        paymentStatus: "REFUNDED",
-        orderStatus: "CANCELLED",
-        total: 170,
-    },
-    {
-        id: "YK-84905",
-        customerName: "Meenakshi Das",
-        phone: "+91 98450 67890",
-        orderType: "takeaway",
-        dateTime: "Today, 12:10 PM",
-        itemsSummary: "1x ₹150 Super Saver Combo",
-        itemsCount: 1,
-        paymentMode: "CASH",
-        paymentStatus: "PAID",
-        orderStatus: "COMPLETED",
-        total: 150,
-    },
-];
 
 const History = () => {
 
@@ -102,7 +20,7 @@ const History = () => {
 
     const fetchHistory = async () => {
         try {
-            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
             const data = await res.json();
             if (data.success) {
                 const historyOrders = data.orders

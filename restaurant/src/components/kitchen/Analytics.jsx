@@ -7,36 +7,12 @@ import {
     FiShoppingBag,
     FiClock,
     FiPieChart,
-    FiCalendar,
     FiArrowUpRight,
     FiArrowDownRight,
     FiAward,
 } from "react-icons/fi";
-import { FaFire, FaMotorcycle } from "react-icons/fa";
+import { FaFire } from "react-icons/fa";
 import { toast } from "sonner";
-
-const topDishes = [
-    { rank: 1, name: "Paneer Kurkure Momos", category: "Kurkure Momos", orders: 142, revenue: 17040, growth: "+18%" },
-    { rank: 2, name: "₹179 Mega Feast Combo", category: "Combos", orders: 118, revenue: 21122, growth: "+24%" },
-    { rank: 3, name: "Butter Malai Chaap", category: "Chaap Specials", orders: 96, revenue: 8640, growth: "+12%" },
-    { rank: 4, name: "Paneer Chowmein", category: "Chowmein", orders: 84, revenue: 9240, growth: "+8%" },
-    { rank: 5, name: "Cold Coffee", category: "Beverages", orders: 79, revenue: 3950, growth: "+15%" },
-];
-
-const categoryShare = [
-    { name: "Momos Specials", percentage: 38, revenue: "₹34,200", color: "#f01543" },
-    { name: "Combo Offers", percentage: 26, revenue: "₹23,400", color: "#ffb703" },
-    { name: "Chaap & Rolls", percentage: 18, revenue: "₹16,200", color: "#3b82f6" },
-    { name: "Chowmein & Pasta", percentage: 12, revenue: "₹10,800", color: "#10b981" },
-    { name: "Beverages & Samosa", percentage: 6, revenue: "₹5,400", color: "#8b5cf6" },
-];
-
-const hourlyTrends = [
-    { hour: "12 PM - 2 PM (Lunch Rush)", orders: 48, percentage: 65 },
-    { hour: "2 PM - 5 PM (Snack Window)", orders: 22, percentage: 30 },
-    { hour: "5 PM - 8 PM (Evening Peak)", orders: 76, percentage: 100 },
-    { hour: "8 PM - 11 PM (Dinner Rush)", orders: 64, percentage: 85 },
-];
 
 const Analytics = () => {
     const [timeframe, setTimeframe] = useState("week");
@@ -46,18 +22,18 @@ const Analytics = () => {
     const [aov, setAov] = useState(0);
     const [topDishesList, setTopDishesList] = useState([]);
 
-        const [categoryShareList, setCategoryShareList] = useState([]);
+    const [categoryShareList, setCategoryShareList] = useState([]);
     const [hourlyTrendsList, setHourlyTrendsList] = useState([]);
 
     const fetchAnalytics = async () => {
         try {
-            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
             const data = await res.json();
             if (data.success) {
                 let revenue = 0;
                 let ordersCount = data.orders.length;
                 let itemTracker = {};
-                
+
                 // For categories
                 let categoryRevenue = {
                     "Momos Specials": 0,
@@ -78,7 +54,7 @@ const Analytics = () => {
                 data.orders.forEach(o => {
                     if (o.status !== "CANCELLED") {
                         revenue += (o.totals?.grandTotal || 0);
-                        
+
                         // Hourly Trend
                         const hour = new Date(o.createdAt).getHours();
                         if (hour >= 12 && hour < 14) hourlyCounts.lunch++;
@@ -86,17 +62,17 @@ const Analytics = () => {
                         else if (hour >= 17 && hour < 20) hourlyCounts.evening++;
                         else if (hour >= 20 || hour < 4) hourlyCounts.dinner++;
                         else hourlyCounts.snack++; // default catchall
-                        
+
                         o.items.forEach(item => {
                             const itemRev = item.quantity * (item.unitPrice || 0);
-                            
+
                             // Track Top Dishes
                             if (!itemTracker[item.title]) {
                                 itemTracker[item.title] = { name: item.title, category: "Menu Item", orders: 0, revenue: 0 };
                             }
                             itemTracker[item.title].orders += item.quantity;
                             itemTracker[item.title].revenue += itemRev;
-                            
+
                             // Track Categories
                             const titleLower = item.title.toLowerCase();
                             if (titleLower.includes("momo")) categoryRevenue["Momos Specials"] += itemRev;
@@ -120,9 +96,9 @@ const Analytics = () => {
                     rank: idx + 1,
                     growth: "+10%"
                 }));
-                if (top5.length === 0) top5 = topDishes; // fallback if empty
-                setTopDishesList(top5);
                 
+                setTopDishesList(top5);
+
                 // Prepare Category Share
                 const colors = ["#f01543", "#ffb703", "#3b82f6", "#10b981", "#8b5cf6"];
                 const totalCatRev = Object.values(categoryRevenue).reduce((a, b) => a + b, 0) || 1; // avoid / 0
@@ -135,9 +111,9 @@ const Analytics = () => {
                         color: colors[idx % colors.length]
                     }))
                     .sort((a, b) => b.revenueNum - a.revenueNum); // Sort by highest revenue
-                    
+
                 setCategoryShareList(catList);
-                
+
                 // Prepare Hourly Trends
                 const maxHour = Math.max(...Object.values(hourlyCounts)) || 1;
                 setHourlyTrendsList([
@@ -284,7 +260,7 @@ const Analytics = () => {
                     </div>
 
                     <div className="cat-share-list">
-                        {(categoryShareList.length > 0 ? categoryShareList : categoryShare).map((cat, idx) => (
+                        {categoryShareList.map((cat, idx) => (
                             <div key={idx} className="cat-share-row">
                                 <div className="cat-share-header">
                                     <span className="cat-name">{cat.name}</span>

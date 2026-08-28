@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     FiGrid,
-    FiShoppingBag,
     FiTruck,
     FiClock,
     FiUsers,
@@ -22,7 +21,7 @@ const KitchenSidebar = () => {
     useEffect(() => {
         const fetchLiveCount = async () => {
             try {
-                const res = await fetch("http://localhost:4000/api/orders/admin/all");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
                 const data = await res.json();
                 if (data.success && data.orders) {
                     // Count only active orders
@@ -50,7 +49,7 @@ const KitchenSidebar = () => {
             badge: liveOrdersCount > 0 ? liveOrdersCount.toString() : null,
             badgeType: "hot",
         },
-        
+
         {
             id: "dispatch",
             label: "3PL & Dispatch",

@@ -9,19 +9,11 @@ import {
     FiMapPin,
     FiPlus,
     FiMinus,
-    FiEdit2,
-    FiTrash2,
-    FiCopy,
-    FiChevronDown,
     FiArrowLeft,
-    FiCheck,
-    FiCreditCard,
     FiDollarSign,
-    FiClock,
     FiShoppingBag,
-    FiTag,
 } from "react-icons/fi";
-import { FaMotorcycle, FaStoreAlt, FaUtensils, FaStar } from "react-icons/fa";
+import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
 import { useStore } from "@/store/useStore";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -36,28 +28,14 @@ const Checkout = () => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [specialRequest, setSpecialRequest] = useState("");
-    const [couponInput, setCouponInput] = useState("");
-    const [couponFeedback, setCouponFeedback] = useState(null);
-    const [isCouponsOpen, setIsCouponsOpen] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const cart = useStore((state) => state.cart);
     const orderType = useStore((state) => state.orderType);
-    const setOrderType = useStore((state) => state.setOrderType);
-    const pickupSlot = useStore((state) => state.pickupSlot);
-    const setPickupSlot = useStore((state) => state.setPickupSlot);
-    const tableNo = useStore((state) => state.tableNo);
-    const setTableNo = useStore((state) => state.setTableNo);
-    const selectedAddressId = useStore((state) => state.selectedAddressId);
+    const setOrderType = useStore((state) => state.setOrderType); const selectedAddressId = useStore((state) => state.selectedAddressId);
     const setSelectedAddressId = useStore((state) => state.setSelectedAddressId);
     const paymentMethod = useStore((state) => state.paymentMethod);
     const setPaymentMethod = useStore((state) => state.setPaymentMethod);
-    const updateQuantity = useStore((state) => state.updateQuantity);
-    const applyCoupon = useStore((state) => state.applyCoupon);
-    const removeCoupon = useStore((state) => state.removeCoupon);
-    const appliedCoupon = useStore((state) => state.appliedCoupon);
-    const clearCart = useStore((state) => state.clearCart);
+    const updateQuantity = useStore((state) => state.updateQuantity); const clearCart = useStore((state) => state.clearCart);
     const getCartTotals = useStore((state) => state.getCartTotals);
     const addPastOrder = useStore((state) => state.addPastOrder);
 
@@ -72,34 +50,10 @@ const Checkout = () => {
     }, [mounted, isAuthenticated, router]);
 
     const totals = getCartTotals();
-
-    const handleApplyCouponCode = (code) => {
-        const res = applyCoupon(code);
-        setCouponFeedback(res);
-        setCouponInput(code);
-        if (res.success) {
-            toast.success(res.message, { description: `Coupon ${code} applied successfully!` });
-        } else {
-            toast.error(res.message);
-        }
-    };
-
-    const handleCustomApply = (e) => {
-        e.preventDefault();
-        if (!couponInput) return;
-        const res = applyCoupon(couponInput);
-        setCouponFeedback(res);
-        if (res.success) {
-            toast.success(res.message, { description: `Coupon ${couponInput.toUpperCase()} applied!` });
-        } else {
-            toast.error(res.message);
-        }
-    };
-
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
-        
-        if(paymentMethod === 'online') {
+
+        if (paymentMethod === 'online') {
             toast.error("Online payment is not yet integrated. Please select Cash.");
             return;
         }
@@ -121,7 +75,7 @@ const Checkout = () => {
                     unitPrice: item.unitPrice,
                     portionLabel: item.portionLabel,
                     addons: item.addons || [],
-                    cookingNote: item.cookingNote || specialRequest
+                    cookingNote: item.cookingNote || ""
                 })),
                 orderType,
                 paymentMethod,
@@ -129,7 +83,7 @@ const Checkout = () => {
             };
 
             const res = await api.post("/orders", orderPayload);
-            
+
             if (res.data.success) {
                 toast.success(`Order #${res.data.order.orderId} Placed Successfully! 🎉 Tracking live now.`);
                 clearCart();
@@ -149,7 +103,7 @@ const Checkout = () => {
     if (!isAuthenticated) return null;
 
     if (!mounted) {
-        return <div style={{padding: '50px', textAlign: 'center'}}>Loading...</div>;
+        return <div style={{ padding: '50px', textAlign: 'center' }}>Loading...</div>;
     }
 
     if (cart.length === 0) {
@@ -345,7 +299,7 @@ const Checkout = () => {
                                             </div>
                                             <div className="preview-info-col">
                                                 <h5 className="preview-dish-name">{item.title}</h5>
-                                                <div className="preview-qty-pill" style={{marginTop: '5px'}}>
+                                                <div className="preview-qty-pill" style={{ marginTop: '5px' }}>
                                                     <button type="button" className="mini-qty-btn" onClick={() => updateQuantity(itemKey, item.quantity - 1)}>
                                                         <FiMinus size={10} />
                                                     </button>
@@ -365,7 +319,7 @@ const Checkout = () => {
                                 })}
                             </div>
 
-                            <div className="summary-rows" style={{marginTop: '20px'}}>
+                            <div className="summary-rows" style={{ marginTop: '20px' }}>
                                 <div className="summary-row">
                                     <span className="summary-label">Subtotal</span>
                                     <span className="summary-val">₹{totals.subtotal.toFixed(2)}</span>

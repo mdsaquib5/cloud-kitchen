@@ -6,83 +6,9 @@ import {
     FiUser,
     FiPhone,
     FiMapPin,
-    FiShoppingBag,
-    FiCalendar,
-    FiMessageCircle,
-    FiAward,
-    FiSend,
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
 import { toast } from "sonner";
-
-const mockCustomers = [
-    {
-        id: "CUST-101",
-        name: "Rahul Sharma",
-        phone: "9876543210",
-        address: "Flat 402, Royal Palms, Cyber City",
-        totalOrders: 14,
-        totalSpend: 4250,
-        lastOrderDate: "Yesterday",
-        favoriteDish: "Paneer Kurkure Momos",
-        tag: "VIP Loyal",
-    },
-    {
-        id: "CUST-102",
-        name: "Sneha Patel",
-        phone: "9822233445",
-        address: "Sector 56, Huda Colony, Gurgaon",
-        totalOrders: 8,
-        totalSpend: 2180,
-        lastOrderDate: "2 days ago",
-        favoriteDish: "₹179 Mega Feast Combo",
-        tag: "Regular",
-    },
-    {
-        id: "CUST-103",
-        name: "Amit Kumar",
-        phone: "9811122334",
-        address: "Tower B, Sector 29, Gurgaon",
-        totalOrders: 5,
-        totalSpend: 1420,
-        lastOrderDate: "Today",
-        favoriteDish: "White Sauce Pasta",
-        tag: "Frequent",
-    },
-    {
-        id: "CUST-104",
-        name: "Vikram Singh",
-        phone: "9765432109",
-        address: "House 12, Block C, Sushant Lok",
-        totalOrders: 3,
-        totalSpend: 890,
-        lastOrderDate: "5 days ago",
-        favoriteDish: "Butter Malai Chaap",
-        tag: "New Customer",
-    },
-    {
-        id: "CUST-105",
-        name: "Simran Kaur",
-        phone: "9877012345",
-        address: "DLF Phase 4, Galleria Market Area",
-        totalOrders: 11,
-        totalSpend: 3600,
-        lastOrderDate: "3 days ago",
-        favoriteDish: "Paneer Samosa",
-        tag: "VIP Loyal",
-    },
-    {
-        id: "CUST-106",
-        name: "Kunal Bansal",
-        phone: "9811099887",
-        address: "Sector 45, Greenwood City",
-        totalOrders: 2,
-        totalSpend: 540,
-        lastOrderDate: "1 week ago",
-        favoriteDish: "Cheese Burger",
-        tag: "Occasional",
-    },
-];
 
 const Customers = () => {
 
@@ -91,7 +17,7 @@ const Customers = () => {
 
     const fetchCustomers = async () => {
         try {
-            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
             const data = await res.json();
             if (data.success) {
                 const customerMap = {};
@@ -116,7 +42,7 @@ const Customers = () => {
                     // Update stats
                     customerMap[phone].totalOrders += 1;
                     customerMap[phone].totalSpend += (o.totals?.grandTotal || 0);
-                    
+
                     const orderDate = new Date(o.createdAt);
                     if (orderDate > customerMap[phone].lastOrderDate) {
                         customerMap[phone].lastOrderDate = orderDate;
@@ -166,7 +92,7 @@ const Customers = () => {
 
                 // Sort by total spend descending
                 formattedCustomers.sort((a, b) => b.totalSpend - a.totalSpend);
-                
+
                 setCustomers(formattedCustomers);
             }
         } catch (error) {
@@ -207,7 +133,7 @@ const Customers = () => {
     const vipCount = customers.filter((c) => c.tag === "VIP Loyal").length;
     const avgOrderVal = customers.length === 0 ? 0 : Math.round(
         customers.reduce((sum, c) => sum + c.totalSpend, 0) /
-            customers.reduce((sum, c) => sum + c.totalOrders, 0)
+        customers.reduce((sum, c) => sum + c.totalOrders, 0)
     );
 
     return (

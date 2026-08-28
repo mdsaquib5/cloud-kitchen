@@ -4,13 +4,7 @@ import React, { useState } from "react";
 import {
     FiSearch,
     FiPhone,
-    FiClock,
-    FiCheckCircle,
-    FiShield,
-    FiActivity,
-    FiMapPin,
     FiPlus,
-    FiTruck,
 } from "react-icons/fi";
 import { FaMotorcycle, FaCircle, FaStar } from "react-icons/fa";
 import { toast } from "sonner";

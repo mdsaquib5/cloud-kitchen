@@ -4,61 +4,12 @@ import React, { useState } from "react";
 import {
     FiClock,
     FiCheck,
-    FiPrinter,
     FiAlertCircle,
     FiCheckSquare,
     FiSquare,
-    FiFilter,
 } from "react-icons/fi";
-import { FaFire, FaUtensils, FaMotorcycle, FaStoreAlt } from "react-icons/fa";
+import { FaFire } from "react-icons/fa";
 import { toast } from "sonner";
-
-const mockStationTickets = [
-    {
-        id: "YK-84918",
-        customerName: "Amit Kumar",
-        orderType: "delivery",
-        elapsedMinutes: 8,
-        targetMinutes: 12,
-        station: "Momos & Fryer Station",
-        urgent: false,
-        notes: "Crispy fried, extra mayo dip.",
-        items: [
-            { id: "item-1", name: "Veg Fried Momo", portion: "Full Portion", qty: 1, done: true },
-            { id: "item-2", name: "Peri Peri Fries", portion: "Half Portion", qty: 1, done: false },
-            { id: "item-3", name: "White Sauce Pasta", portion: "Full Portion", qty: 1, done: false },
-        ],
-    },
-    {
-        id: "YK-84919",
-        customerName: "Table 04 (Dine-In)",
-        orderType: "dine-in",
-        elapsedMinutes: 14,
-        targetMinutes: 15,
-        station: "Wok & Chinese Station",
-        urgent: true,
-        notes: "Less spicy for kids.",
-        items: [
-            { id: "item-4", name: "Paneer Chowmein", portion: "Full Portion", qty: 1, done: false },
-            { id: "item-5", name: "Cheese Balls", portion: "Half Portion", qty: 1, done: false },
-        ],
-    },
-    {
-        id: "YK-84920",
-        customerName: "Rahul Sharma",
-        orderType: "delivery",
-        elapsedMinutes: 4,
-        targetMinutes: 12,
-        station: "Momos & Tandoor Station",
-        urgent: false,
-        notes: "Pack dips separately.",
-        items: [
-            { id: "item-6", name: "Paneer Kurkure Momos", portion: "Full Portion", qty: 2, done: true },
-            { id: "item-7", name: "Malai Chaap", portion: "Half Portion", qty: 1, done: false },
-            { id: "item-8", name: "Cold Coffee", portion: "Standard", qty: 2, done: true },
-        ],
-    },
-];
 
 const Preparing = () => {
 
@@ -68,7 +19,7 @@ const Preparing = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
             const data = await res.json();
             if (data.success) {
                 // Filter orders that need preparation
@@ -136,7 +87,7 @@ const Preparing = () => {
             const orderToUpdate = tickets.find(t => t.id === ticketId);
             const newStatus = orderToUpdate?.orderType === "delivery" ? "OUT_FOR_DELIVERY" : "READY_FOR_PICKUP";
 
-            const res = await fetch(`http://localhost:4000/api/orders/admin/status/${ticketId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/status/${ticketId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: newStatus })

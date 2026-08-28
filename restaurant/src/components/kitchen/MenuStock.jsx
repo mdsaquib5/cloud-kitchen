@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiSearch, FiCheckCircle, FiXCircle, FiFilter, FiAlertCircle, FiPower } from "react-icons/fi";
+import { FiSearch, FiCheckCircle, FiXCircle, FiAlertCircle } from "react-icons/fi";
 import { toast } from "sonner";
-import { CATEGORIES, PRODUCTS } from "@/constant/product";
+import { CATEGORIES } from "@/constant/product";
 import FoodModal from "./FoodModal";
 import CategoryModal from "./CategoryModal";
 import api from "@/services/api";
@@ -29,9 +29,9 @@ const MenuStock = () => {
         }
     };
 
-    
+
     const handleDeleteCategory = async (catId) => {
-        if(confirm("Are you sure you want to delete this category? All related dishes might lose their category reference.")) {
+        if (confirm("Are you sure you want to delete this category? All related dishes might lose their category reference.")) {
             try {
                 const res = await api.delete(`/category/${catId}`);
                 if (res.data.success) {
@@ -91,7 +91,7 @@ const MenuStock = () => {
     };
 
     const handleDeleteFood = async (foodId) => {
-        if(confirm("Are you sure you want to delete this dish?")) {
+        if (confirm("Are you sure you want to delete this dish?")) {
             try {
                 const res = await api.delete(`/food/${foodId}`);
                 if (res.data.success) {
@@ -106,7 +106,7 @@ const MenuStock = () => {
 
     const handleSaveFood = async (foodData) => {
         try {
-            if(editingFood) {
+            if (editingFood) {
                 const res = await api.put(`/food/${editingFood._id}`, foodData);
                 if (res.data.success) {
                     setProductsList(productsList.map(f => f._id === editingFood._id ? res.data.food : f));
@@ -181,19 +181,19 @@ const MenuStock = () => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <button 
+                    <button
                         onClick={() => { setEditingCategory(null); setIsCategoryModalOpen(true); }}
                         style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
                     >
                         <FiPlus size={18} /> Add Category
                     </button>
-                    <button 
+                    <button
                         onClick={() => { setEditingFood(null); setIsFoodModalOpen(true); }}
                         style={{ background: '#e11d48', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
                     >
                         <FiPlus size={18} /> Add New Dish
                     </button>
-                    
+
                 </div>
             </div>
 
@@ -284,7 +284,7 @@ const MenuStock = () => {
                             <FiXCircle size={14} />
                             <span>86 All Category Dishes</span>
                         </button>
-                    
+
                         <button
                             type="button"
                             className="bulk-btn"
@@ -303,7 +303,7 @@ const MenuStock = () => {
                             style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
                             onClick={() => {
                                 const cat = dbCategories.find(c => c.slug === selectedCategory);
-                                if(cat) handleDeleteCategory(cat._id);
+                                if (cat) handleDeleteCategory(cat._id);
                             }}
                         >
                             <FiTrash2 size={14} />
@@ -366,8 +366,8 @@ const MenuStock = () => {
 
                                 <div className="col-action" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     <button type="button" onClick={() => handleEditFood(dish)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '5px' }} title="Edit"><FiEdit2 size={16} /></button>
-         <button type="button" onClick={() => handleDeleteFood(dish._id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }} title="Delete"><FiTrash2 size={16} /></button>
-         <label className="switch-toggle" title="Toggle 86 Stock Status">
+                                    <button type="button" onClick={() => handleDeleteFood(dish._id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '5px' }} title="Delete"><FiTrash2 size={16} /></button>
+                                    <label className="switch-toggle" title="Toggle 86 Stock Status">
                                         <input
                                             type="checkbox"
                                             checked={dish.inStock}
@@ -387,7 +387,7 @@ const MenuStock = () => {
                 </div>
             </div>
             <CategoryModal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onSave={handleSaveCategory} categoryToEdit={editingCategory} />
-        <FoodModal isOpen={isFoodModalOpen} onClose={() => setIsFoodModalOpen(false)} foodToEdit={editingFood} onSave={handleSaveFood} dbCategories={dbCategories} />
+            <FoodModal isOpen={isFoodModalOpen} onClose={() => setIsFoodModalOpen(false)} foodToEdit={editingFood} onSave={handleSaveFood} dbCategories={dbCategories} />
         </div>
     );
 };

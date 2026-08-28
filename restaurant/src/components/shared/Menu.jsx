@@ -5,6 +5,7 @@ import {
     FaUtensils,
     FaFire,
     FaMotorcycle,
+    FaPhone,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
@@ -50,6 +51,12 @@ const Menu = ({ isMenuOpen, setIsMenuOpen }) => {
                         <Link href="/track-order" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                             <FaMotorcycle className="nav-icon" />
                             <span>Track Order</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link href="/contact" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                            <FaPhone className="nav-icon" />
+                            <span>Contact</span>
                         </Link>
                     </li>
                 </ul>

@@ -204,7 +204,7 @@ const Dashboard = () => {
                 backendStatus = "DELIVERED";
             }
 
-            const res = await fetch(`http://localhost:4000/api/orders/admin/status/${orderToUpdate.originalId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/status/${orderToUpdate.originalId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: backendStatus })
