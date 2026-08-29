@@ -1,4 +1,5 @@
 import React from "react";
+import Logo from "../shared/Logo";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -21,15 +22,9 @@ const Footer = () => {
             <div className="container">
                 <div className="footer-grid">
                     <div className="footer-col brand-col">
-                        <Link href="/" className="footer-logo">
-                            <Image
-                                src="/logo.png"
-                                alt="Your's Kitchen"
-                                width={504}
-                                height={197}
-                                className="footer-logo-img"
-                            />
-                        </Link>
+                        <div className="footer-logo-wrap" style={{ marginBottom: "15px" }}>
+                            <Logo />
+                        </div>
                         <p className="footer-brand-desc">
                             Shree Shyaam brings you the authentic taste of street food and modern fast food excellence right to your table. 100% fresh, hygienic, and prepared with love.
                         </p>
