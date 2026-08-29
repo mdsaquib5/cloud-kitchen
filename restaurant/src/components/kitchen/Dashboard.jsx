@@ -124,7 +124,7 @@ const Dashboard = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch("http://localhost:4000/api/orders/admin/all");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
             const data = await res.json();
             if (data.success) {
                 // Map the backend orders to the KDS format
