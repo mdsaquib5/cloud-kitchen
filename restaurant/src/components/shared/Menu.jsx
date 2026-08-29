@@ -8,15 +8,14 @@ import {
     FaPhoneAlt,
 } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
+import Logo from "./Logo";
 
 const Menu = ({ isMenuOpen, setIsMenuOpen }) => {
     return (
         <div className={`menu-bars ${isMenuOpen ? "active" : ""}`}>
             <div className="drawer-header">
-                <div className="drawer-logo">
-                    <Link href="/" onClick={() => setIsMenuOpen(false)}>
-                        <Image src="/logo.png" alt="Shree Shyam Fast Food" width={504} height={197} />
-                    </Link>
+                <div className="drawer-logo" onClick={() => setIsMenuOpen(false)}>
+                    <Logo />
                 </div>
                 <button
                     className="drawer-close-btn"
