@@ -32,9 +32,9 @@ const Header = () => {
                             <FiShoppingBag size={16} />
                             <span className="cart-badge">{cartCount}</span>
                         </Link>
-                        <Link href={mounted && isAuthenticated ? "/profile" : "/login"} className="login-cta-btn">
-                            {mounted && isAuthenticated ? <FiUser size={16} /> : <FiLogIn size={16} />}
-                            <span>{mounted && isAuthenticated ? "Account" : "Login"}</span>
+                        <Link href={isAuthenticated ? "/profile" : "/login"} className="login-cta-btn">
+                            {isAuthenticated ? <FiUser size={16} /> : <FiLogIn size={16} />}
+                            <span>{isAuthenticated ? "Account" : "Login"}</span>
                         </Link>
                         <button
                             className="menu-toggle-btn"

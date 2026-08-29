@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
     FiCheckCircle,
     FiClock,
@@ -15,9 +16,12 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaUtensils, FaStoreAlt } from "react-icons/fa";
 import { useStore } from "@/store/useStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import EmptyState from "@/components/shared/EmptyState";
 
 const TrackOrder = () => {
+    const router = useRouter();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const activeOrders = useStore((state) => state.activeOrders || []);
     const updateActiveOrder = useStore((state) => state.updateActiveOrder);
     const removeActiveOrder = useStore((state) => state.removeActiveOrder);
@@ -28,6 +32,13 @@ const TrackOrder = () => {
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Authentication check
+    useEffect(() => {
+        if (isMounted && !isAuthenticated) {
+            router.push("/login");
+        }
+    }, [isMounted, isAuthenticated, router]);
 
     // Real-time tracking poll
     useEffect(() => {
