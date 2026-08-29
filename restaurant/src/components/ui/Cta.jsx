@@ -14,7 +14,7 @@ const Cta = () => {
                             30 MINUTES FAST <br />
                             <span className="cta-highlight">DELIVERY</span> CHALLENGE
                         </h2>
-                        <Link href="/menu" className="cta-order-btn">
+                        <Link href="/foods" className="cta-order-btn">
                             <FiTruck size={18} />
                             <span>ORDER NOW</span>
                         </Link>
