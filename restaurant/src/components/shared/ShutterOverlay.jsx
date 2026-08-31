@@ -16,11 +16,11 @@ const ShutterOverlay = () => {
 
     useEffect(() => {
         if (!mounted) return;
-        
+
         // Only play sound when status actually changes
         if (prevStatusRef.current !== isKitchenOpen) {
             try {
-                const audio = new Audio("/shutter.mpeg");
+                const audio = new Audio("/shutter.mp3");
                 audio.play().catch(e => console.log("Audio play blocked by browser:", e));
             } catch (error) {
                 console.error("Failed to play audio", error);
