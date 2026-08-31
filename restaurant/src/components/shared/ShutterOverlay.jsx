@@ -15,16 +15,7 @@ const ShutterOverlay = () => {
 
     useEffect(() => {
         if (!mounted) return;
-
-        // Only play sound when status actually changes
         if (prevStatusRef.current !== isKitchenOpen) {
-            console.log("Shutter state changed. Attempting to play sound...");
-            try {
-                const audio = new Audio("https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/shutter.mp3");
-                audio.play().then(() => console.log("Sound played successfully!")).catch(e => console.warn("Audio play blocked by browser/error:", e));
-            } catch (error) {
-                console.error("Failed to play audio", error);
-            }
             prevStatusRef.current = isKitchenOpen;
         }
     }, [isKitchenOpen, mounted]);
