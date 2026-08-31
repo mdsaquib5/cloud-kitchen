@@ -11,17 +11,17 @@ const ShutterOverlay = () => {
 
     useEffect(() => {
         setMounted(true);
-        prevStatusRef.current = isKitchenOpen;
-    }, [isKitchenOpen]);
+    }, []);
 
     useEffect(() => {
         if (!mounted) return;
 
         // Only play sound when status actually changes
         if (prevStatusRef.current !== isKitchenOpen) {
+            console.log("Shutter state changed. Attempting to play sound...");
             try {
-                const audio = new Audio("/shutter.mp3");
-                audio.play().catch(e => console.log("Audio play blocked by browser:", e));
+                const audio = new Audio("https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/shutter.mp3");
+                audio.play().then(() => console.log("Sound played successfully!")).catch(e => console.warn("Audio play blocked by browser/error:", e));
             } catch (error) {
                 console.error("Failed to play audio", error);
             }
@@ -35,7 +35,7 @@ const ShutterOverlay = () => {
         <div className={`shutter-overlay ${isKitchenOpen ? "open" : "closed"}`}>
             <div className="shutter-text-container">
                 <h1 className="shutter-text">Kitchen Closed</h1>
-                <p className="shutter-subtext">We are taking a quick break. See you soon!</p>
+                <p className="shutter-subtext">We will start taking your orders from 4 PM.</p>
             </div>
         </div>
     );
