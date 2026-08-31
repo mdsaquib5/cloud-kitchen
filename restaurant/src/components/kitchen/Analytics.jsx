@@ -15,6 +15,28 @@ import { FaFire } from "react-icons/fa";
 import { toast } from "sonner";
 
 const Analytics = () => {
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+    const updateKitchenStatus = async (status) => {
+        try {
+            setIsUpdatingStatus(true);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/status`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isKitchenOpen: status })
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success(status ? "Kitchen is now OPEN! Accepting new orders." : "Kitchen is now CLOSED! No new orders will be accepted.");
+            } else {
+                toast.error(data.message || "Failed to update status");
+            }
+        } catch (error) {
+            toast.error("An error occurred");
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
     const [timeframe, setTimeframe] = useState("week");
 
     const [grossRevenue, setGrossRevenue] = useState(0);
@@ -287,9 +309,8 @@ const Analytics = () => {
                 <div style={{ display: 'flex', gap: '20px' }}>
                     <button
                         type="button"
-                        onClick={() => {
-                            toast.success("Kitchen is now OPEN! Accepting new orders.");
-                        }}
+                        onClick={() => updateKitchenStatus(true)}
+                        disabled={isUpdatingStatus}
                         style={{ background: '#10b981', color: 'white', border: 'none', padding: '15px 30px', borderRadius: '8px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)' }}
                     >
                         <FaFire size={18} />
@@ -297,9 +318,8 @@ const Analytics = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => {
-                            toast.error("Kitchen is now CLOSED! No new orders will be accepted.");
-                        }}
+                        onClick={() => updateKitchenStatus(false)}
+                        disabled={isUpdatingStatus}
                         style={{ background: '#ef4444', color: 'white', border: 'none', padding: '15px 30px', borderRadius: '8px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2)' }}
                     >
                         <FiClock size={18} />

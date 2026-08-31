@@ -17,11 +17,13 @@ import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
 import { useStore } from "@/store/useStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useSettingsStore } from "@/store/useSettingsStore";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 
 const Checkout = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const isKitchenOpen = useSettingsStore((state) => state.isKitchenOpen);
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [firstName, setFirstName] = useState("");
@@ -52,6 +54,11 @@ const Checkout = () => {
     const totals = getCartTotals();
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
+
+        if (!isKitchenOpen) {
+            toast.error("Sorry, the kitchen is currently closed. You cannot place an order right now.");
+            return;
+        }
 
         if (paymentMethod === 'online') {
             toast.error("Online payment is not yet integrated. Please select Cash.");
@@ -363,8 +370,8 @@ const Checkout = () => {
                                 </label>
                             </div>
 
-                            <button type="submit" className="checkout-btn" disabled={isSubmitting}>
-                                <span>{isSubmitting ? "Placing Order..." : `Place Order (₹${totals.grandTotal.toFixed(2)})`}</span>
+                            <button type="submit" className="checkout-btn" disabled={isSubmitting || !isKitchenOpen} style={!isKitchenOpen ? { background: "#d1d5db", cursor: "not-allowed", color: "#6b7280" } : {}}>
+                                <span>{!isKitchenOpen ? "Kitchen Closed" : isSubmitting ? "Placing Order..." : `Place Order (₹${totals.grandTotal.toFixed(2)})`}</span>
                             </button>
                         </div>
                     </div>

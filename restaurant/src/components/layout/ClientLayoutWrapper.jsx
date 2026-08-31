@@ -6,6 +6,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import BottomNav from "@/components/layout/BottomNav";
+import KitchenStatusListener from "@/components/shared/KitchenStatusListener";
+import ShutterOverlay from "@/components/shared/ShutterOverlay";
 
 const ClientLayoutWrapper = ({ children }) => {
     const pathname = usePathname();
@@ -17,6 +19,8 @@ const ClientLayoutWrapper = ({ children }) => {
 
     return (
         <>
+            <KitchenStatusListener />
+            <ShutterOverlay />
             <Header />
             {children}
             <Footer />
