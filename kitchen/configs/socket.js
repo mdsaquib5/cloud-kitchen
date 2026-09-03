@@ -7,7 +7,7 @@ export const initSocket = (httpServer) => {
         cors: {
             origin: [
                 "http://localhost:3000",
-                "https://your-cloud-kitchen.vercel.app",
+                process.env.RESTAURANT_URL,
             ],
             credentials: true,
             methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
