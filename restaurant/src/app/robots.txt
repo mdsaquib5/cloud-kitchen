@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+Disallow: /kitchen/
+
+Sitemap: https://shreeshyaamfastfood.com/sitemap.xml

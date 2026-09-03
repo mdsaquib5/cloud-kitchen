@@ -14,8 +14,31 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "Shree Shyam Fast Food | Kitchen & Direct Ordering",
-  description: "Fresh, hot & delicious momos, chaap, rolls, chowmein & fast food.",
+  metadataBase: new URL('https://shreeshyaamfastfood.com'),
+  title: "Shree Shyaam Fast Food | Order Online",
+  description: "Fresh, hot & delicious momos, chaap, rolls, chowmein & fast food. Order online directly from Shree Shyaam Fast Food in Uttam Nagar, New Delhi.",
+  keywords: ["fast food", "momos", "chaap", "rolls", "order online", "Shree Shyaam", "Uttam Nagar fast food", "Delhi"],
+  openGraph: {
+    title: 'Shree Shyaam Fast Food',
+    description: 'Fresh, hot & delicious fast food in Uttam Nagar. Order online now!',
+    url: 'https://shreeshyaamfastfood.com',
+    siteName: 'Shree Shyaam Fast Food',
+    images: [
+      {
+        url: '/logo-brand.webp',
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shree Shyaam Fast Food',
+    description: 'Fresh, hot & delicious fast food in Uttam Nagar. Order online now!',
+    images: ['/logo-brand.webp'],
+  },
 };
 
 export default function RootLayout({ children }) {
