@@ -26,7 +26,7 @@ const ShutterOverlay = () => {
         <div className={`shutter-overlay ${isKitchenOpen ? "open" : "closed"}`}>
             <div className="shutter-text-container">
                 <h1 className="shutter-text">Kitchen Closed</h1>
-                <p className="shutter-subtext">We will start taking your orders from 4 PM.</p>
+                <p className="shutter-subtext">We will start taking your orders from 03:00 PM</p>
             </div>
         </div>
     );
