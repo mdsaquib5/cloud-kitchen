@@ -4,34 +4,7 @@ import { persist } from "zustand/middleware";
 export const useStore = create(
     persist(
         (set, get) => ({
-            cart: [
-                {
-                    id: "prod-1",
-                    cartItemId: "prod-1-regular",
-                    title: "Special Handi Dum Biryani",
-                    slug: "special-handi-dum-biryani",
-                    image: "/cat-image.png",
-                    price: "$30.06",
-                    unitPrice: 30.06,
-                    portion: "regular",
-                    portionLabel: "Regular / Half",
-                    addons: [],
-                    quantity: 1,
-                },
-                {
-                    id: "prod-2",
-                    cartItemId: "prod-2-regular",
-                    title: "Smoky Tandoori Chicken Tikka",
-                    slug: "smoky-tandoori-chicken-tikka",
-                    image: "/choose1.png",
-                    price: "$28.52",
-                    unitPrice: 28.52,
-                    portion: "regular",
-                    portionLabel: "Regular / Half",
-                    addons: [],
-                    quantity: 1,
-                },
-            ],
+            cart: [],
 
             orderType: "delivery",
             pickupSlot: "15",
