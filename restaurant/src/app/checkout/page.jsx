@@ -20,6 +20,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const Checkout = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -60,10 +61,7 @@ const Checkout = () => {
             return;
         }
 
-        if (paymentMethod === 'online') {
-            toast.error("Online payment is not yet integrated. Please select Cash.");
-            return;
-        }
+        
 
         setIsSubmitting(true);
         try {
@@ -97,11 +95,46 @@ const Checkout = () => {
             });
 
             if (res.data.success) {
-                toast.success(`Order #${res.data.order.orderId} Placed Successfully! 🎉 Tracking live now.`);
-                clearCart();
-                useStore.getState().addActiveOrder(res.data.order);
-                addPastOrder(res.data.order);
-                router.push(`/track-order?id=${res.data.order.orderId}`);
+                const newOrder = res.data.order;
+                
+                if (paymentMethod === "online") {
+                    // Initialize Cashfree Payment
+                    toast.loading("Initializing secure payment gateway...", { id: "cf-init" });
+                    
+                    try {
+                        const paymentRes = await api.post("/payment/create", {
+                            orderId: newOrder.orderId,
+                            amount: totals.grandTotal,
+                            customerPhone: phone,
+                            customerName: `${firstName} ${lastName}`.trim(),
+                            customerEmail: email
+                        });
+
+                        if (paymentRes.data.success) {
+                            const cashfree = await load({
+                                mode: "sandbox" // Change to "production" when going live
+                            });
+                            
+                            toast.dismiss("cf-init");
+                            
+                            await cashfree.checkout({
+                                paymentSessionId: paymentRes.data.payment_session_id
+                            });
+                            
+                            // The page will redirect to verify-payment after this
+                        } else {
+                            toast.error("Failed to initiate payment. Please try COD.", { id: "cf-init" });
+                        }
+                    } catch (error) {
+                        toast.error("Payment gateway error. Please try COD.", { id: "cf-init" });
+                    }
+                } else {
+                    toast.success(`Order #${newOrder.orderId} Placed Successfully! 🎉 Tracking live now.`);
+                    clearCart();
+                    useStore.getState().addActiveOrder(newOrder);
+                    addPastOrder(newOrder);
+                    router.push(`/track-order?id=${newOrder.orderId}`);
+                }
             }
         } catch (error) {
             console.error(error);
@@ -363,10 +396,20 @@ const Checkout = () => {
                                 <label
                                     className={`payment-option-label ${paymentMethod === "cash" ? "selected" : ""}`}
                                     onClick={() => setPaymentMethod("cash")}
+                                    style={{ marginBottom: '10px' }}
                                 >
                                     <span className={`custom-radio ${paymentMethod === "cash" ? "checked" : ""}`}></span>
                                     <FiDollarSign className="payment-icon" size={16} />
                                     <span className="payment-name">Cash Payment (COD)</span>
+                                </label>
+                                
+                                <label
+                                    className={`payment-option-label ${paymentMethod === "online" ? "selected" : ""}`}
+                                    onClick={() => setPaymentMethod("online")}
+                                >
+                                    <span className={`custom-radio ${paymentMethod === "online" ? "checked" : ""}`}></span>
+                                    <FiShoppingBag className="payment-icon" size={16} />
+                                    <span className="payment-name">Online Payment (UPI/Card)</span>
                                 </label>
                             </div>
 

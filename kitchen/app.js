@@ -9,6 +9,7 @@ import foodRoute from "./routes/foodRoute.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import menuRoute from "./routes/menuRoute.js";
 import orderRoute from "./routes/orderRoute.js";
+import paymentRoute from "./routes/paymentRoute.js";
 import settingsRoute from "./routes/settingsRoute.js";
 
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/food", foodRoute);
 app.use("/api/upload", uploadRoute);
 app.use("/api/menu", menuRoute);
 app.use("/api/orders", orderRoute);
+app.use("/api/payment", paymentRoute);
 app.use("/api/settings", settingsRoute);
 
 // Global 404 Handler
