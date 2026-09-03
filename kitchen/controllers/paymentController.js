@@ -6,12 +6,17 @@ export const createPaymentSession = async (req, res, next) => {
     try {
         const { orderId, amount, customerPhone, customerName, customerEmail } = req.body;
 
+        if (!process.env.CASHFREE_APP_ID || !process.env.CASHFREE_SECRET_KEY) {
+            console.error("Cashfree credentials missing in .env");
+            return res.status(500).json({ success: false, message: "Server misconfiguration: Payment gateway keys missing." });
+        }
+
         if (!orderId || !amount || !customerPhone) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
         const request = {
-            order_amount: parseFloat(amount).toFixed(2),
+            order_amount: Number(parseFloat(amount).toFixed(2)),
             order_currency: "INR",
             order_id: orderId,
             customer_details: {
