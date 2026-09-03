@@ -103,28 +103,29 @@ const Footer = () => {
                                 <FiMail className="contact-icon" />
                                 <div>
                                     <span className="contact-label">Email Us</span>
-                                    <a href="mailto:order@yourskitchen.in" className="contact-val">order@yourskitchen.in</a>
+                                    <Link href={'mailto:shreeshyaam942@gmail.com'} className="contact-val">shreeshyaam942@gmail.com</Link>
                                 </div>
                             </li>
                             <li>
                                 <FiPhone className="contact-icon" />
                                 <div>
                                     <span className="contact-label">Call / WhatsApp</span>
-                                    <a href="tel:+919876543210" className="contact-val">+91 98765 43210</a>
+                                    <a href={'tel:+91 95607 74819'} className="contact-val">+91 95607 74819</a>
                                 </div>
                             </li>
                             <li>
                                 <FiMapPin className="contact-icon" />
                                 <div>
                                     <span className="contact-label">Kitchen Location</span>
-                                    <span className="contact-val">Plot 42, Cyber Hub Sector 29, Gurugram, India</span>
+                                    <span className="contact-val">Rz 45, Mangal Bazar Rd, Near by Sunil Dairy,
+                                        Santosh Park, Uttam Nagar, New Delhi, India-110059</span>
                                 </div>
                             </li>
                             <li>
                                 <FiClock className="contact-icon" />
                                 <div>
-                                    <span className="contact-label">Working Hours</span>
-                                    <span className="contact-val">Mon - Sun: 11:00 AM - 11:30 PM</span>
+                                    <span className="contact-label">Timings</span>
+                                    <span className="contact-val">Mon - Sun: 03:00 PM - 11:00 PM</span>
                                 </div>
                             </li>
                         </ul>
@@ -133,7 +134,7 @@ const Footer = () => {
 
                 <div className="footer-bottom-bar">
                     <p className="copyright-text">
-                        © {new Date().getFullYear()} <span className="brand-highlight">Shree Shyaam</span>. All Rights Reserved.
+                        © {new Date().getFullYear()} <span className="brand-highlight">Shree Shyaam Fast Food</span>. All Rights Reserved.
                     </p>
                     <div className="footer-credits">
                         <span>Developed by </span>

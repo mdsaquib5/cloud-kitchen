@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 import {
     FiMapPin,
@@ -21,8 +22,8 @@ const Contact = () => {
                         </div>
                         <h3 className="contact-card-title">ADDRESS LINE</h3>
                         <p className="contact-card-text">
-                            Plot 42, Cyber Hub, Sector 29 <br />
-                            Gurugram, Haryana 122002
+                            Rz 45, Mangal Bazar Rd, Near by Sunil Dairy, <br />Santosh Park,
+                            Uttam Nagar, New Delhi, India-110059
                         </p>
                     </div>
 
@@ -31,10 +32,9 @@ const Contact = () => {
                             <FiPhoneCall size={26} />
                         </div>
                         <h3 className="contact-card-title">PHONE NUMBER</h3>
-                        <p className="contact-card-text">
-                            +91 98765 43210 <br />
-                            +91 11 2345 6789
-                        </p>
+                        <Link href={'tel:+91 95607 74819'} className="contact-card-text">
+                            +91 95607 74819
+                        </Link>
                     </div>
 
                     <div className="contact-info-card">
@@ -42,10 +42,9 @@ const Contact = () => {
                             <FiMail size={26} />
                         </div>
                         <h3 className="contact-card-title">MAIL ADDRESS</h3>
-                        <p className="contact-card-text">
-                            order@yourskitchen.in <br />
-                            support@yourskitchen.in
-                        </p>
+                        <Link href={'mailto:shreeshyaam942@gmail.com'} className="contact-card-text">
+                            shreeshyaam942@gmail.com
+                        </Link>
                     </div>
                 </div>
 
@@ -58,7 +57,7 @@ const Contact = () => {
                         <div className="contact-map-wrap">
                             <iframe
                                 title="Kitchen Location Map"
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14030.134812328608!2d77.0754823!3d28.4716947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d1921935639fd%3A0x6a0c0b85a7bbcfb4!2sCyber%20City%2C%20Gurugram!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d218.9016283013205!2d77.05908096745912!3d28.6169903!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d058ae6b18e5f%3A0xb12b707390d3a87e!2sShree%20shyam%20fast%20food!5e0!3m2!1sen!2sin!4v1788444487445!5m2!1sen!2sin"
                                 width="100%"
                                 height="340"
                                 allowFullScreen=""
