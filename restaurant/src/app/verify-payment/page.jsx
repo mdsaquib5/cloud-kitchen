@@ -13,6 +13,8 @@ const VerifyContent = () => {
     
     const [status, setStatus] = useState("verifying");
     const clearCart = useStore((state) => state.clearCart);
+    const addActiveOrder = useStore((state) => state.addActiveOrder);
+    const addPastOrder = useStore((state) => state.addPastOrder);
 
     useEffect(() => {
         if (!order_id) {
@@ -29,6 +31,11 @@ const VerifyContent = () => {
                     setStatus("success");
                     toast.success("Payment Successful! Order Confirmed.");
                     clearCart();
+                    
+                    if (res.data.order) {
+                        addActiveOrder(res.data.order);
+                        addPastOrder(res.data.order);
+                    }
                     
                     // Add to active orders and redirect after a short delay
                     setTimeout(() => {
