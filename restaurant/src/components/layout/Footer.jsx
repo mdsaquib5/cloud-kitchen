@@ -1,13 +1,6 @@
 import React from "react";
 import Logo from "../shared/Logo";
-import Image from "next/image";
 import Link from "next/link";
-import {
-    FaInstagram,
-    FaYoutube,
-    FaFacebookF,
-    FaTwitter,
-} from "react-icons/fa";
 import {
     FiMail,
     FiPhone,
