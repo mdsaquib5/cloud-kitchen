@@ -45,6 +45,8 @@ const Checkout = () => {
 
     useEffect(() => {
         setMounted(true);
+        // Always default to online payment since COD is removed
+        setPaymentMethod("online");
         // Pre-load Cashfree SDK on page mount to avoid TimeoutError during checkout
         load({ mode: "sandbox" })
             .then((cf) => setCashfreeInstance(cf))
@@ -380,14 +382,6 @@ const Checkout = () => {
                                         <span className="summary-val">₹{totals.deliveryFee.toFixed(2)}</span>
                                     </div>
                                 )}
-                                <div className="summary-row">
-                                    <span className="summary-label">Platform Fee</span>
-                                    <span className="summary-val">₹{totals.platformFee.toFixed(2)}</span>
-                                </div>
-                                <div className="summary-row">
-                                    <span className="summary-label">Taxes (GST 5%)</span>
-                                    <span className="summary-val">₹{totals.tax.toFixed(2)}</span>
-                                </div>
                             </div>
 
                             <div className="summary-divider"></div>
@@ -398,16 +392,7 @@ const Checkout = () => {
                             </div>
 
                             <div className="payment-method-selector">
-                                <label
-                                    className={`payment-option-label ${paymentMethod === "cash" ? "selected" : ""}`}
-                                    onClick={() => setPaymentMethod("cash")}
-                                    style={{ marginBottom: '10px' }}
-                                >
-                                    <span className={`custom-radio ${paymentMethod === "cash" ? "checked" : ""}`}></span>
-                                    <FiDollarSign className="payment-icon" size={16} />
-                                    <span className="payment-name">Cash Payment (COD)</span>
-                                </label>
-                                
+
                                 <label
                                     className={`payment-option-label ${paymentMethod === "online" ? "selected" : ""}`}
                                     onClick={() => setPaymentMethod("online")}

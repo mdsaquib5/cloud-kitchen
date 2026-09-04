@@ -183,20 +183,12 @@ const Cart = () => {
                                         <span className="summary-val">₹{totals.deliveryFee.toFixed(2)}</span>
                                     </div>
                                 )}
-                                <div className="summary-row">
-                                    <span className="summary-label">Platform Fee</span>
-                                    <span className="summary-val">₹{totals.platformFee.toFixed(2)}</span>
-                                </div>
                                 {totals.discount > 0 && (
                                     <div className="summary-row">
                                         <span className="summary-label">Discount</span>
                                         <span className="summary-val discount-val">-₹{totals.discount.toFixed(2)}</span>
                                     </div>
                                 )}
-                                <div className="summary-row">
-                                    <span className="summary-label">Taxes (GST 5%)</span>
-                                    <span className="summary-val">₹{totals.tax.toFixed(2)}</span>
-                                </div>
                             </div>
 
                             <div className="summary-divider"></div>
