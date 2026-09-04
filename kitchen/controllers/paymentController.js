@@ -66,7 +66,7 @@ export const verifyPayment = async (req, res, next) => {
             // Update order status in DB
             const order = await Order.findOneAndUpdate(
                 { orderId },
-                { paymentStatus: "paid" },
+                { paymentStatus: "paid", status: "PLACED" },
                 { new: true }
             );
 
