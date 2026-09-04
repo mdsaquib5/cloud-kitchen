@@ -32,6 +32,7 @@ const Checkout = () => {
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [cashfreeInstance, setCashfreeInstance] = useState(null);
     const cart = useStore((state) => state.cart);
     const orderType = useStore((state) => state.orderType);
     const setOrderType = useStore((state) => state.setOrderType); const selectedAddressId = useStore((state) => state.selectedAddressId);
@@ -44,6 +45,10 @@ const Checkout = () => {
 
     useEffect(() => {
         setMounted(true);
+        // Pre-load Cashfree SDK on page mount to avoid TimeoutError during checkout
+        load({ mode: "sandbox" })
+            .then((cf) => setCashfreeInstance(cf))
+            .catch((err) => console.error("Cashfree SDK pre-load failed:", err));
     }, []);
 
     useEffect(() => {
@@ -111,21 +116,21 @@ const Checkout = () => {
                         });
 
                         if (paymentRes.data.success) {
-                            const cashfree = await load({
-                                mode: "sandbox" // Change to "production" when going live
-                            });
-                            
                             toast.dismiss("cf-init");
-                            
-                            await cashfree.checkout({
-                                paymentSessionId: paymentRes.data.payment_session_id
+
+                            // Use pre-loaded instance or load fresh as fallback
+                            const cfInstance = cashfreeInstance || await load({ mode: "sandbox" });
+
+                            cfInstance.checkout({
+                                paymentSessionId: paymentRes.data.payment_session_id,
+                                redirectTarget: "_self"
                             });
-                            
-                            // The page will redirect to verify-payment after this
+                            // Page will redirect to /verify-payment after payment completes
                         } else {
                             toast.error("Failed to initiate payment. Please try COD.", { id: "cf-init" });
                         }
                     } catch (error) {
+                        console.error("Payment error:", error);
                         toast.error("Payment gateway error. Please try COD.", { id: "cf-init" });
                     }
                 } else {

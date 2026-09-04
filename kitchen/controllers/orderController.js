@@ -28,8 +28,8 @@ export const createOrder = async (req, res, next) => {
     orderType,
     paymentMethod,
     totals,
-    status: "PLACED",
-        paymentStatus: paymentMethod === "cash" ? "pending" : "paid"
+    status: paymentMethod === "cash" ? "PLACED" : "PENDING_PAYMENT",
+        paymentStatus: "pending"
         });
 
 await newOrder.save();
