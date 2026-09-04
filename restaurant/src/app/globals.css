@@ -1019,7 +1019,7 @@ a.contact-val:hover {
 .price {
     color: var(--primary);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 30px;
 }
 
 .total-discount {
