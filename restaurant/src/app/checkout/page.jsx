@@ -48,7 +48,7 @@ const Checkout = () => {
         // Always default to online payment since COD is removed
         setPaymentMethod("online");
         // Pre-load Cashfree SDK on page mount to avoid TimeoutError during checkout
-        load({ mode: "sandbox" })
+        load({ mode: "production" })
             .then((cf) => setCashfreeInstance(cf))
             .catch((err) => console.error("Cashfree SDK pre-load failed:", err));
     }, []);
@@ -68,7 +68,7 @@ const Checkout = () => {
             return;
         }
 
-        
+
 
         setIsSubmitting(true);
         try {
@@ -103,11 +103,11 @@ const Checkout = () => {
 
             if (res.data.success) {
                 const newOrder = res.data.order;
-                
+
                 if (paymentMethod === "online") {
                     // Initialize Cashfree Payment
                     toast.loading("Initializing secure payment gateway...", { id: "cf-init" });
-                    
+
                     try {
                         const paymentRes = await api.post("/payment/create", {
                             orderId: newOrder.orderId,
