@@ -22,26 +22,26 @@ export const createOrder = async (req, res, next) => {
         const newOrder = new Order({
 
             userId,
-    orderId,
-    customer,
-    items,
-    orderType,
-    paymentMethod,
-    totals,
-    status: paymentMethod === "cash" ? "PLACED" : "PENDING_PAYMENT",
-        paymentStatus: "pending"
+            orderId,
+            customer,
+            items,
+            orderType,
+            paymentMethod,
+            totals,
+            status: paymentMethod === "cash" ? "PLACED" : "PENDING_PAYMENT",
+            paymentStatus: "pending"
         });
 
-await newOrder.save();
+        await newOrder.save();
 
-res.status(201).json({
-    success: true,
-    message: "Order placed successfully",
-    order: newOrder
-});
+        res.status(201).json({
+            success: true,
+            message: "Order placed successfully",
+            order: newOrder
+        });
     } catch (error) {
-    next(error);
-}
+        next(error);
+    }
 };
 
 // Customer checks order status
