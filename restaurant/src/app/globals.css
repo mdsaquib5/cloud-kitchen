@@ -8072,7 +8072,8 @@ a.contact-val:hover {
     }
 }
 
-.google-auth-btn button {
+.google-auth-btn button,
+.google-auth-btn iframe {
     width: 100%;
 }
 
