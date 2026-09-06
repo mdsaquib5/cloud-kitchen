@@ -200,6 +200,18 @@ const Checkout = () => {
                             </div>
 
                             <div className="order-type-selector-grid">
+                                <button
+                                    type="button"
+                                    className="order-type-btn"
+                                >
+                                    <div className="type-icon-circle">
+                                        <FaMotorcycle size={20} />
+                                    </div>
+                                    <div className="type-info">
+                                        <span className="type-title">Home Delivery</span>
+                                        <span className="type-subtitle">At your doorstep (20-30 mins)</span>
+                                    </div>
+                                </button>
                                 {/* <button
                                     type="button"
                                     className={`order-type-btn ${orderType === "delivery" ? "active" : ""}`}

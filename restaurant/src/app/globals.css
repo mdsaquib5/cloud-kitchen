@@ -2162,7 +2162,7 @@ a.contact-val:hover {
     gap: 12px;
 }
 
-/* .order-type-selector-grid button:first-child {
+.order-type-selector-grid button:first-child {
     position: relative;
     cursor: not-allowed;
     pointer-events: none;
@@ -2184,7 +2184,7 @@ a.contact-val:hover {
     padding: 2px 4px;
     border-radius: 4px;
     font-weight: 600;
-} */
+}
 
 .order-type-btn {
     display: flex;
