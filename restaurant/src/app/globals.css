@@ -8074,7 +8074,7 @@ a.contact-val:hover {
 
 .google-auth-btn button,
 .google-auth-btn iframe {
-    width: 100%;
+    width: 100% !important;
 }
 
 @media (max-width: 768px) {
