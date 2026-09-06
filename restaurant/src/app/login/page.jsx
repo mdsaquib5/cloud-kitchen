@@ -103,8 +103,9 @@ const Login = () => {
                                     <GoogleLogin
                                         onSuccess={handleGoogleSuccess}
                                         onError={() => toast.error("Google login failed")}
-                                        theme="filled_black"
-                                        shape="pill"
+                                        theme="outline_blue"
+                                        shape="outline"
+                                        logo_alignment="center"
                                     />
                                 </div>
                                 {currentState === "signup" && (
