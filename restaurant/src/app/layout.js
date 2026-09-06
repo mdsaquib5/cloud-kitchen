@@ -52,7 +52,7 @@ export default function RootLayout({ children }) {
           </ClientLayoutWrapper>
         </GoogleOAuthProvider>
         <Toaster
-          position="top-left"
+          position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
