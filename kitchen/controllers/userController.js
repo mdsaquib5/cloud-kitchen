@@ -2,6 +2,10 @@ import User from "../models/userModel.js";
 import { generateTokens, setRefreshTokenCookie, clearRefreshTokenCookie } from "../utils/token.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from 'google-auth-library';
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+
 
 export const signup = async (req, res, next) => {
     try {
@@ -111,4 +115,58 @@ export const adminLogin = async (req, res, next) => {
         
         return res.status(401).json({ success: false, message: "Invalid admin credentials." });
     } catch (error) { next(error); }
+};
+
+export const googleAuth = async (req, res, next) => {
+    try {
+        const { token } = req.body;
+        if (!token) {
+            return res.status(400).json({ success: false, message: "No Google token provided." });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name } = payload;
+
+        let user = await User.findOne({ email }).select("+password +refreshToken");
+
+        if (!user) {
+            // Check if googleId already exists (just in case they changed email)
+            user = await User.findOne({ googleId }).select("+password +refreshToken");
+        }
+
+        if (!user) {
+            // Create new user
+            // Generate a random password since mongoose requires it if !googleId, but we set conditionally. 
+            // We'll set a random one anyway to be safe.
+            const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
+            user = await User.create({
+                name,
+                email,
+                password: randomPassword, // bcrypt will hash this
+                googleId,
+                // phone is optional due to our model update, but we can set a dummy one if it complains
+                phone: "0000000000"
+            });
+        } else if (!user.googleId) {
+            // Link existing user account to Google
+            user.googleId = googleId;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        const { accessToken, refreshToken } = generateTokens(user._id);
+        user.refreshToken = await bcrypt.hash(refreshToken, 10);
+        await user.save({ validateBeforeSave: false });
+        setRefreshTokenCookie(res, refreshToken);
+        
+        user.password = undefined;
+        user.refreshToken = undefined;
+        res.status(200).json({ success: true, message: "Google Login successful", accessToken, user });
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        return res.status(401).json({ success: false, message: "Invalid Google token." });
+    }
 };

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
 import { useAuthStore } from "@/store/useAuthStore";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
     const router = useRouter();
@@ -22,6 +23,24 @@ const Login = () => {
         password: ""
     });
 
+    
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        try {
+            const res = await api.post("/user/google", { token: credentialResponse.credential });
+            if (res.data.success) {
+                setAuth(res.data.user, res.data.accessToken);
+                toast.success("Welcome! 👋");
+                router.push("/");
+            }
+        } catch (error) {
+            console.error("Google Auth failed:", error);
+            toast.error("Google authentication failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -80,6 +99,19 @@ const Login = () => {
                             </div>
 
                             <form className="auth-form" onSubmit={handleSubmit}>
+
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() => toast.error("Google login failed")}
+                                                                                theme="filled_black"
+                                        shape="pill"
+                                    />
+                                </div>
+                                <div style={{ textAlign: 'center', marginBottom: '15px', color: '#666', fontSize: '14px' }}>
+                                    <span>or continue with email</span>
+                                </div>
+    
                                 {currentState === "signup" && (
                                     <div className="auth-input-group">
                                         <input
