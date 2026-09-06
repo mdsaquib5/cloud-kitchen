@@ -110,7 +110,7 @@ export const useStore = create(
             createOrder: (formData = {}) => {
                 const { cart, orderType, pickupSlot, tableNo, appliedCoupon } = get();
                 const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || (item.portions && item.portions.length > 0 ? item.portions[0].price : 50)) * item.quantity, 0);
-                const deliveryFee = orderType === "delivery" ? 5.00 : 0.00;
+                const deliveryFee = orderType === "delivery" ? 0.00 : 0.00;
                 const platformFee = 2.00;
                 const discount = appliedCoupon === "BIOFF10" ? subtotal * 0.1 : appliedCoupon === "BURG05" ? 5.00 : 0.00;
                 const tax = subtotal * 0.05; // 5% GST
@@ -147,7 +147,7 @@ export const useStore = create(
             getCartTotals: () => {
                 const { cart, orderType, appliedCoupon } = get();
                 const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice || (item.portions && item.portions.length > 0 ? item.portions[0].price : 50)) * item.quantity, 0);
-                const deliveryFee = orderType === "delivery" ? 5.00 : 0.00;
+                const deliveryFee = orderType === "delivery" ? 0.00 : 0.00;
                 const discount = appliedCoupon === "BIOFF10" ? subtotal * 0.1 : appliedCoupon === "BURG05" ? 5.00 : 0.00;
                 const grandTotal = Math.max(0, subtotal + deliveryFee - discount);
 
