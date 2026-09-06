@@ -27,7 +27,7 @@ export const metadata = {
     siteName: 'Shree Shyaam Fast Food',
     images: [
       {
-        url: '/logo-brand.webp',
+        url: 'https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/logo-brand.webp',
         width: 800,
         height: 600,
       },
@@ -39,7 +39,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Shree Shyaam Fast Food',
     description: 'Fresh, hot & delicious fast food in Uttam Nagar. Order online now!',
-    images: ['/logo-brand.webp'],
+    images: ['https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/logo-brand.webp'],
   },
 };
 
