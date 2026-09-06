@@ -8073,7 +8073,8 @@ a.contact-val:hover {
 }
 
 .google-auth-btn button,
-.google-auth-btn iframe {
+.google-auth-btn iframe,
+.google-auth-btn #container-div {
     width: 100% !important;
 }
 
