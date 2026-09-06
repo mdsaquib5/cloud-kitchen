@@ -47,18 +47,18 @@ export default function RootLayout({ children }) {
     <html lang="en" className={montserrat.variable} data-scroll-behavior="smooth">
       <body>
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-        <ClientLayoutWrapper>
-          {children}
-        </ClientLayoutWrapper>
+          <ClientLayoutWrapper>
+            {children}
+          </ClientLayoutWrapper>
         </GoogleOAuthProvider>
         <Toaster
-          position="bottom-right"
+          position="top-left"
           toastOptions={{
             duration: 4000,
             style: {
               background: "#ffffff",
               border: "1px solid #f1f5f9",
-              color: "#3b2014", 
+              color: "#3b2014",
               boxShadow: "0 12px 30px -10px rgba(0,0,0,0.1)",
               borderRadius: "10px",
               padding: "14px 20px",

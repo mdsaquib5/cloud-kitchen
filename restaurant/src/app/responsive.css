@@ -501,10 +501,6 @@
         max-width: 140px;
     }
 
-    .prod-title {
-        font-size: 15px;
-    }
-
     .pricing {
         gap: 6px;
     }
@@ -512,10 +508,6 @@
     .discount-percent {
         font-size: 12px;
         padding: 2px 4px;
-    }
-
-    .price {
-        font-size: 13px;
     }
 
     .total-discount {
