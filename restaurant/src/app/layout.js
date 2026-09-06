@@ -6,6 +6,7 @@ import "./globals.css";
 import "./responsive.css";
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const montserrat = Montserrat({
   variable: "--montserrat",
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={montserrat.variable} data-scroll-behavior="smooth">
       <body>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || "G-24LNTDXPCZ"} />
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
           <ClientLayoutWrapper>
             {children}
