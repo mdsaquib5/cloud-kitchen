@@ -200,7 +200,7 @@ const Checkout = () => {
                             </div>
 
                             <div className="order-type-selector-grid">
-                                {/* <button
+                                <button
                                     type="button"
                                     className={`order-type-btn ${orderType === "delivery" ? "active" : ""}`}
                                     onClick={() => setOrderType("delivery")}
@@ -212,7 +212,7 @@ const Checkout = () => {
                                         <span className="type-title">Home Delivery</span>
                                         <span className="type-subtitle">At your doorstep (20-30 mins)</span>
                                     </div>
-                                </button> */}
+                                </button>
 
                                 <button
                                     type="button"
