@@ -8072,6 +8072,10 @@ a.contact-val:hover {
     }
 }
 
+.google-auth-btn button {
+    width: 100%;
+}
+
 @media (max-width: 768px) {
     .past-order-card {
         flex-wrap: wrap;

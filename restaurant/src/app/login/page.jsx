@@ -99,7 +99,7 @@ const Login = () => {
                             </div>
 
                             <form className="auth-form" onSubmit={handleSubmit}>
-                                <div>
+                                <div className="google-auth-btn">
                                     <GoogleLogin
                                         onSuccess={handleGoogleSuccess}
                                         onError={() => toast.error("Google login failed")}
