@@ -37,7 +37,7 @@ header {
 
 .logo img {
     width: auto;
-    height: auto;
+    height: 60px;
 }
 
 .nav-menu ul {
@@ -2156,13 +2156,17 @@ a.contact-val:hover {
     color: var(--primary);
 }
 
+.summary-card-title {
+    margin-bottom: 20px;
+}
+
 .order-type-selector-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 }
 
-.order-type-selector-grid button:first-child {
+/* .order-type-selector-grid button:first-child {
     position: relative;
     cursor: not-allowed;
     pointer-events: none;
@@ -2184,7 +2188,7 @@ a.contact-val:hover {
     padding: 2px 4px;
     border-radius: 4px;
     font-weight: 600;
-}
+} */
 
 .order-type-btn {
     display: flex;
@@ -8095,4 +8099,92 @@ a.contact-val:hover {
         min-width: 100%;
         order: -1;
     }
+}
+
+/* =============================================
+   FETCH LOCATION BUTTON - Checkout Page
+   ============================================= */
+
+.fetch-location-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #f1f4f8;
+}
+
+.fetch-location-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 16px rgba(240, 21, 67, 0.25);
+    letter-spacing: 0.2px;
+}
+
+.fetch-location-btn:hover:not(:disabled) {
+    background: var(--dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 9, 41, 0.2);
+}
+
+.fetch-location-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.fetch-location-btn.location-success {
+    background: #16a34a;
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.25);
+}
+
+.fetch-location-btn.location-success:hover:not(:disabled) {
+    background: #15803d;
+    box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+}
+
+.fetched-address-preview {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    width: 100%;
+    color: #15803d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fetched-address-preview svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #16a34a;
+}
+
+.fetched-address-preview span {
+    word-break: break-word;
+}
+
+
+/* Delivery Extra Fields - Address & Landmark */
+.delivery-extra-fields {
+    margin-top: 18px;
+}
+
+.checkout-full-span {
+    grid-column: 1 / -1;
 }
