@@ -12,6 +12,7 @@ import {
     FiArrowLeft,
     FiShoppingBag,
     FiNavigation,
+    FiAlertCircle,
 } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
@@ -387,6 +388,29 @@ const Checkout = () => {
                                                 <span>{deliveryAddress}</span>
                                             </p>
                                         )}
+                                    </div>
+
+                                    {/* Red Disclaimer Notice */}
+                                    <div
+                                        style={{
+                                            marginTop: "16px",
+                                            padding: "12px 16px",
+                                            backgroundColor: "#fef2f2",
+                                            border: "1.5px solid #ef4444",
+                                            borderRadius: "8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "10px",
+                                            color: "#dc2626",
+                                            fontSize: "13.5px",
+                                            fontWeight: "600",
+                                            lineHeight: "1.4",
+                                        }}
+                                    >
+                                        <FiAlertCircle size={20} style={{ flexShrink: 0, color: "#dc2626" }} />
+                                        <span>
+                                            <strong>Disclaimer:</strong> Don&apos;t use Home Delivery. (Please choose <strong>Takeaway / Pickup</strong> or <strong>Dine-In</strong>).
+                                        </span>
                                     </div>
                                 </>
                             )}
