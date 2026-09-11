@@ -4,49 +4,9 @@ import React, { useState } from "react";
 import {
     FiSearch,
     FiPhone,
-    FiPlus,
 } from "react-icons/fi";
-import { FaMotorcycle, FaCircle, FaStar } from "react-icons/fa";
+import { FaMotorcycle, FaStar } from "react-icons/fa";
 import { toast } from "sonner";
-
-const mockProviders = [
-    {
-        name: "Shadowfax Local",
-        type: "3PL Aggregator",
-        status: "ACTIVE",
-        activeRiders: 12,
-        avgPickupTime: "3.5 mins",
-        successRate: "99.1%",
-        costPerKm: "₹35 base (up to 3km)",
-    },
-    {
-        name: "Borzo (WeFast)",
-        type: "3PL Express",
-        status: "ACTIVE",
-        activeRiders: 8,
-        avgPickupTime: "4.8 mins",
-        successRate: "97.8%",
-        costPerKm: "₹40 base (up to 3km)",
-    },
-    {
-        name: "Porter Enterprise",
-        type: "3PL Bulk Fleet",
-        status: "ACTIVE",
-        activeRiders: 5,
-        avgPickupTime: "6.2 mins",
-        successRate: "98.5%",
-        costPerKm: "₹45 base",
-    },
-    {
-        name: "Restaurant Self Fleet",
-        type: "Direct Kitchen Staff",
-        status: "ONLINE",
-        activeRiders: 2,
-        avgPickupTime: "1.5 mins",
-        successRate: "100%",
-        costPerKm: "₹0 Commission",
-    },
-];
 
 const mockRiders = [
     {
@@ -104,10 +64,6 @@ const DeliveryPartners = () => {
         toast.info(`Calling rider ${name} (${phone})`);
     };
 
-    const handleAddRider = () => {
-        toast.success("Add Self-Fleet Rider modal opened");
-    };
-
     const filteredRiders = riders.filter((r) => {
         const matchesFleet =
             fleetFilter === "all" ||
@@ -126,49 +82,9 @@ const DeliveryPartners = () => {
         <div className="fleet-screen">
             <div className="fleet-top-header">
                 <div className="fleet-title-wrap">
-                    <h2>Delivery Partners &amp; 3PL Fleet</h2>
-                    <p>Aggregated multi-provider logistics performance, active riders &amp; self-fleet control.</p>
+                    <h2>Rider History</h2>
+                    <p>View active and past delivery partners.</p>
                 </div>
-
-                <button type="button" className="add-fleet-btn" onClick={handleAddRider}>
-                    <FiPlus size={16} />
-                    <span>Add Self-Fleet Rider</span>
-                </button>
-            </div>
-
-            <div className="providers-grid">
-                {mockProviders.map((prov, idx) => (
-                    <div key={idx} className="provider-card">
-                        <div className="prov-header">
-                            <div className="prov-title-block">
-                                <span className="prov-name">{prov.name}</span>
-                                <span className="prov-type">{prov.type}</span>
-                            </div>
-                            <span className="prov-status-dot">
-                                <FaCircle size={8} /> {prov.status}
-                            </span>
-                        </div>
-
-                        <div className="prov-stats-row">
-                            <div className="p-stat">
-                                <span className="p-stat-lbl">Active Riders</span>
-                                <strong className="p-stat-val">{prov.activeRiders}</strong>
-                            </div>
-                            <div className="p-stat">
-                                <span className="p-stat-lbl">Avg Pickup</span>
-                                <strong className="p-stat-val">{prov.avgPickupTime}</strong>
-                            </div>
-                            <div className="p-stat">
-                                <span className="p-stat-lbl">SLA Rate</span>
-                                <strong className="p-stat-val">{prov.successRate}</strong>
-                            </div>
-                        </div>
-
-                        <div className="prov-footer">
-                            <span>Cost: <strong>{prov.costPerKm}</strong></span>
-                        </div>
-                    </div>
-                ))}
             </div>
 
             <div className="fleet-controls-bar">

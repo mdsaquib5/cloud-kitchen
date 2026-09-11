@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Hero from "@/components/ui/Hero";
 import Categories from "@/components/ui/Categories";
 import WhyChooseUs from "@/components/ui/WhyChooseUs";

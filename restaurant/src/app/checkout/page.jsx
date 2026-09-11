@@ -10,8 +10,8 @@ import {
     FiPlus,
     FiMinus,
     FiArrowLeft,
-    FiDollarSign,
     FiShoppingBag,
+    FiNavigation,
 } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
@@ -19,7 +19,8 @@ import { useStore } from "@/store/useStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useRouter } from "next/navigation";
-import api from "@/services/api";
+import orderService from "@/services/orderService";
+import paymentService from "@/services/paymentService";
 import { load } from "@cashfreepayments/cashfree-js";
 
 const Checkout = () => {
@@ -31,23 +32,29 @@ const Checkout = () => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [addressLine, setAddressLine] = useState("");
+    const [landmark, setLandmark] = useState("");
+    const [deliveryAddress, setDeliveryAddress] = useState("");
+    const [deliveryLat, setDeliveryLat] = useState(null);
+    const [deliveryLng, setDeliveryLng] = useState(null);
+    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [cashfreeInstance, setCashfreeInstance] = useState(null);
     const cart = useStore((state) => state.cart);
     const orderType = useStore((state) => state.orderType);
-    const setOrderType = useStore((state) => state.setOrderType); const selectedAddressId = useStore((state) => state.selectedAddressId);
+    const setOrderType = useStore((state) => state.setOrderType);
+    const selectedAddressId = useStore((state) => state.selectedAddressId);
     const setSelectedAddressId = useStore((state) => state.setSelectedAddressId);
     const paymentMethod = useStore((state) => state.paymentMethod);
     const setPaymentMethod = useStore((state) => state.setPaymentMethod);
-    const updateQuantity = useStore((state) => state.updateQuantity); const clearCart = useStore((state) => state.clearCart);
+    const updateQuantity = useStore((state) => state.updateQuantity);
+    const clearCart = useStore((state) => state.clearCart);
     const getCartTotals = useStore((state) => state.getCartTotals);
     const addPastOrder = useStore((state) => state.addPastOrder);
 
     useEffect(() => {
         setMounted(true);
-        // Always default to online payment since COD is removed
         setPaymentMethod("online");
-        // Pre-load Cashfree SDK on page mount to avoid TimeoutError during checkout
         load({ mode: "production" })
             .then((cf) => setCashfreeInstance(cf))
             .catch((err) => console.error("Cashfree SDK pre-load failed:", err));
@@ -55,11 +62,50 @@ const Checkout = () => {
 
     useEffect(() => {
         if (mounted && !isAuthenticated) {
-            router.push('/login');
+            router.push("/login");
         }
     }, [mounted, isAuthenticated, router]);
 
     const totals = getCartTotals();
+
+    const handleFetchLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error("Geolocation is not supported by your browser.");
+            return;
+        }
+        setIsFetchingLocation(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                setDeliveryLat(latitude);
+                setDeliveryLng(longitude);
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                    );
+                    const data = await res.json();
+                    const address = data.display_name || `${latitude}, ${longitude}`;
+                    setDeliveryAddress(address);
+                    toast.success("Location fetched successfully!");
+                } catch {
+                    setDeliveryAddress(`${latitude}, ${longitude}`);
+                    toast.success("Location coordinates saved!");
+                } finally {
+                    setIsFetchingLocation(false);
+                }
+            },
+            (error) => {
+                setIsFetchingLocation(false);
+                if (error.code === error.PERMISSION_DENIED) {
+                    toast.error("Location permission denied. Please allow location access.");
+                } else {
+                    toast.error("Unable to fetch location. Please try again.");
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
+
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
@@ -68,7 +114,10 @@ const Checkout = () => {
             return;
         }
 
-
+        if (orderType === "delivery" && !deliveryAddress) {
+            toast.error("Please fetch your location first for Home Delivery.");
+            return;
+        }
 
         setIsSubmitting(true);
         try {
@@ -77,9 +126,13 @@ const Checkout = () => {
                     name: `${firstName} ${lastName}`.trim(),
                     phone,
                     email,
-                    address: orderType === "delivery" ? "Sample Address (DLF Phase 3)" : "",
+                    address: orderType === "delivery" ? deliveryAddress : "",
+                    addressLine: orderType === "delivery" ? addressLine : "",
+                    landmark: orderType === "delivery" ? landmark : "",
+                    latitude: orderType === "delivery" ? deliveryLat : null,
+                    longitude: orderType === "delivery" ? deliveryLng : null,
                 },
-                items: cart.map(item => ({
+                items: cart.map((item) => ({
                     productId: item._id,
                     title: item.title,
                     image: item.image,
@@ -87,56 +140,46 @@ const Checkout = () => {
                     unitPrice: item.unitPrice,
                     portionLabel: item.portionLabel,
                     addons: item.addons || [],
-                    cookingNote: item.cookingNote || ""
+                    cookingNote: item.cookingNote || "",
                 })),
                 orderType,
                 paymentMethod,
-                totals
+                totals,
             };
 
-            const token = useAuthStore.getState().accessToken;
-            const res = await api.post("/orders", orderPayload, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const res = await orderService.createOrder(orderPayload);
 
             if (res.data.success) {
                 const newOrder = res.data.order;
 
                 if (paymentMethod === "online") {
-                    // Initialize Cashfree Payment
                     toast.loading("Initializing secure payment gateway...", { id: "cf-init" });
 
                     try {
-                        const paymentRes = await api.post("/payment/create", {
+                        const paymentRes = await paymentService.createPayment({
                             orderId: newOrder.orderId,
                             amount: totals.grandTotal,
                             customerPhone: phone,
                             customerName: `${firstName} ${lastName}`.trim(),
-                            customerEmail: email
+                            customerEmail: email,
                         });
 
                         if (paymentRes.data.success) {
                             toast.dismiss("cf-init");
-
-                            // Use pre-loaded instance or load fresh as fallback
-                            const cfInstance = cashfreeInstance || await load({ mode: "sandbox" });
-
+                            const cfInstance = cashfreeInstance || (await load({ mode: "sandbox" }));
                             cfInstance.checkout({
                                 paymentSessionId: paymentRes.data.payment_session_id,
-                                redirectTarget: "_self"
+                                redirectTarget: "_self",
                             });
-                            // Page will redirect to /verify-payment after payment completes
                         } else {
-                            toast.error("Failed to initiate payment. Please try COD.", { id: "cf-init" });
+                            toast.error("Failed to initiate payment. Please try again.", { id: "cf-init" });
                         }
                     } catch (error) {
                         console.error("Payment error:", error);
-                        toast.error("Payment gateway error. Please try COD.", { id: "cf-init" });
+                        toast.error("Payment gateway error. Please try again.", { id: "cf-init" });
                     }
                 } else {
-                    toast.success(`Order #${newOrder.orderId} Placed Successfully! 🎉 Tracking live now.`);
+                    toast.success(`Order #${newOrder.orderId} Placed Successfully! Tracking live now.`);
                     clearCart();
                     useStore.getState().addActiveOrder(newOrder);
                     addPastOrder(newOrder);
@@ -144,8 +187,6 @@ const Checkout = () => {
                 }
             }
         } catch (error) {
-            console.error(error);
-            // Global interceptor will handle the error toast, but we can log it
             console.error("Order placement failed:", error);
         } finally {
             setIsSubmitting(false);
@@ -155,7 +196,7 @@ const Checkout = () => {
     if (!isAuthenticated) return null;
 
     if (!mounted) {
-        return <div style={{ padding: '50px', textAlign: 'center' }}>Loading...</div>;
+        return <div style={{ padding: "50px", textAlign: "center" }}>Loading...</div>;
     }
 
     if (cart.length === 0) {
@@ -189,6 +230,7 @@ const Checkout = () => {
 
                 <form className="checkout-layout-grid" onSubmit={handlePlaceOrder}>
                     <div className="checkout-main-col">
+                        {/* Order Type */}
                         <div className="checkout-card order-type-card">
                             <div className="checkout-card-header">
                                 <div className="checkout-header-title">
@@ -202,18 +244,6 @@ const Checkout = () => {
                             <div className="order-type-selector-grid">
                                 <button
                                     type="button"
-                                    className="order-type-btn"
-                                >
-                                    <div className="type-icon-circle">
-                                        <FaMotorcycle size={20} />
-                                    </div>
-                                    <div className="type-info">
-                                        <span className="type-title">Home Delivery</span>
-                                        <span className="type-subtitle">At your doorstep (20-30 mins)</span>
-                                    </div>
-                                </button>
-                                {/* <button
-                                    type="button"
                                     className={`order-type-btn ${orderType === "delivery" ? "active" : ""}`}
                                     onClick={() => setOrderType("delivery")}
                                 >
@@ -224,7 +254,7 @@ const Checkout = () => {
                                         <span className="type-title">Home Delivery</span>
                                         <span className="type-subtitle">At your doorstep (20-30 mins)</span>
                                     </div>
-                                </button> */}
+                                </button>
 
                                 <button
                                     type="button"
@@ -256,6 +286,7 @@ const Checkout = () => {
                             </div>
                         </div>
 
+                        {/* Basic Information */}
                         <div className="checkout-card">
                             <div className="checkout-card-header">
                                 <div className="checkout-header-title">
@@ -308,39 +339,61 @@ const Checkout = () => {
                                     />
                                 </div>
                             </div>
-                        </div>
 
-                        {orderType === "delivery" && (
-                            <div className="checkout-card">
-                                <div className="checkout-card-header">
-                                    <div className="checkout-header-title">
-                                        <span className="checkout-title-icon">
-                                            <FiMapPin size={18} />
-                                        </span>
-                                        <h3>Delivery Address</h3>
-                                    </div>
-                                </div>
-                                <div className="saved-addresses-list">
-                                    <div
-                                        className={`address-item-card ${selectedAddressId === 1 ? "selected" : ""}`}
-                                        onClick={() => setSelectedAddressId(1)}
-                                    >
-                                        <div className="address-card-radio">
-                                            <span className={`custom-radio ${selectedAddressId === 1 ? "checked" : ""}`}></span>
+                            {orderType === "delivery" && (
+                                <>
+                                    <div className="checkout-form-grid delivery-extra-fields">
+                                        <div className="form-group checkout-full-span">
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Full Address (House No, Street, Area)"
+                                                className="checkout-input"
+                                                value={addressLine}
+                                                onChange={(e) => setAddressLine(e.target.value)}
+                                                required
+                                            />
                                         </div>
-                                        <div className="address-card-content">
-                                            <div className="address-type-tag">Guest Address</div>
-                                            <p className="address-text">
-                                                For guest checkout, delivery defaults to our standard zone. (Add detailed address form later).
+                                        <div className="form-group checkout-full-span">
+                                            <input
+                                                type="text"
+                                                placeholder="Landmark (e.g. Near Metro Station, Opposite Park)"
+                                                className="checkout-input"
+                                                value={landmark}
+                                                onChange={(e) => setLandmark(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="fetch-location-row">
+                                        <button
+                                            type="button"
+                                            id="fetch-location-btn"
+                                            className={`fetch-location-btn${deliveryAddress ? " location-success" : ""}`}
+                                            disabled={isFetchingLocation}
+                                            onClick={handleFetchLocation}
+                                        >
+                                            <FiNavigation size={15} />
+                                            <span>
+                                                {isFetchingLocation
+                                                    ? "Fetching Location..."
+                                                    : deliveryAddress
+                                                    ? "Update My Location"
+                                                    : "Fetch My Location"}
+                                            </span>
+                                        </button>
+
+                                        {deliveryAddress && (
+                                            <p className="fetched-address-preview">
+                                                <FiMapPin size={13} />
+                                                <span>{deliveryAddress}</span>
                                             </p>
-                                        </div>
+                                        )}
                                     </div>
-                                </div>
-                            </div>
-                        )}
-
+                                </>
+                            )}
+                        </div>
                     </div>
 
+                    {/* Sidebar */}
                     <div className="checkout-sidebar-col">
                         <div className="checkout-summary-card">
                             <h3 className="summary-card-title">Order Summary</h3>
@@ -358,24 +411,32 @@ const Checkout = () => {
                                                     width={55}
                                                     height={55}
                                                     className="preview-dish-img"
-                                                    style={{ objectFit: 'cover' }}
+                                                    style={{ objectFit: "cover" }}
                                                 />
                                             </div>
                                             <div className="preview-info-col">
                                                 <h5 className="preview-dish-name">{item.title}</h5>
-                                                <div className="preview-qty-pill" style={{ marginTop: '5px' }}>
-                                                    <button type="button" className="mini-qty-btn" onClick={() => updateQuantity(itemKey, item.quantity - 1)}>
+                                                <div className="preview-qty-pill" style={{ marginTop: "5px" }}>
+                                                    <button
+                                                        type="button"
+                                                        className="mini-qty-btn"
+                                                        onClick={() => updateQuantity(itemKey, item.quantity - 1)}
+                                                    >
                                                         <FiMinus size={10} />
                                                     </button>
                                                     <span className="mini-qty-val">{item.quantity}</span>
-                                                    <button type="button" className="mini-qty-btn" onClick={() => updateQuantity(itemKey, item.quantity + 1)}>
+                                                    <button
+                                                        type="button"
+                                                        className="mini-qty-btn"
+                                                        onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                                                    >
                                                         <FiPlus size={10} />
                                                     </button>
                                                 </div>
                                             </div>
                                             <div className="preview-price-col">
                                                 <span className="preview-price">
-                                                    ₹{(itemUnit * item.quantity).toFixed(2)}
+                                                    Rs.{(itemUnit * item.quantity).toFixed(2)}
                                                 </span>
                                             </div>
                                         </div>
@@ -383,15 +444,15 @@ const Checkout = () => {
                                 })}
                             </div>
 
-                            <div className="summary-rows" style={{ marginTop: '20px' }}>
+                            <div className="summary-rows" style={{ marginTop: "20px" }}>
                                 <div className="summary-row">
                                     <span className="summary-label">Subtotal</span>
-                                    <span className="summary-val">₹{totals.subtotal.toFixed(2)}</span>
+                                    <span className="summary-val">Rs.{totals.subtotal.toFixed(2)}</span>
                                 </div>
                                 {orderType === "delivery" && (
                                     <div className="summary-row">
                                         <span className="summary-label">Delivery Fee</span>
-                                        <span className="summary-val">₹{totals.deliveryFee.toFixed(2)}</span>
+                                        <span className="summary-val">Rs.{totals.deliveryFee.toFixed(2)}</span>
                                     </div>
                                 )}
                             </div>
@@ -400,11 +461,10 @@ const Checkout = () => {
 
                             <div className="summary-total-row">
                                 <span className="total-label">Total Amount</span>
-                                <span className="total-val">₹{totals.grandTotal.toFixed(2)}</span>
+                                <span className="total-val">Rs.{totals.grandTotal.toFixed(2)}</span>
                             </div>
 
                             <div className="payment-method-selector">
-
                                 <label
                                     className={`payment-option-label ${paymentMethod === "online" ? "selected" : ""}`}
                                     onClick={() => setPaymentMethod("online")}
@@ -413,10 +473,34 @@ const Checkout = () => {
                                     <FiShoppingBag className="payment-icon" size={16} />
                                     <span className="payment-name">Online Payment (UPI/Card)</span>
                                 </label>
+
+                                <label
+                                    className={`payment-option-label ${paymentMethod === "cash" ? "selected" : ""}`}
+                                    onClick={() => setPaymentMethod("cash")}
+                                >
+                                    <span className={`custom-radio ${paymentMethod === "cash" ? "checked" : ""}`}></span>
+                                    <FiShoppingBag className="payment-icon" size={16} />
+                                    <span className="payment-name">Cash on Delivery (COD)</span>
+                                </label>
                             </div>
 
-                            <button type="submit" className="checkout-btn" disabled={isSubmitting || !isKitchenOpen} style={!isKitchenOpen ? { background: "#d1d5db", cursor: "not-allowed", color: "#6b7280" } : {}}>
-                                <span>{!isKitchenOpen ? "Kitchen Closed" : isSubmitting ? "Placing Order..." : `Place Order (₹${totals.grandTotal.toFixed(2)})`}</span>
+                            <button
+                                type="submit"
+                                className="checkout-btn"
+                                disabled={isSubmitting || !isKitchenOpen}
+                                style={
+                                    !isKitchenOpen
+                                        ? { background: "#d1d5db", cursor: "not-allowed", color: "#6b7280" }
+                                        : {}
+                                }
+                            >
+                                <span>
+                                    {!isKitchenOpen
+                                        ? "Kitchen Closed"
+                                        : isSubmitting
+                                        ? "Placing Order..."
+                                        : `Place Order (Rs.${totals.grandTotal.toFixed(2)})`}
+                                </span>
                             </button>
                         </div>
                     </div>

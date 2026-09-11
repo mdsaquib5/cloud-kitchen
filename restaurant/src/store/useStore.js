@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { trackOrder } from "../services/orderService";
 
 export const useStore = create(
     persist(
@@ -18,13 +19,62 @@ export const useStore = create(
             addPastOrder: (order) => set((state) => ({ pastOrders: [order, ...(state.pastOrders || [])] })),
 
             activeOrders: [],
-            addActiveOrder: (order) => set((state) => ({ activeOrders: [...(state.activeOrders || []), order] })),
+            addActiveOrder: (order) => set((state) => {
+                // Keep only currently ongoing/active orders + new order
+                // Clean up any older orders that were already DELIVERED or CANCELLED (safely preserved in pastOrders)
+                const activeOnly = (state.activeOrders || []).filter(
+                    (o) => o.status && !["DELIVERED", "CANCELLED"].includes(o.status.toUpperCase())
+                );
+                const orderId = order.orderId || order.id || order._id;
+                const exists = activeOnly.some(
+                    (o) => (o.orderId && o.orderId === orderId) || (o.id && o.id === orderId) || (o._id && o._id === orderId)
+                );
+                return {
+                    activeOrders: exists ? activeOnly : [...activeOnly, order]
+                };
+            }),
             updateActiveOrder: (orderId, latestData) => set((state) => ({
-                activeOrders: (state.activeOrders || []).map(o => (o.id === orderId || o.orderId === orderId) ? { ...o, ...latestData } : o)
+                activeOrders: (state.activeOrders || []).map(o => (o.id === orderId || o.orderId === orderId || o._id === orderId) ? { ...o, ...latestData } : o)
             })),
             removeActiveOrder: (orderId) => set((state) => ({
-                activeOrders: (state.activeOrders || []).filter(o => o.id !== orderId && o.orderId !== orderId)
+                activeOrders: (state.activeOrders || []).filter(o => o.id !== orderId && o.orderId !== orderId && o._id !== orderId)
             })),
+            dismissActiveOrder: (orderId) => set((state) => ({
+                activeOrders: (state.activeOrders || []).filter(o => o.id !== orderId && o.orderId !== orderId && o._id !== orderId)
+            })),
+
+            syncActiveOrders: async () => {
+                const { activeOrders, updateActiveOrder, removeActiveOrder } = get();
+                if (!activeOrders || activeOrders.length === 0) return;
+
+                await Promise.all(activeOrders.map(async (order) => {
+                    const idToFetch = order.orderId || order.id;
+                    if (!idToFetch) return;
+
+                    try {
+                        const res = await trackOrder(idToFetch);
+                        const data = res.data;
+                        if (data.success && data.order) {
+                            const latest = data.order;
+                            // Update the order in state so the user sees real-time progress and final DELIVERED state
+                            updateActiveOrder(idToFetch, {
+                                status: latest.status,
+                                rider: latest.rider || order.rider,
+                                eta: latest.status === "DELIVERED" ? "Delivered" : (latest.eta || order.eta),
+                                totals: latest.totals || order.totals,
+                                courierInfo: latest.courierInfo || order.courierInfo,
+                                deliveryPartner: latest.deliveryPartner || order.deliveryPartner,
+                                trackingUrl: latest.trackingUrl || latest.borzoTrackingUrl || order.trackingUrl,
+                                borzoTrackingUrl: latest.trackingUrl || latest.borzoTrackingUrl || order.borzoTrackingUrl,
+                            });
+                        }
+                    } catch (error) {
+                        if (error.response?.status === 404) {
+                            removeActiveOrder(idToFetch);
+                        }
+                    }
+                }));
+            },
 
             setOrderType: (type) => set({ orderType: type }),
             setPickupSlot: (slot) => set({ pickupSlot: slot }),
@@ -113,7 +163,7 @@ export const useStore = create(
                 const deliveryFee = orderType === "delivery" ? 0.00 : 0.00;
                 const platformFee = 2.00;
                 const discount = appliedCoupon === "BIOFF10" ? subtotal * 0.1 : appliedCoupon === "BURG05" ? 5.00 : 0.00;
-                const tax = subtotal * 0.05; // 5% GST
+                const tax = subtotal * 0.05;
                 const grandTotal = Math.max(0, subtotal + deliveryFee + platformFee + tax - discount);
 
                 const newOrder = {

@@ -11,24 +11,33 @@ import {
     FiSend,
     FiLayers,
     FiBarChart2,
+    FiLogOut,
+    FiShield,
 } from "react-icons/fi";
 import Logo from "../shared/Logo";
+import orderService from "@/services/orderService";
+import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 const KitchenSidebar = () => {
     const pathname = usePathname();
     const [liveOrdersCount, setLiveOrdersCount] = useState(0);
+    const [dispatchOrdersCount, setDispatchOrdersCount] = useState(0);
+    const { user, clearAuth } = useAuthStore();
 
     useEffect(() => {
         const fetchLiveCount = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-                const data = await res.json();
+                const res = await orderService.getAllOrders();
+                const data = res.data;
                 if (data.success && data.orders) {
-                    // Count only active orders
                     const count = data.orders.filter(
-                        (o) => o.status !== "DELIVERED" && o.status !== "CANCELLED" && o.status !== "COMPLETED"
+                        (o) => o.status !== "DELIVERED" && o.status !== "CANCELLED" && o.status !== "COMPLETED" && o.status !== "OUT_FOR_DELIVERY"
                     ).length;
                     setLiveOrdersCount(count);
+
+                    const dispatchCnt = data.orders.filter((o) => o.status === "OUT_FOR_DELIVERY").length;
+                    setDispatchOrdersCount(dispatchCnt);
                 }
             } catch (error) {
                 console.error("Failed to fetch live order count:", error);
@@ -36,25 +45,31 @@ const KitchenSidebar = () => {
         };
 
         fetchLiveCount();
-        const interval = setInterval(fetchLiveCount, 10000); // Poll every 10 seconds
+        const interval = setInterval(fetchLiveCount, 10000);
         return () => clearInterval(interval);
     }, []);
+
+    const handleLogout = () => {
+        clearAuth();
+        toast.info("Kitchen Manager logged out.");
+    };
 
     const mainNav = [
         {
             id: "live-kds",
-            label: "Live KDS Orders",
+            label: "Live Orders",
             href: "/kitchen",
             icon: <FiGrid size={19} />,
             badge: liveOrdersCount > 0 ? liveOrdersCount.toString() : null,
             badgeType: "hot",
         },
-
         {
             id: "dispatch",
-            label: "3PL & Dispatch",
+            label: "Dispatch",
             href: "/kitchen/dispatch",
             icon: <FiTruck size={19} />,
+            badge: dispatchOrdersCount > 0 ? dispatchOrdersCount.toString() : null,
+            badgeType: "hot",
         },
         {
             id: "order-history",
@@ -82,13 +97,13 @@ const KitchenSidebar = () => {
     const manageNav = [
         {
             id: "menu-stock",
-            label: "Menu & 86 Items",
+            label: "Menu & Stock",
             href: "/kitchen/menu-stock",
             icon: <FiLayers size={19} />,
         },
         {
             id: "analytics",
-            label: "Sales & Insights",
+            label: "Analytics Report",
             href: "/kitchen/analytics",
             icon: <FiBarChart2 size={19} />,
         },
@@ -161,6 +176,23 @@ const KitchenSidebar = () => {
                             );
                         })}
                     </nav>
+                </div>
+
+                <div className="sidebar-section" style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "rgba(255,255,255,0.04)", borderRadius: "8px", marginBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <FiShield size={14} color="#38bdf8" />
+                            <span style={{ fontSize: "12px", fontWeight: "600", color: "#e2e8f0" }}>{user?.name || "Manager"}</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            title="Logout Manager"
+                            style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", padding: "4px" }}
+                        >
+                            <FiLogOut size={14} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </aside>

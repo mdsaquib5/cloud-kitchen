@@ -1,26 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import { FiSearch, FiCheckCircle, FiXCircle, FiAlertCircle } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiSearch, FiCheckCircle, FiXCircle, FiAlertCircle, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/constant/product";
 import FoodModal from "./FoodModal";
 import CategoryModal from "./CategoryModal";
-import api from "@/services/api";
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import menuService from "@/services/menuService";
 
 const MenuStock = () => {
     const [productsList, setProductsList] = useState([]);
     const [dbCategories, setDbCategories] = useState([]);
 
-    React.useEffect(() => {
-        fetchFoods();
-        fetchCategories();
-    }, []);
-
     const fetchFoods = async () => {
         try {
-            const res = await api.get("/food");
+            const res = await menuService.getFoods();
             if (res.data.success) {
                 setProductsList(res.data.foods);
             }
@@ -29,14 +23,29 @@ const MenuStock = () => {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const res = await menuService.getCategories();
+            if (res.data.success) {
+                setDbCategories(res.data.categories);
+            }
+        } catch (error) {
+            toast.error("Failed to load categories");
+        }
+    };
+
+    useEffect(() => {
+        fetchFoods();
+        fetchCategories();
+    }, []);
 
     const handleDeleteCategory = async (catId) => {
         if (confirm("Are you sure you want to delete this category? All related dishes might lose their category reference.")) {
             try {
-                const res = await api.delete(`/category/${catId}`);
+                const res = await menuService.deleteCategory(catId);
                 if (res.data.success) {
-                    setDbCategories(dbCategories.filter(c => c._id !== catId));
-                    setProductsList(prev => prev.filter(p => p.category !== catId && p.category?._id !== catId));
+                    setDbCategories(dbCategories.filter((c) => c._id !== catId));
+                    setProductsList((prev) => prev.filter((p) => p.category !== catId && p.category?._id !== catId));
                     setSelectedCategory("all");
                     toast.success("Category deleted successfully");
                 }
@@ -49,13 +58,13 @@ const MenuStock = () => {
     const handleSaveCategory = async (catData) => {
         try {
             if (editingCategory) {
-                const res = await api.put(`/category/${editingCategory._id}`, catData);
+                const res = await menuService.updateCategory(editingCategory._id, catData);
                 if (res.data.success) {
-                    setDbCategories(dbCategories.map(c => c._id === editingCategory._id ? res.data.category : c));
+                    setDbCategories(dbCategories.map((c) => (c._id === editingCategory._id ? res.data.category : c)));
                     toast.success("Category updated successfully");
                 }
             } else {
-                const res = await api.post("/category", catData);
+                const res = await menuService.createCategory(catData);
                 if (res.data.success) {
                     setDbCategories([...dbCategories, res.data.category]);
                     toast.success("Category added successfully");
@@ -66,17 +75,6 @@ const MenuStock = () => {
         }
     };
 
-
-    const fetchCategories = async () => {
-        try {
-            const res = await api.get("/category");
-            if (res.data.success) {
-                setDbCategories(res.data.categories);
-            }
-        } catch (error) {
-            toast.error("Failed to load categories");
-        }
-    };
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [stockFilter, setStockFilter] = useState("all");
@@ -93,9 +91,9 @@ const MenuStock = () => {
     const handleDeleteFood = async (foodId) => {
         if (confirm("Are you sure you want to delete this dish?")) {
             try {
-                const res = await api.delete(`/food/${foodId}`);
+                const res = await menuService.deleteFood(foodId);
                 if (res.data.success) {
-                    setProductsList(productsList.filter(f => f._id !== foodId));
+                    setProductsList(productsList.filter((f) => f._id !== foodId));
                     toast.success("Dish deleted successfully");
                 }
             } catch (error) {
@@ -107,13 +105,13 @@ const MenuStock = () => {
     const handleSaveFood = async (foodData) => {
         try {
             if (editingFood) {
-                const res = await api.put(`/food/${editingFood._id}`, foodData);
+                const res = await menuService.updateFood(editingFood._id, foodData);
                 if (res.data.success) {
-                    setProductsList(productsList.map(f => f._id === editingFood._id ? res.data.food : f));
+                    setProductsList(productsList.map((f) => (f._id === editingFood._id ? res.data.food : f)));
                     toast.success("Dish updated successfully");
                 }
             } else {
-                const res = await api.post("/food", foodData);
+                const res = await menuService.createFood(foodData);
                 if (res.data.success) {
                     setProductsList([res.data.food, ...productsList]);
                     toast.success("New dish added successfully");
@@ -127,9 +125,9 @@ const MenuStock = () => {
     const toggleItemStock = async (dish) => {
         try {
             const newStatus = !dish.inStock;
-            const res = await api.put(`/food/${dish._id}`, { inStock: newStatus });
+            const res = await menuService.updateFoodStock(dish._id, newStatus);
             if (res.data.success) {
-                setProductsList(productsList.map(p => p._id === dish._id ? { ...p, inStock: newStatus } : p));
+                setProductsList(productsList.map((p) => (p._id === dish._id ? { ...p, inStock: newStatus } : p)));
                 if (newStatus) toast.success(`${dish.title} is now IN STOCK (Available)`);
                 else toast.error(`${dish.title} 86'd (Marked OUT OF STOCK)`);
             }
@@ -193,7 +191,6 @@ const MenuStock = () => {
                     >
                         <FiPlus size={18} /> Add New Dish
                     </button>
-
                 </div>
             </div>
 
@@ -290,7 +287,7 @@ const MenuStock = () => {
                             className="bulk-btn"
                             style={{ background: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}
                             onClick={() => {
-                                setEditingCategory(dbCategories.find(c => c.slug === selectedCategory));
+                                setEditingCategory(dbCategories.find((c) => c.slug === selectedCategory));
                                 setIsCategoryModalOpen(true);
                             }}
                         >
@@ -302,7 +299,7 @@ const MenuStock = () => {
                             className="bulk-btn out"
                             style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5' }}
                             onClick={() => {
-                                const cat = dbCategories.find(c => c.slug === selectedCategory);
+                                const cat = dbCategories.find((c) => c.slug === selectedCategory);
                                 if (cat) handleDeleteCategory(cat._id);
                             }}
                         >
@@ -341,7 +338,7 @@ const MenuStock = () => {
                                 <div className="col-price">
                                     {dish.portions && dish.portions.length > 0 ? (
                                         <div className="price-stack">
-                                            {dish.portions.map(p => (
+                                            {dish.portions.map((p) => (
                                                 <span key={p._id || p.portionName}>{p.portionName}: ₹{p.price}</span>
                                             ))}
                                         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiSearch,
     FiUser,
@@ -9,20 +9,20 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp, FaStar } from "react-icons/fa";
 import { toast } from "sonner";
+import orderService from "@/services/orderService";
 
 const Customers = () => {
-
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchCustomers = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
+            const res = await orderService.getAllOrders();
+            const data = res.data;
             if (data.success) {
                 const customerMap = {};
 
-                data.orders.forEach(o => {
+                (data.orders || []).forEach((o) => {
                     const phone = o.customer?.phone;
                     if (!phone) return;
 
@@ -49,12 +49,12 @@ const Customers = () => {
                     }
 
                     // Track favorite dishes
-                    o.items.forEach(item => {
+                    (o.items || []).forEach((item) => {
                         customerMap[phone].itemCounts[item.title] = (customerMap[phone].itemCounts[item.title] || 0) + item.quantity;
                     });
                 });
 
-                const formattedCustomers = Object.values(customerMap).map(cust => {
+                const formattedCustomers = Object.values(customerMap).map((cust) => {
                     // Find favorite dish
                     let favDish = "None";
                     let maxCount = 0;
@@ -103,7 +103,7 @@ const Customers = () => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchCustomers();
     }, []);
 

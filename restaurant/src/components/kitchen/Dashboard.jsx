@@ -1,226 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiSearch,
     FiClock,
     FiPrinter,
-    FiVolume2,
-    FiVolumeX,
     FiRefreshCw,
-    FiPhone,
     FiCheck,
     FiChevronRight,
     FiPackage,
     FiAlertCircle,
-    FiWifi, FiBell
 } from "react-icons/fi";
-import { FaMotorcycle, FaStoreAlt, FaUtensils, FaCircle } from "react-icons/fa";
+import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
-
-const initialOrders = [
-    {
-        id: "YK-84920",
-        customerName: "Rahul Sharma",
-        phone: "+91 98765 43210",
-        orderType: "delivery",
-        orderTime: "2m ago",
-        status: "PLACED",
-        urgent: true,
-        items: [
-            { name: "Paneer Kurkure Momos", portion: "Full Portion", qty: 2, price: 240 },
-            { name: "Malai Chaap", portion: "Half Portion", qty: 1, price: 50 },
-            { name: "Cold Coffee", portion: "Standard", qty: 2, price: 100 },
-        ],
-        total: 390,
-        address: "Flat 402, Royal Palms, Cyber City",
-        notes: "Extra spicy red chutney & green dips please.",
-    },
-    {
-        id: "YK-84921",
-        customerName: "Sneha Patel",
-        phone: "+91 98222 33445",
-        orderType: "takeaway",
-        orderTime: "4m ago",
-        status: "PLACED",
-        urgent: false,
-        items: [
-            { name: "₹179 Mega Feast Combo", portion: "Standard", qty: 1, price: 179 },
-            { name: "Paneer Burger", portion: "Standard", qty: 1, price: 40 },
-        ],
-        total: 219,
-        pickupTime: "Pickup in 15m",
-    },
-    {
-        id: "YK-84918",
-        customerName: "Amit Kumar",
-        phone: "+91 98111 22334",
-        orderType: "delivery",
-        orderTime: "8m ago",
-        status: "PREPARING",
-        urgent: false,
-        items: [
-            { name: "White Sauce Pasta", portion: "Full Portion", qty: 1, price: 120 },
-            { name: "Veg Fried Momo", portion: "Full Portion", qty: 1, price: 70 },
-            { name: "Peri Peri Fries", portion: "Half Portion", qty: 1, price: 40 },
-        ],
-        total: 230,
-        address: "Tower B, Sector 29",
-    },
-    {
-        id: "YK-84919",
-        customerName: "Table 04 (Dining)",
-        phone: "+91 99887 66554",
-        orderType: "dine-in",
-        orderTime: "11m ago",
-        status: "PREPARING",
-        urgent: false,
-        items: [
-            { name: "Paneer Chowmein", portion: "Full Portion", qty: 1, price: 110 },
-            { name: "Cheese Balls", portion: "Half Portion", qty: 1, price: 70 },
-        ],
-        total: 180,
-        tableNo: "Table 04",
-    },
-    {
-        id: "YK-84915",
-        customerName: "Vikram Singh",
-        phone: "+91 97654 32109",
-        orderType: "delivery",
-        orderTime: "16m ago",
-        status: "READY",
-        urgent: false,
-        riderName: "Sonu Kumar (Shadowfax)",
-        riderPhone: "+91 91234 56780",
-        otp: "4921",
-        items: [
-            { name: "Butter Malai Chaap", portion: "Full Portion", qty: 1, price: 90 },
-            { name: "Veg Spring Roll", portion: "Full Portion", qty: 2, price: 100 },
-        ],
-        total: 190,
-    },
-    {
-        id: "YK-84916",
-        customerName: "Pooja Verma",
-        phone: "+91 98444 55667",
-        orderType: "takeaway",
-        orderTime: "19m ago",
-        status: "READY",
-        urgent: false,
-        items: [
-            { name: "₹150 Super Saver Combo", portion: "Standard", qty: 2, price: 300 },
-        ],
-        total: 300,
-        pickupTime: "Counter Ready",
-    },
-];
+import { useKitchenStore } from "@/store/useKitchenStore";
 
 const Dashboard = () => {
-
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [todaysRevenue, setTodaysRevenue] = useState(0);
-    const [todaysOrders, setTodaysOrders] = useState(0);
-
-    const fetchOrders = async () => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
-            if (data.success) {
-                // Map the backend orders to the KDS format
-                const kdsOrders = data.orders.map(o => {
-                    const placedTime = new Date(o.createdAt);
-                    const now = new Date();
-                    const diffMs = now - placedTime;
-                    const elapsedMinutes = Math.floor(diffMs / 60000);
-
-                    return {
-                        id: o._id.substring(o._id.length - 6).toUpperCase(),
-                        originalId: o._id,
-                        customerName: o.customer.name,
-                        phone: o.customer.phone,
-                        orderType: o.orderType || "delivery",
-                        orderTime: elapsedMinutes + "m ago",
-                        status: o.status, // PLACED, PREPARING, READY_FOR_PICKUP/OUT_FOR_DELIVERY, COMPLETED
-                        urgent: elapsedMinutes > 10 && o.status === "PLACED",
-                        items: o.items.map(i => ({
-                            name: i.title,
-                            portion: i.portionLabel || "Standard",
-                            qty: i.quantity,
-                            price: i.price,
-                            addons: i.addons || []
-                        })),
-                        total: (o.totals?.grandTotal || 0),
-                        address: o.customer.address || "No address provided",
-                        notes: o.items.map(i => i.cookingNote).filter(Boolean).join(", ")
-                    };
-                });
-
-                // Keep only active orders for the board (ignore COMPLETED or CANCELLED)
-                const activeOrders = kdsOrders.filter(o =>
-                    o.status === "PLACED" ||
-                    o.status === "PREPARING" ||
-                    o.status === "READY_FOR_PICKUP" ||
-                    o.status === "OUT_FOR_DELIVERY"
-                );
-
-                setOrders(activeOrders);
-
-                // Calculate today's stats
-                const today = new Date().setHours(0, 0, 0, 0);
-                const todaysOrdersList = data.orders.filter(o => new Date(o.createdAt) >= today);
-                setTodaysOrders(todaysOrdersList.length);
-                const revenue = todaysOrdersList.reduce((acc, o) => acc + (o.totals?.grandTotal || 0), 0);
-                setTodaysRevenue(revenue);
-            }
-        } catch (error) {
-            console.error("Failed to fetch dashboard orders", error);
-            toast.error("Failed to load live orders");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    React.useEffect(() => {
-        fetchOrders();
-        const interval = setInterval(fetchOrders, 10000);
-        return () => clearInterval(interval);
-    }, []);
+    const {
+        orders,
+        loading,
+        todaysRevenue,
+        todaysOrders,
+        quotesModalOpen,
+        quotesLoading,
+        availableQuotes,
+        selectedQuoteIndex,
+        fetchOrders,
+        openQuotesModal,
+        closeQuotesModal,
+        setSelectedQuoteIndex,
+        assignRider,
+        updateOrderStatus
+    } = useKitchenStore();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
-    const [autoPrint, setAutoPrint] = useState(true);
 
-    const updateOrderStatus = async (orderId, nextStatus) => {
-        try {
-            const orderToUpdate = orders.find(o => o.id === orderId);
-            if (!orderToUpdate) return;
-
-            // Adjust status mapping for backend
-            let backendStatus = nextStatus;
-            if (nextStatus === "READY") {
-                backendStatus = orderToUpdate.orderType === "delivery" ? "OUT_FOR_DELIVERY" : "READY_FOR_PICKUP";
-            } else if (nextStatus === "COMPLETED") {
-                backendStatus = "DELIVERED";
-            }
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/status/${orderToUpdate.originalId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: backendStatus })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                fetchOrders();
-                toast.success(`Order #${orderId} moved to ${nextStatus}!`);
-            } else {
-                toast.error("Failed to update status");
-            }
-        } catch (error) {
-            toast.error("Error updating order status");
-        }
-    };
+    useEffect(() => {
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 10000);
+        return () => clearInterval(interval);
+    }, [fetchOrders]);
 
     const handlePrintKOT = (order) => {
         toast.success(`Thermal KOT Printed for #${order.id}`, {
@@ -239,9 +59,17 @@ const Dashboard = () => {
         return matchesType && matchesSearch;
     });
 
-    const placedCount = orders.filter((o) => o.status === "PLACED").length;
-    const prepCount = orders.filter((o) => o.status === "PREPARING").length;
-    const readyCount = orders.filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY").length;
+    const formatEta = (etaVal) => {
+        if (!etaVal || etaVal === "N/A" || etaVal === "Manual") return etaVal;
+        if (typeof etaVal === "string" && etaVal.includes("T")) {
+            const dropTime = new Date(etaVal);
+            const now = new Date();
+            const diffMs = dropTime - now;
+            const diffMins = Math.round(diffMs / 60000);
+            return diffMins > 0 ? `${diffMins} mins` : "Arriving soon";
+        }
+        return `${etaVal} mins`;
+    };
 
     return (
         <div className="kds-screen">
@@ -322,13 +150,6 @@ const Dashboard = () => {
                                         </span>
                                     </div>
 
-                                    {order.urgent && (
-                                        <div className="urgent-banner">
-                                            <FiAlertCircle size={13} />
-                                            <span>Action Needed (&gt; 2 mins unaccepted)</span>
-                                        </div>
-                                    )}
-
                                     <div className="ticket-meta">
                                         <div className="meta-cust">
                                             <strong>{order.customerName}</strong>
@@ -336,12 +157,6 @@ const Dashboard = () => {
                                         </div>
                                         <span className="meta-total">₹{order.total}</span>
                                     </div>
-
-                                    {order.notes && (
-                                        <div className="ticket-note">
-                                            <span>Note: {order.notes}</span>
-                                        </div>
-                                    )}
 
                                     <div className="ticket-items">
                                         {order.items.map((item, idx) => (
@@ -352,7 +167,6 @@ const Dashboard = () => {
                                                         <span className="item-name">{item.name}</span>
                                                         <span className="item-portion">{item.portion}</span>
                                                     </div>
-
                                                 </div>
                                                 {item.addons && item.addons.length > 0 && (
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px', paddingLeft: '28px', paddingRight: '8px' }}>
@@ -431,7 +245,6 @@ const Dashboard = () => {
                                     <div className="ticket-meta">
                                         <div className="meta-cust">
                                             <strong>{order.customerName}</strong>
-                                            {order.tableNo && <span className="table-highlight">{order.tableNo}</span>}
                                         </div>
                                         <span className="meta-total">₹{order.total}</span>
                                     </div>
@@ -499,12 +312,12 @@ const Dashboard = () => {
                             <span className="col-indicator ready"></span>
                             <h3>READY FOR DISPATCH</h3>
                         </div>
-                        <span className="col-count">{filteredOrders.filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY").length}</span>
+                        <span className="col-count">{filteredOrders.filter((o) => o.status === "READY_FOR_PICKUP").length}</span>
                     </div>
 
                     <div className="col-tickets-flow">
                         {filteredOrders
-                            .filter((o) => o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY")
+                            .filter((o) => o.status === "READY_FOR_PICKUP")
                             .map((order) => (
                                 <div key={order.id} className="kds-ticket ready-ticket">
                                     <div className="ticket-header">
@@ -525,7 +338,7 @@ const Dashboard = () => {
                                                 <FaMotorcycle size={14} />
                                                 <span>{order.riderName}</span>
                                             </div>
-                                            <span className="otp-pill">OTP: {order.otp}</span>
+                                            {order.otp && <span className="otp-pill">OTP: {order.otp}</span>}
                                         </div>
                                     )}
 
@@ -569,6 +382,20 @@ const Dashboard = () => {
                                         ))}
                                     </div>
 
+                                    {order.orderType === "delivery" && !order.riderName && (
+                                        <div className="ticket-actions" style={{ marginBottom: "10px" }}>
+                                            <button
+                                                type="button"
+                                                className="ticket-primary-btn"
+                                                style={{ backgroundColor: "#8b5cf6", width: "100%", justifyContent: "center", border: "none", color: "#fff", padding: "8px", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", fontWeight: "bold" }}
+                                                onClick={() => openQuotesModal(order.originalId)}
+                                            >
+                                                <FiSearch size={16} />
+                                                <span style={{ marginLeft: "5px" }}>Find Rider (Live Quotes)</span>
+                                            </button>
+                                        </div>
+                                    )}
+
                                     <div className="ticket-actions">
                                         <button
                                             type="button"
@@ -585,6 +412,77 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* --- Live Quotes Modal --- */}
+            {quotesModalOpen && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="modal-content" style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '12px', width: '500px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                            <h3 style={{ margin: 0, fontSize: '18px', color: '#0f172a' }}>Select Delivery Partner</h3>
+                            <button onClick={closeQuotesModal} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '20px', color: '#64748b' }}>✖</button>
+                        </div>
+
+                        {quotesLoading ? (
+                            <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                                <FiRefreshCw className="spin-icon" size={24} style={{ marginBottom: '10px' }} />
+                                <div>Fetching live quotes from Pidge...</div>
+                            </div>
+                        ) : availableQuotes.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
+                                <FiAlertCircle size={24} style={{ marginBottom: '10px' }} />
+                                <div>No delivery partners available right now.</div>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {availableQuotes.map((quote, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => setSelectedQuoteIndex(idx)}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '16px',
+                                            border: selectedQuoteIndex === idx ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            backgroundColor: selectedQuoteIndex === idx ? '#eff6ff' : '#fff',
+                                            transition: 'all 0.2s ease'
+                                        }}>
+                                        <div style={{ width: '40px', height: '40px', marginRight: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9', borderRadius: '50%' }}>
+                                            <FaMotorcycle size={20} color={selectedQuoteIndex === idx ? '#3b82f6' : '#64748b'} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#0f172a' }}>{quote.networkName}</div>
+                                            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>ETA: {formatEta(quote.etaDrop)}</div>
+                                        </div>
+                                        <div style={{ fontWeight: 'bold', fontSize: '20px', color: '#0f172a' }}>
+                                            ₹{quote.price}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <button
+                                    disabled={selectedQuoteIndex === null}
+                                    onClick={assignRider}
+                                    style={{
+                                        marginTop: '20px',
+                                        padding: '14px',
+                                        backgroundColor: selectedQuoteIndex === null ? '#cbd5e1' : '#3b82f6',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: 'bold',
+                                        fontSize: '15px',
+                                        cursor: selectedQuoteIndex === null ? 'not-allowed' : 'pointer',
+                                        transition: 'background-color 0.2s'
+                                    }}>
+                                    Confirm &amp; Assign Rider
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="kds-bottom-bar">
                 <div className="bottom-stat">
                     <span className="b-label">Today's Revenue:</span>
@@ -596,7 +494,7 @@ const Dashboard = () => {
                 </div>
                 <div className="bottom-stat">
                     <span className="b-label">Active 3PL Fleet:</span>
-                    <strong className="b-val">Shadowfax / Borzo</strong>
+                    <strong className="b-val">Pidge / Shadowfax</strong>
                 </div>
                 <div className="bottom-time">
                     <span>Auto-Sync Active (SSE)</span>

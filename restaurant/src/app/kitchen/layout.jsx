@@ -1,5 +1,6 @@
 import React from "react";
 import KitchenSidebar from "@/components/kitchen/KitchenSidebar";
+import AdminAuthGuard from "@/components/kitchen/AdminAuthGuard";
 
 export const metadata = {
     title: "Kitchen KDS Dashboard | Shree Shyam Fast Food",
@@ -8,9 +9,11 @@ export const metadata = {
 
 export default function KitchenLayout({ children }) {
     return (
-        <div className="kitchen-page">
-            <KitchenSidebar />
-            <div className="kitchen-content-wrapper">{children}</div>
-        </div>
+        <AdminAuthGuard>
+            <div className="kitchen-page">
+                <KitchenSidebar />
+                <div className="kitchen-content-wrapper">{children}</div>
+            </div>
+        </AdminAuthGuard>
     );
 }

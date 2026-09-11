@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FiArrowLeft, FiX, FiCheckCircle } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { useAuthStore } from "@/store/useAuthStore";
+import orderService from "@/services/orderService";
 
 const Profile = () => {
     const router = useRouter();
@@ -22,20 +23,14 @@ const Profile = () => {
         setMounted(true);
     }, []);
 
-
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const clearAuth = useAuthStore((state) => state.clearAuth);
 
-    const fetchUserOrders = async (token) => {
+    const fetchUserOrders = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/user`, {
-                headers: {
-                    'Authorization': "Bearer " + token
-                }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setPastOrders(data.orders);
+            const res = await orderService.getUserOrders();
+            if (res.data.success) {
+                setPastOrders(res.data.orders);
             }
         } catch (error) {
             console.error("Failed to fetch user orders:", error);
@@ -49,7 +44,7 @@ const Profile = () => {
             if (!useAuthStore.getState().isAuthenticated || !token) {
                 router.push("/login");
             } else {
-                fetchUserOrders(token);
+                fetchUserOrders();
             }
         }
     }, [mounted]);
@@ -67,10 +62,9 @@ const Profile = () => {
         try {
             const idToFetch = order.orderId || order.id || order._id;
             if (!idToFetch) return;
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/track/${idToFetch}`);
-            const data = await res.json();
-            if (data.success && data.order) {
-                setLiveStatus(data.order);
+            const res = await orderService.trackOrder(idToFetch);
+            if (res.data.success && res.data.order) {
+                setLiveStatus(res.data.order);
             }
         } catch (error) {
             console.error("Tracking fetch error:", error);
@@ -125,7 +119,7 @@ const Profile = () => {
                 {pastOrders.length === 0 ? (
                     <div className="empty-cart-state" style={{ marginTop: '40px' }}>
                         <h2>No Past Orders</h2>
-                        <p>Looks like you haven\'t placed any orders yet.</p>
+                        <p>Looks like you haven't placed any orders yet.</p>
                         <Link href="/foods" className="explore-menu-btn" style={{ marginTop: '20px' }}>
                             <span>Explore Menu</span>
                         </Link>
@@ -168,7 +162,7 @@ const Profile = () => {
 
                                     <div className="po-meta-info">
                                         <span className="po-label">Restaurant</span>
-                                        <span className="po-value">Your\'s Kitchen</span>
+                                        <span className="po-value">Your's Kitchen</span>
                                     </div>
 
                                     <div className="po-meta-info">
@@ -219,8 +213,6 @@ const Profile = () => {
                     </div>
                 </div>
             )}
-
-
         </div>
     );
 };
@@ -285,10 +277,8 @@ const TrackingTimeline = ({ order }) => {
                     );
                 })}
             </div>
-
         </div>
     );
-}
+};
 
 export default Profile;
-

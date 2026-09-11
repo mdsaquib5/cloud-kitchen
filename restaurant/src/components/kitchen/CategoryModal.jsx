@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import api from "@/services/api";
+import menuService from "@/services/menuService";
 import { toast } from "sonner";
 import { FiX } from "react-icons/fi";
 
@@ -21,7 +21,7 @@ const CategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }) => {
 
     if (!isOpen) return null;
 
-        const handleImageUpload = async (e) => {
+    const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -30,9 +30,7 @@ const CategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }) => {
 
         setIsUploading(true);
         try {
-            const res = await api.post("/upload", uploadData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+            const res = await menuService.uploadImage(uploadData);
             if (res.data.success) {
                 setFormData({ ...formData, image: res.data.imageUrl });
                 toast.success("Image uploaded successfully");
@@ -54,7 +52,7 @@ const CategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }) => {
                 <div className="modal-body">
                     <div className="form-group">
                         <label>Category Title</label>
-                        <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="form-input" placeholder="e.g. Fried Momos" />
+                        <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="form-input" placeholder="e.g. Fried Momos" />
                     </div>
                     <div className="form-group">
                         <label>Upload Image</label>
@@ -70,15 +68,14 @@ const CategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }) => {
                 </div>
                 <div className="modal-footer">
                     <button onClick={onClose} className="btn-secondary">Cancel</button>
-                    <button onClick={() => { 
-                        if(!formData.title.trim()) return toast.error("Please enter a title");
-                        if(!formData.image) return toast.error("Please upload an image first");
-                        onSave(formData); 
-                        onClose(); 
+                    <button onClick={() => {
+                        if (!formData.title.trim()) return toast.error("Please enter a title");
+                        if (!formData.image) return toast.error("Please upload an image first");
+                        onSave(formData);
+                        onClose();
                     }} className="btn-primary">Save</button>
                 </div>
             </div>
-            
         </div>
     );
 };

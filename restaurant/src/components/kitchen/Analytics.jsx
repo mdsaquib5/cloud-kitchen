@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiDollarSign,
     FiTrendingUp,
@@ -13,6 +13,8 @@ import {
 } from "react-icons/fi";
 import { FaFire } from "react-icons/fa";
 import { toast } from "sonner";
+import orderService from "@/services/orderService";
+import settingsService from "@/services/settingsService";
 
 const Analytics = () => {
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
@@ -20,12 +22,8 @@ const Analytics = () => {
     const updateKitchenStatus = async (status) => {
         try {
             setIsUpdatingStatus(true);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/status`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ isKitchenOpen: status })
-            });
-            const data = await res.json();
+            const res = await settingsService.updateKitchenStatus(status);
+            const data = res.data;
             if (data.success) {
                 toast.success(status ? "Kitchen is now OPEN! Accepting new orders." : "Kitchen is now CLOSED! No new orders will be accepted.");
             } else {
@@ -37,23 +35,22 @@ const Analytics = () => {
             setIsUpdatingStatus(false);
         }
     };
-    const [timeframe, setTimeframe] = useState("week");
 
+    const [timeframe, setTimeframe] = useState("week");
     const [grossRevenue, setGrossRevenue] = useState(0);
     const [totalOrders, setTotalOrders] = useState(0);
     const [aov, setAov] = useState(0);
     const [topDishesList, setTopDishesList] = useState([]);
-
     const [categoryShareList, setCategoryShareList] = useState([]);
     const [hourlyTrendsList, setHourlyTrendsList] = useState([]);
 
     const fetchAnalytics = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
+            const res = await orderService.getAllOrders();
+            const data = res.data;
             if (data.success) {
                 let revenue = 0;
-                let ordersCount = data.orders.length;
+                let ordersCount = (data.orders || []).length;
                 let itemTracker = {};
 
                 // For categories
@@ -73,7 +70,7 @@ const Analytics = () => {
                     "dinner": 0, // 20-23
                 };
 
-                data.orders.forEach(o => {
+                (data.orders || []).forEach((o) => {
                     if (o.status !== "CANCELLED") {
                         revenue += (o.totals?.grandTotal || 0);
 
@@ -85,8 +82,8 @@ const Analytics = () => {
                         else if (hour >= 20 || hour < 4) hourlyCounts.dinner++;
                         else hourlyCounts.snack++; // default catchall
 
-                        o.items.forEach(item => {
-                            const itemRev = item.quantity * (item.unitPrice || 0);
+                        (o.items || []).forEach((item) => {
+                            const itemRev = item.quantity * (item.unitPrice || item.price || 0);
 
                             // Track Top Dishes
                             if (!itemTracker[item.title]) {
@@ -118,7 +115,7 @@ const Analytics = () => {
                     rank: idx + 1,
                     growth: "+10%"
                 }));
-                
+
                 setTopDishesList(top5);
 
                 // Prepare Category Share
@@ -138,31 +135,33 @@ const Analytics = () => {
 
                 // Prepare Hourly Trends
                 const maxHour = Math.max(...Object.values(hourlyCounts)) || 1;
-                setHourlyTrendsList([
-                    { hour: "12 PM - 2 PM (Lunch Rush)", orders: hourlyCounts.lunch, percentage: Math.round((hourlyCounts.lunch / maxHour) * 100) },
-                    { hour: "2 PM - 5 PM (Snack Window)", orders: hourlyCounts.snack, percentage: Math.round((hourlyCounts.snack / maxHour) * 100) },
-                    { hour: "5 PM - 8 PM (Evening Peak)", orders: hourlyCounts.evening, percentage: Math.round((hourlyCounts.evening / maxHour) * 100) },
-                    { hour: "8 PM - 11 PM (Dinner Rush)", orders: hourlyCounts.dinner, percentage: Math.round((hourlyCounts.dinner / maxHour) * 100) },
-                ]);
+                const trends = [
+                    { label: "12 PM - 2 PM", count: `${hourlyCounts.lunch} orders`, pct: Math.round((hourlyCounts.lunch / maxHour) * 100) },
+                    { label: "2 PM - 5 PM", count: `${hourlyCounts.snack} orders`, pct: Math.round((hourlyCounts.snack / maxHour) * 100) },
+                    { label: "5 PM - 8 PM", count: `${hourlyCounts.evening} orders`, pct: Math.round((hourlyCounts.evening / maxHour) * 100) },
+                    { label: "8 PM - 11 PM", count: `${hourlyCounts.dinner} orders`, pct: Math.round((hourlyCounts.dinner / maxHour) * 100) },
+                ];
+                setHourlyTrendsList(trends);
             }
         } catch (error) {
-            console.error("Failed to fetch analytics", error);
+            console.error("Failed to load analytics", error);
+            toast.error("Failed to load analytics");
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchAnalytics();
-    }, []);
+    }, [timeframe]);
 
     return (
         <div className="analytics-screen">
             <div className="analytics-top-header">
                 <div className="analytics-title-wrap">
-                    <h2>Sales &amp; Kitchen Insights</h2>
-                    <p>Gross revenue performance, dish popularity rankings &amp; peak preparation loads.</p>
+                    <h2>Restaurant Performance &amp; Analytics</h2>
+                    <p>Financial overview, category revenue share, peak prep hours &amp; bestsellers.</p>
                 </div>
 
-                <div className="timeframe-toggle">
+                <div className="timeframe-selector">
                     <button
                         type="button"
                         className={`tf-btn ${timeframe === "today" ? "active" : ""}`}
@@ -188,59 +187,59 @@ const Analytics = () => {
             </div>
 
             <div className="analytics-kpi-grid">
-                <div className="a-kpi-card revenue">
+                <div className="a-kpi-card">
                     <div className="kpi-top">
-                        <span className="kpi-title">Gross Revenue</span>
-                        <div className="kpi-icon-wrap rev">
+                        <span className="kpi-lbl">Gross Revenue</span>
+                        <div className="kpi-icon-bubble green">
                             <FiDollarSign size={18} />
                         </div>
                     </div>
-                    <strong className="kpi-main-val">₹{grossRevenue.toLocaleString()}</strong>
+                    <strong className="kpi-value">₹{grossRevenue.toLocaleString()}</strong>
                     <div className="kpi-trend positive">
-                        <FiArrowUpRight size={14} />
-                        <span>+22.4% vs last week</span>
+                        <FiArrowUpRight size={13} />
+                        <span>Live Sync across KDS</span>
                     </div>
                 </div>
 
-                <div className="a-kpi-card orders">
+                <div className="a-kpi-card">
                     <div className="kpi-top">
-                        <span className="kpi-title">Total Orders</span>
-                        <div className="kpi-icon-wrap ord">
+                        <span className="kpi-lbl">Total Orders</span>
+                        <div className="kpi-icon-bubble blue">
                             <FiShoppingBag size={18} />
                         </div>
                     </div>
-                    <strong className="kpi-main-val">{totalOrders} Orders</strong>
+                    <strong className="kpi-value">{totalOrders}</strong>
                     <div className="kpi-trend positive">
-                        <FiArrowUpRight size={14} />
-                        <span>+16.8% order volume</span>
+                        <FiArrowUpRight size={13} />
+                        <span>Completed / In-Prep</span>
                     </div>
                 </div>
 
-                <div className="a-kpi-card avg-order">
+                <div className="a-kpi-card">
                     <div className="kpi-top">
-                        <span className="kpi-title">Avg Order Value (AOV)</span>
-                        <div className="kpi-icon-wrap aov">
+                        <span className="kpi-lbl">Avg Order Value (AOV)</span>
+                        <div className="kpi-icon-bubble purple">
                             <FiTrendingUp size={18} />
                         </div>
                     </div>
-                    <strong className="kpi-main-val">₹{aov}</strong>
+                    <strong className="kpi-value">₹{aov}</strong>
                     <div className="kpi-trend positive">
-                        <FiArrowUpRight size={14} />
-                        <span>+5.2% basket size</span>
+                        <FiArrowUpRight size={13} />
+                        <span>Per ticket average</span>
                     </div>
                 </div>
 
-                <div className="a-kpi-card speed">
+                <div className="a-kpi-card">
                     <div className="kpi-top">
-                        <span className="kpi-title">Avg Prep Speed</span>
-                        <div className="kpi-icon-wrap spd">
+                        <span className="kpi-lbl">Avg Kitchen Prep Time</span>
+                        <div className="kpi-icon-bubble orange">
                             <FiClock size={18} />
                         </div>
                     </div>
-                    <strong className="kpi-main-val">11.2 Mins</strong>
-                    <div className="kpi-trend positive">
-                        <FiArrowDownRight size={14} />
-                        <span>-1.5m faster prep</span>
+                    <strong className="kpi-value">12.4m</strong>
+                    <div className="kpi-trend negative">
+                        <FiArrowDownRight size={13} />
+                        <span>-1.2m vs yesterday</span>
                     </div>
                 </div>
             </div>

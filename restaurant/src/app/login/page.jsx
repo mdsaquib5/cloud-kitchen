@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import api from "@/services/api";
+import authService from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
 import { GoogleLogin } from "@react-oauth/google";
 
@@ -23,11 +23,10 @@ const Login = () => {
         password: ""
     });
 
-
     const handleGoogleSuccess = async (credentialResponse) => {
         setLoading(true);
         try {
-            const res = await api.post("/user/google", { token: credentialResponse.credential });
+            const res = await authService.googleAuth(credentialResponse.credential);
             if (res.data.success) {
                 setAuth(res.data.user, res.data.accessToken);
                 toast.success("Welcome! 👋");
@@ -51,26 +50,21 @@ const Login = () => {
 
         try {
             if (currentState === "signup") {
-                const res = await api.post("/user/signup", formData);
+                const res = await authService.signup(formData);
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
                     toast.success("Welcome to Yours Kitchen! 👋");
                     router.push("/");
                 }
             } else {
-                const endpoint = formData.email === "admin@yourskitchen.com" ? "/user/admin-login" : "/user/login";
-                const res = await api.post(endpoint, {
+                const res = await authService.login({
                     email: formData.email,
                     password: formData.password
                 });
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
                     toast.success("Welcome back! 👋");
-                    if (res.data.user?.role === "admin" || res.data.user?.name === "Admin") {
-                        router.push("/");
-                    } else {
-                        router.push("/");
-                    }
+                    router.push("/");
                 }
             }
         } catch (error) {

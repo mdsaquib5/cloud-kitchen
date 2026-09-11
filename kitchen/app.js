@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -11,6 +11,7 @@ import menuRoute from "./routes/menuRoute.js";
 import orderRoute from "./routes/orderRoute.js";
 import paymentRoute from "./routes/paymentRoute.js";
 import settingsRoute from "./routes/settingsRoute.js";
+import pidgeWebhookRoute from "./routes/pidgeWebhookRoute.js";
 
 const app = express();
 
@@ -18,8 +19,13 @@ const app = express();
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(cookieParser());
+
+// JSON & URL parser (must be before routes to parse req.body)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Pidge webhook (/api/webhook/pidge)
+app.use("/api/webhook", pidgeWebhookRoute);
 
 // CORS configuration for storefront & dashboard
 app.use(
@@ -37,12 +43,12 @@ app.use(
 app.get("/api/health", (req, res) => {
     res.status(200).json({
         success: true,
-        message: "Shree Shyam Kitchen Backend API is live & healthy 🚀",
+        message: "Shree Shyam Kitchen Backend API is live & healthy",
         timestamp: new Date().toISOString(),
     });
 });
 
-// place all the routes here
+// Routes
 app.use("/api/user", userRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/food", foodRoute);
@@ -71,3 +77,5 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
+
+

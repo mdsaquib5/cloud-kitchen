@@ -16,6 +16,18 @@ export const isAuthenticated = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+        // Special handling for configured static admin credentials
+        if (decoded.role === "admin" && String(decoded.id).startsWith("admin_")) {
+            req.user = {
+                _id: decoded.id,
+                role: "admin",
+                name: decoded.name || "Kitchen Manager",
+                email: decoded.email || "admin@yourskitchen.com",
+            };
+            return next();
+        }
+
         const user = await User.findById(decoded.id);
 
         if (!user) {
@@ -36,13 +48,12 @@ export const isAuthenticated = async (req, res, next) => {
     }
 };
 
-
 export const authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!req.user || !roles.includes(req.user.role)) {
             return res.status(403).json({
                 success: false,
-                message: `Role (${req.user.role}) is not allowed to access this resource`
+                message: `Role (${req.user?.role || 'guest'}) is not allowed to access this resource`
             });
         }
         next();

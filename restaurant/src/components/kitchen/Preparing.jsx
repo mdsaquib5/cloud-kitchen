@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiClock,
     FiCheck,
@@ -10,23 +10,22 @@ import {
 } from "react-icons/fi";
 import { FaFire } from "react-icons/fa";
 import { toast } from "sonner";
+import orderService from "@/services/orderService";
 
 const Preparing = () => {
-
     const [tickets, setTickets] = useState([]);
     const [selectedStation, setSelectedStation] = useState("all");
     const [loading, setLoading] = useState(true);
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
+            const res = await orderService.getAllOrders();
+            const data = res.data;
             if (data.success) {
                 // Filter orders that need preparation
-                const prepOrders = data.orders.filter(
-                    o => o.status === "PLACED" || o.status === "PREPARING"
-                ).map(o => {
-                    // Calculate elapsed time roughly (for demo)
+                const prepOrders = (data.orders || []).filter(
+                    (o) => o.status === "PLACED" || o.status === "PREPARING"
+                ).map((o) => {
                     const placedTime = new Date(o.createdAt);
                     const now = new Date();
                     const diffMs = now - placedTime;
@@ -35,14 +34,14 @@ const Preparing = () => {
                     return {
                         id: o._id,
                         displayId: o._id.substring(o._id.length - 6).toUpperCase(),
-                        customerName: o.customer.name,
-                        orderType: o.orderType,
+                        customerName: o.customer?.name || "Customer",
+                        orderType: o.orderType || "delivery",
                         elapsedMinutes: elapsedMinutes,
                         targetMinutes: o.orderType === "delivery" ? 25 : 15,
                         station: "Main Kitchen",
                         urgent: elapsedMinutes > 15,
-                        notes: o.items.map(i => i.cookingNote).filter(Boolean).join(", "),
-                        items: o.items.map((item, idx) => ({
+                        notes: (o.items || []).map((i) => i.cookingNote).filter(Boolean).join(", "),
+                        items: (o.items || []).map((item, idx) => ({
                             id: `${o._id}-${idx}`,
                             name: item.title,
                             portion: item.portionLabel || "Standard",
@@ -55,15 +54,16 @@ const Preparing = () => {
             }
         } catch (error) {
             console.error("Failed to fetch prep orders", error);
-            toast.error("Failed to load live orders");
+            if (error.response?.status !== 401 && error.response?.status !== 403) {
+                toast.error("Failed to load live orders");
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchOrders();
-        // Poll every 10 seconds for new orders
         const interval = setInterval(fetchOrders, 10000);
         return () => clearInterval(interval);
     }, []);
@@ -84,19 +84,16 @@ const Preparing = () => {
 
     const markAllReady = async (ticketId) => {
         try {
-            const orderToUpdate = tickets.find(t => t.id === ticketId);
-            const newStatus = orderToUpdate?.orderType === "delivery" ? "OUT_FOR_DELIVERY" : "READY_FOR_PICKUP";
+            const orderToUpdate = tickets.find((t) => t.id === ticketId);
+            // In modern food delivery, cooking done means READY_FOR_PICKUP (packed & ready for rider or customer)
+            const newStatus = "READY_FOR_PICKUP";
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/status/${ticketId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus })
-            });
+            const res = await orderService.updateOrderStatus(ticketId, newStatus);
+            const data = res.data;
 
-            const data = await res.json();
             if (data.success) {
                 setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-                toast.success(`Order #${orderToUpdate.displayId} fully cooked and moved to Ready!`);
+                toast.success(`Order #${orderToUpdate?.displayId || ticketId} marked Ready for Pickup/Dispatch!`);
             } else {
                 toast.error("Failed to update status");
             }

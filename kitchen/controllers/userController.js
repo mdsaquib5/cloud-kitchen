@@ -5,8 +5,6 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from 'google-auth-library';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-
-
 export const signup = async (req, res, next) => {
     try {
         const { name, email, phone, password } = req.body;
@@ -101,19 +99,43 @@ export const getProfile = async (req, res, next) => {
 
 export const adminLogin = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-        
-        // Hardcoded admin credentials for MVP
-        if (email === "admin@yourskitchen.com" && password === "password123") {
+        const { username, email, password } = req.body;
+        const inputUser = (username || email || "").trim();
+        const inputPass = (password || "").trim();
+
+        const expectedUser = (process.env.ADMIN_USERNAME || "admin").trim();
+        const expectedPass = (process.env.ADMIN_PASSWORD || "ShreeShyam@Admin2026").trim();
+
+        // Support both configured env credentials and fallback
+        const isUserValid = inputUser.toLowerCase() === expectedUser.toLowerCase() || inputUser.toLowerCase() === "admin@yourskitchen.com";
+        const isPassValid = inputPass === expectedPass;
+
+        if (isUserValid && isPassValid) {
             const token = jwt.sign(
-                { id: "admin_id_123", role: "admin", name: "Admin" }, 
-                process.env.ACCESS_TOKEN_SECRET || "fallback_secret_for_mvp", 
-                { expiresIn: "1d" }
+                {
+                    id: "admin_id_123",
+                    role: "admin",
+                    name: "Kitchen Manager",
+                    email: expectedUser
+                },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: "7d" }
             );
-            return res.status(200).json({ success: true, message: "Admin login successful", accessToken: token, user: { name: "Admin", email } });
+
+            return res.status(200).json({
+                success: true,
+                message: "Kitchen Admin Login successful",
+                accessToken: token,
+                user: {
+                    id: "admin_id_123",
+                    role: "admin",
+                    name: "Kitchen Manager",
+                    email: expectedUser
+                }
+            });
         }
         
-        return res.status(401).json({ success: false, message: "Invalid admin credentials." });
+        return res.status(401).json({ success: false, message: "Invalid Kitchen Manager credentials." });
     } catch (error) { next(error); }
 };
 
@@ -134,25 +156,19 @@ export const googleAuth = async (req, res, next) => {
         let user = await User.findOne({ email }).select("+password +refreshToken");
 
         if (!user) {
-            // Check if googleId already exists (just in case they changed email)
             user = await User.findOne({ googleId }).select("+password +refreshToken");
         }
 
         if (!user) {
-            // Create new user
-            // Generate a random password since mongoose requires it if !googleId, but we set conditionally. 
-            // We'll set a random one anyway to be safe.
             const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
             user = await User.create({
                 name,
                 email,
-                password: randomPassword, // bcrypt will hash this
+                password: randomPassword,
                 googleId,
-                // phone is optional due to our model update, but we can set a dummy one if it complains
                 phone: "0000000000"
             });
         } else if (!user.googleId) {
-            // Link existing user account to Google
             user.googleId = googleId;
             await user.save({ validateBeforeSave: false });
         }

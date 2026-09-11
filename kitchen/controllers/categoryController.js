@@ -29,7 +29,7 @@ export const updateCategory = async (req, res, next) => {
         let updateData = { ...req.body };
         if (title) updateData.slug = slugify(title, { lower: true });
 
-        const category = await Category.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+        const category = await Category.findByIdAndUpdate(req.params.id, updateData, { returnDocument: 'after', runValidators: true });
         if (!category) return res.status(404).json({ success: false, message: "Category not found" });
 
         res.status(200).json({ success: true, category });

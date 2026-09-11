@@ -4,17 +4,21 @@ import {
     addCategory, updateCategory, deleteCategory,
     addFood, updateFood, deleteFood 
 } from "../controllers/menuController.js";
+import { isAuthenticated, authorizeRoles } from "../middleware/user.js";
 
 const router = express.Router();
 
+// Public read endpoints
 router.get("/categories", getMenuCategories);
-router.post("/categories", addCategory);
-router.put("/categories/:id", updateCategory);
-router.delete("/categories/:id", deleteCategory);
-
 router.get("/foods", getMenuFoods);
-router.post("/foods", addFood);
-router.put("/foods/:id", updateFood);
-router.delete("/foods/:id", deleteFood);
+
+// Protected Admin mutations
+router.post("/categories", isAuthenticated, authorizeRoles("admin"), addCategory);
+router.put("/categories/:id", isAuthenticated, authorizeRoles("admin"), updateCategory);
+router.delete("/categories/:id", isAuthenticated, authorizeRoles("admin"), deleteCategory);
+
+router.post("/foods", isAuthenticated, authorizeRoles("admin"), addFood);
+router.put("/foods/:id", isAuthenticated, authorizeRoles("admin"), updateFood);
+router.delete("/foods/:id", isAuthenticated, authorizeRoles("admin"), deleteFood);
 
 export default router;

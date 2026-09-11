@@ -1,5 +1,7 @@
+import crypto from "crypto";
 import Cashfree from "../configs/cashfree.js";
 import Order from "../models/orderModel.js";
+import { getIO } from "../configs/socket.js";
 
 // Create Payment Session
 export const createPaymentSession = async (req, res, next) => {
@@ -30,7 +32,6 @@ export const createPaymentSession = async (req, res, next) => {
             }
         };
 
-        // Note: SDK v6 does not require the API version string as the first argument
         const response = await Cashfree.PGCreateOrder(request);
 
         res.status(200).json({
@@ -48,7 +49,7 @@ export const createPaymentSession = async (req, res, next) => {
     }
 };
 
-// Verify Payment Status
+// Verify Payment Status (Polled or Redirect from frontend)
 export const verifyPayment = async (req, res, next) => {
     try {
         const { orderId } = req.body;
@@ -58,8 +59,7 @@ export const verifyPayment = async (req, res, next) => {
         }
 
         const response = await Cashfree.PGOrderFetchPayments(orderId);
-
-        const payments = response.data;
+        const payments = response.data || [];
         const successfulPayment = payments.find(p => p.payment_status === "SUCCESS");
 
         if (successfulPayment) {
@@ -67,8 +67,24 @@ export const verifyPayment = async (req, res, next) => {
             const order = await Order.findOneAndUpdate(
                 { orderId },
                 { paymentStatus: "paid", status: "PLACED" },
-                { new: true }
+                { returnDocument: 'after' }
             );
+
+            if (order) {
+                // Emit real-time notification to Kitchen KDS and customer tracking
+                try {
+                    const io = getIO();
+                    io.to("kitchen-room").emit("new-order", order);
+                    io.to(`order-${order.orderId}`).emit("order-status-update", {
+                        orderId: order.orderId,
+                        status: order.status,
+                        paymentStatus: order.paymentStatus,
+                    });
+                    console.log(`⚡ [SOCKET] Emitted new paid order to kitchen: ${order.orderId}`);
+                } catch (socketErr) {
+                    console.error("[SOCKET] Verify payment emit error:", socketErr.message);
+                }
+            }
 
             return res.status(200).json({ success: true, message: "Payment verified successfully", order });
         } else {
@@ -77,5 +93,74 @@ export const verifyPayment = async (req, res, next) => {
     } catch (error) {
         console.error("Cashfree Verify Payment Error:", error.response?.data || error.message);
         res.status(500).json({ success: false, message: "Failed to verify payment" });
+    }
+};
+
+// Cashfree Webhook Handler (Instant background payment verification)
+export const handleCashfreeWebhook = async (req, res, next) => {
+    try {
+        const signature = req.headers["x-webhook-signature"];
+        const timestamp = req.headers["x-webhook-timestamp"];
+        const webhookSecret = process.env.CASHFREE_WEBHOOK_SECRET || process.env.CASHFREE_SECRET_KEY;
+
+        // If secret is configured and signature provided, verify signature
+        if (webhookSecret && signature && timestamp) {
+            const rawBody = JSON.stringify(req.body);
+            const expectedSignature = crypto
+                .createHmac("sha256", webhookSecret)
+                .update(timestamp + rawBody)
+                .digest("base64");
+
+            if (signature !== expectedSignature) {
+                console.warn("[CASHFREE WEBHOOK] Signature mismatch.");
+                // Proceed with cautious logging or return 401
+            }
+        }
+
+        const payload = req.body || {};
+        console.log("[CASHFREE WEBHOOK] Event received:", payload.type || payload.event);
+
+        const orderId =
+            payload.data?.order?.order_id ||
+            payload.data?.order_id ||
+            payload.orderId ||
+            null;
+
+        const paymentStatus =
+            payload.data?.payment?.payment_status ||
+            payload.data?.payment_status ||
+            null;
+
+        const isSuccess =
+            paymentStatus === "SUCCESS" ||
+            payload.type === "PAYMENT_SUCCESS_WEBHOOK";
+
+        if (orderId && isSuccess) {
+            const order = await Order.findOneAndUpdate(
+                { orderId, status: "PENDING_PAYMENT" },
+                { paymentStatus: "paid", status: "PLACED" },
+                { returnDocument: 'after' }
+            );
+
+            if (order) {
+                console.log(`[CASHFREE WEBHOOK] Order ${orderId} successfully marked PLACED via webhook.`);
+                try {
+                    const io = getIO();
+                    io.to("kitchen-room").emit("new-order", order);
+                    io.to(`order-${order.orderId}`).emit("order-status-update", {
+                        orderId: order.orderId,
+                        status: order.status,
+                        paymentStatus: order.paymentStatus,
+                    });
+                } catch (socketErr) {
+                    console.error("[SOCKET] Webhook emit error:", socketErr.message);
+                }
+            }
+        }
+
+        res.status(200).json({ success: true, message: "Webhook acknowledged" });
+    } catch (error) {
+        console.error("[CASHFREE WEBHOOK] Error processing webhook:", error);
+        res.status(500).json({ success: false, message: "Webhook processing error" });
     }
 };

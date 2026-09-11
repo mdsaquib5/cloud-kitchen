@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiSearch,
     FiPrinter,
@@ -11,21 +11,20 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaStoreAlt, FaUtensils } from "react-icons/fa";
 import { toast } from "sonner";
-
+import orderService from "@/services/orderService";
 
 const History = () => {
-
     const [ordersList, setOrdersList] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchHistory = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
+            const res = await orderService.getAllOrders();
+            const data = res.data;
             if (data.success) {
-                const historyOrders = data.orders
-                    .filter(o => o.status === "DELIVERED" || o.status === "CANCELLED")
-                    .map(o => {
+                const historyOrders = (data.orders || [])
+                    .filter((o) => o.status === "DELIVERED" || o.status === "CANCELLED")
+                    .map((o) => {
                         const dateObj = new Date(o.updatedAt || o.createdAt);
                         const dateStr = dateObj.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
                         const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -33,16 +32,16 @@ const History = () => {
                         return {
                             id: o._id.substring(o._id.length - 6).toUpperCase(),
                             originalId: o._id,
-                            customerName: o.customer.name,
-                            phone: o.customer.phone,
+                            customerName: o.customer?.name || "Customer",
+                            phone: o.customer?.phone || "N/A",
                             orderType: o.orderType || "delivery",
                             dateTime: `${dateStr}, ${timeStr}`,
-                            itemsSummary: o.items.map(i => `${i.quantity}x ${i.title}`).join(", "),
-                            itemsCount: o.items.reduce((acc, item) => acc + item.quantity, 0),
-                            paymentMode: o.paymentMethod === "cod" ? "CASH" : "ONLINE",
-                            paymentStatus: o.paymentStatus === "completed" ? "PAID" : (o.status === "CANCELLED" ? "REFUNDED" : "PENDING"),
+                            itemsSummary: (o.items || []).map((i) => `${i.quantity}x ${i.title}`).join(", "),
+                            itemsCount: (o.items || []).reduce((acc, item) => acc + item.quantity, 0),
+                            paymentMode: (o.paymentMethod === "cash" || o.paymentMethod === "cod") ? "CASH" : "ONLINE",
+                            paymentStatus: (o.paymentStatus === "paid" || o.paymentStatus === "completed") ? "PAID" : (o.status === "CANCELLED" ? "REFUNDED" : "PENDING"),
                             orderStatus: o.status,
-                            total: (o.totals?.grandTotal || 0),
+                            total: o.totals?.grandTotal || 0,
                         };
                     });
 
@@ -59,7 +58,7 @@ const History = () => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchHistory();
     }, []);
 

@@ -27,7 +27,7 @@ export const updateFood = async (req, res, next) => {
         let updateData = { ...req.body };
         if (title) updateData.slug = slugify(title, { lower: true }) + "-" + Date.now().toString().slice(-4);
 
-        const food = await Food.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true }).populate("category", "title slug");
+        const food = await Food.findByIdAndUpdate(req.params.id, updateData, { returnDocument: 'after', runValidators: true }).populate("category", "title slug");
         if (!food) return res.status(404).json({ success: false, message: "Food not found" });
 
         res.status(200).json({ success: true, food });

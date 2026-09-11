@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import api from "@/services/api";
+import menuService from "@/services/menuService";
 import { toast } from "sonner";
 import { FiX, FiPlus, FiTrash2 } from "react-icons/fi";
 
@@ -44,9 +44,7 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
 
         setIsUploading(true);
         try {
-            const res = await api.post("/upload", uploadData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+            const res = await menuService.uploadImage(uploadData);
             if (res.data.success) {
                 setFormData({ ...formData, image: res.data.imageUrl });
                 toast.success("Image uploaded successfully");
@@ -57,7 +55,6 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
             setIsUploading(false);
         }
     };
-
 
     const handlePortionChange = (index, field, value) => {
         const newPortions = [...formData.portions];
@@ -112,8 +109,6 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                         )}
                     </div>
 
-
-
                     <div className="form-section">
                         <h4>Portions & Pricing</h4>
                         {formData.portions.map((portion, idx) => (
@@ -149,7 +144,6 @@ const FoodModal = ({ isOpen, onClose, foodToEdit, onSave, dbCategories = [] }) =
                     }} className="btn-primary">Save Dish</button>
                 </div>
             </div>
-
         </div>
     );
 };

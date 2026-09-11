@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     FiSearch,
     FiTruck,
@@ -15,112 +15,58 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaCircle } from "react-icons/fa";
 import { toast } from "sonner";
-
-const mockDispatches = [
-    {
-        id: "YK-84920",
-        customerName: "Rahul Sharma",
-        customerPhone: "+91 98765 43210",
-        address: "Flat 402, Royal Palms, Cyber City, Gurgaon",
-        orderValue: 390,
-        itemsCount: 3,
-        status: "RIDER_ASSIGNED",
-        provider: "Shadowfax",
-        riderName: "Sonu Kumar",
-        riderPhone: "+91 91234 56780",
-        eta: "3 mins to kitchen",
-        otp: "4921",
-        dispatchTime: "4 mins ago",
-    },
-    {
-        id: "YK-84918",
-        customerName: "Amit Kumar",
-        customerPhone: "+91 98111 22334",
-        address: "Tower B, Sector 29, Gurgaon",
-        orderValue: 230,
-        itemsCount: 3,
-        status: "SEARCHING_RIDER",
-        provider: "Borzo (Cascading)",
-        riderName: "Assigning nearest rider...",
-        riderPhone: "-",
-        eta: "Auto-waterfall in 45s",
-        otp: "8190",
-        dispatchTime: "1 min ago",
-    },
-    {
-        id: "YK-84915",
-        customerName: "Vikram Singh",
-        customerPhone: "+91 97654 32109",
-        address: "House 12, Block C, Sushant Lok",
-        orderValue: 190,
-        itemsCount: 2,
-        status: "OUT_FOR_DELIVERY",
-        provider: "Porter",
-        riderName: "Deepak Rawat",
-        riderPhone: "+91 98990 11223",
-        eta: "8 mins to customer",
-        otp: "3302",
-        dispatchTime: "12 mins ago",
-    },
-    {
-        id: "YK-84912",
-        customerName: "Neha Gupta",
-        customerPhone: "+91 99100 88776",
-        address: "D-44, Golf Course Road, DLF Phase 5",
-        orderValue: 480,
-        itemsCount: 4,
-        status: "DELIVERED",
-        provider: "Shiprocket Quick",
-        riderName: "Rakesh Yadav",
-        riderPhone: "+91 98109 44332",
-        eta: "Delivered",
-        otp: "6612",
-        dispatchTime: "26 mins ago",
-    },
-];
+import orderService from "@/services/orderService";
 
 const Dispatch = () => {
-
     const [dispatches, setDispatches] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDispatches = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/all`);
-            const data = await res.json();
+            const res = await orderService.getAllOrders();
+            const data = res.data;
             if (data.success) {
-                const activeDispatches = data.orders
-                    .filter(o => o.orderType === "delivery" && (o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY"))
-                    .map(o => {
+                const activeDispatches = (data.orders || [])
+                    .filter(
+                        (o) =>
+                            o.orderType === "delivery" &&
+                            (o.status === "READY_FOR_PICKUP" || o.status === "OUT_FOR_DELIVERY")
+                    )
+                    .map((o) => {
                         const isDelivery = o.orderType === "delivery";
+                        const partnerName = o.deliveryPartner ? `${o.deliveryPartner.toUpperCase()} Logistics` : "Pidge Network";
+
                         return {
                             id: o._id.substring(o._id.length - 6).toUpperCase(),
                             originalId: o._id,
-                            customerName: o.customer.name,
-                            customerPhone: o.customer.phone,
-                            address: o.customer.address || "No Address Provided",
-                            orderValue: (o.totals?.grandTotal || 0),
-                            itemsCount: o.items.reduce((acc, item) => acc + item.quantity, 0),
+                            orderId: o.orderId,
+                            customerName: o.customer?.name || "Customer",
+                            customerPhone: o.customer?.phone || "N/A",
+                            address: o.customer?.address || "No Address Provided",
+                            orderValue: o.totals?.grandTotal || 0,
+                            itemsCount: (o.items || []).reduce((acc, item) => acc + item.quantity, 0),
                             status: o.status === "READY_FOR_PICKUP" ? "RIDER_ASSIGNED" : "OUT_FOR_DELIVERY",
-                            provider: isDelivery ? "Shadowfax" : "Self-Pickup",
-                            riderName: isDelivery ? "Assigning Rider..." : "Customer Pickup",
-                            riderPhone: "-",
-                            eta: "Live tracking",
-                            otp: Math.floor(1000 + Math.random() * 9000).toString(), // Mock OTP for now
-                            dispatchTime: new Date(o.updatedAt).toLocaleTimeString()
+                            provider: partnerName,
+                            riderName: o.courierInfo?.name || (o.status === "OUT_FOR_DELIVERY" ? "Rider in transit" : "Assigning Nearest Rider..."),
+                            riderPhone: o.courierInfo?.phone || "-",
+                            eta: o.status === "OUT_FOR_DELIVERY" ? "Live GPS Active" : "Arriving at Kitchen",
+                            otp: o.courierInfo?.otp || "Verified",
+                            dispatchTime: new Date(o.updatedAt || o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         };
                     });
                 setDispatches(activeDispatches);
             }
         } catch (error) {
             console.error("Failed to fetch dispatch orders", error);
-            toast.error("Failed to load dispatch data");
+            if (error.response?.status !== 401 && error.response?.status !== 403) {
+                toast.error("Failed to load dispatch data");
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetchDispatches();
         const interval = setInterval(fetchDispatches, 10000);
         return () => clearInterval(interval);
@@ -129,31 +75,40 @@ const Dispatch = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
 
-    const reassignProvider = (dispatchId, newProvider) => {
-        toast.info(`Cascading #${dispatchId} to ${newProvider}`);
-    };
-
     const confirmHandover = async (dispatchId) => {
         try {
-            const orderToUpdate = dispatches.find(d => d.id === dispatchId);
+            const orderToUpdate = dispatches.find((d) => d.id === dispatchId);
             if (!orderToUpdate) return;
 
-            // Change status to DELIVERED when handed over (assuming it implies completed for MVP)
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/admin/status/${orderToUpdate.originalId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: "DELIVERED" })
-            });
-
-            const data = await res.json();
+            // When handed to 3PL rider at the restaurant counter, order moves to OUT_FOR_DELIVERY
+            const nextStatus = "OUT_FOR_DELIVERY";
+            const res = await orderService.updateOrderStatus(orderToUpdate.originalId, nextStatus);
+            const data = res.data;
             if (data.success) {
                 fetchDispatches();
-                toast.success(`Order #${dispatchId} Handed Over successfully!`);
+                toast.success(`Order #${dispatchId} handed to rider! Now Out for Delivery.`);
             } else {
                 toast.error("Failed to handover order");
             }
         } catch (error) {
             toast.error("Error during handover");
+        }
+    };
+
+    const markDelivered = async (dispatchId) => {
+        try {
+            const orderToUpdate = dispatches.find((d) => d.id === dispatchId);
+            if (!orderToUpdate) return;
+
+            const res = await orderService.updateOrderStatus(orderToUpdate.originalId, "DELIVERED");
+            if (res.data?.success) {
+                fetchDispatches();
+                toast.success(`Order #${dispatchId} marked DELIVERED! Moved to Order History.`);
+            } else {
+                toast.error("Failed to mark delivered");
+            }
+        } catch (error) {
+            toast.error("Error updating order status");
         }
     };
 
@@ -174,16 +129,15 @@ const Dispatch = () => {
             <div className="dispatch-top-header">
                 <div className="dispatch-title-wrap">
                     <h2>3PL &amp; Logistics Dispatch</h2>
-                    <p>Automated multi-provider rider waterfall (Shadowfax, Borzo, Porter &amp; Shiprocket).</p>
+                    <p>Automated multi-partner rider fulfillment via Pidge Delivery Network.</p>
                 </div>
-
-                </div>
+            </div>
             <div className="dispatch-controls-bar">
                 <div className="dispatch-search-field">
                     <FiSearch className="search-ico" size={16} />
                     <input
                         type="text"
-                        placeholder="Search by Order ID, Rider Name, Customer or 3PL Provider..."
+                        placeholder="Search by Order ID, Rider Name, Customer or Partner..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="dispatch-input"
@@ -200,24 +154,17 @@ const Dispatch = () => {
                     </button>
                     <button
                         type="button"
-                        className={`dispatch-filter-btn ${statusFilter === "SEARCHING_RIDER" ? "active" : ""}`}
-                        onClick={() => setStatusFilter("SEARCHING_RIDER")}
-                    >
-                        Searching Rider ({dispatches.filter((d) => d.status === "SEARCHING_RIDER").length})
-                    </button>
-                    <button
-                        type="button"
                         className={`dispatch-filter-btn ${statusFilter === "RIDER_ASSIGNED" ? "active" : ""}`}
                         onClick={() => setStatusFilter("RIDER_ASSIGNED")}
                     >
-                        Rider Assigned ({dispatches.filter((d) => d.status === "RIDER_ASSIGNED").length})
+                        At Kitchen / Pickup ({dispatches.filter((d) => d.status === "RIDER_ASSIGNED").length})
                     </button>
                     <button
                         type="button"
                         className={`dispatch-filter-btn ${statusFilter === "OUT_FOR_DELIVERY" ? "active" : ""}`}
                         onClick={() => setStatusFilter("OUT_FOR_DELIVERY")}
                     >
-                        Out for Delivery ({dispatches.filter((d) => d.status === "OUT_FOR_DELIVERY").length})
+                        On the Road ({dispatches.filter((d) => d.status === "OUT_FOR_DELIVERY").length})
                     </button>
                 </div>
             </div>
@@ -231,8 +178,7 @@ const Dispatch = () => {
                                 <span className="d-provider-tag">{item.provider}</span>
                             </div>
                             <span className={`d-status-pill ${item.status.toLowerCase()}`}>
-                                {item.status === "SEARCHING_RIDER" && "Searching Rider"}
-                                {item.status === "RIDER_ASSIGNED" && "Rider Assigned"}
+                                {item.status === "RIDER_ASSIGNED" && "Rider at Counter"}
                                 {item.status === "OUT_FOR_DELIVERY" && "On the Road"}
                                 {item.status === "DELIVERED" && "Delivered"}
                             </span>
@@ -246,9 +192,9 @@ const Dispatch = () => {
                                 <span className="rider-name">{item.riderName}</span>
                                 <div className="rider-sub">
                                     {item.riderPhone !== "-" && (
-                                        <span className="rider-phone">
+                                        <a href={`tel:${item.riderPhone}`} className="rider-phone" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', padding: '2px 8px', borderRadius: '4px', textDecoration: 'none', fontWeight: '500' }}>
                                             <FiPhone size={11} /> {item.riderPhone}
-                                        </span>
+                                        </a>
                                     )}
                                     <span className="rider-eta">
                                         <FiClock size={11} /> {item.eta}
@@ -256,8 +202,8 @@ const Dispatch = () => {
                                 </div>
                             </div>
                             <div className="d-otp-box">
-                                <span className="otp-lbl">OTP</span>
-                                <span className="otp-val">{item.otp}</span>
+                                <span className="otp-lbl">Partner</span>
+                                <span className="otp-val" style={{ fontSize: "11px", fontWeight: "bold" }}>{item.provider.split(" ")[0]}</span>
                             </div>
                         </div>
 
@@ -268,7 +214,9 @@ const Dispatch = () => {
                             </div>
                             <div className="cust-row">
                                 <span className="cust-lbl">Customer:</span>
-                                <strong className="cust-val">{item.customerName} ({item.customerPhone})</strong>
+                                <strong className="cust-val">
+                                    {item.customerName} ({item.customerPhone})
+                                </strong>
                             </div>
                         </div>
 
@@ -279,17 +227,6 @@ const Dispatch = () => {
                             </div>
 
                             <div className="d-actions">
-                                {item.status === "SEARCHING_RIDER" && (
-                                    <button
-                                        type="button"
-                                        className="d-btn cascade"
-                                        onClick={() => reassignProvider(item.id, "Borzo")}
-                                    >
-                                        <FiRefreshCw size={13} />
-                                        <span>Cascade (Next 3PL)</span>
-                                    </button>
-                                )}
-
                                 {item.status === "RIDER_ASSIGNED" && (
                                     <button
                                         type="button"
@@ -297,15 +234,39 @@ const Dispatch = () => {
                                         onClick={() => confirmHandover(item.id)}
                                     >
                                         <FiCheckCircle size={14} />
-                                        <span>Verify OTP &amp; Handover</span>
+                                        <span>Handover &amp; Dispatch</span>
                                     </button>
                                 )}
 
                                 {item.status === "OUT_FOR_DELIVERY" && (
-                                    <span className="live-track-note">
-                                        <FaCircle className="pulse-green" size={7} />
-                                        <span>Live GPS Tracking Active</span>
-                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <span className="live-track-note">
+                                            <FaCircle className="pulse-green" size={7} />
+                                            <span>On the Road</span>
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="d-btn delivered"
+                                            style={{
+                                                padding: '6px 12px',
+                                                fontSize: '11px',
+                                                background: '#10b981',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                fontWeight: '600'
+                                            }}
+                                            onClick={() => markDelivered(item.id)}
+                                            title="Mark delivered once rider completes drop-off"
+                                        >
+                                            <FiCheckCircle size={13} />
+                                            <span>Mark Delivered</span>
+                                        </button>
+                                    </div>
                                 )}
 
                                 {item.status === "DELIVERED" && (

@@ -7,30 +7,24 @@ import { useSettingsStore } from "@/store/useSettingsStore";
 
 const KitchenStatusListener = () => {
     const setIsKitchenOpen = useSettingsStore((state) => state.setIsKitchenOpen);
+    const fetchSettings = useSettingsStore((state) => state.fetchSettings);
     const isKitchenOpen = useSettingsStore((state) => state.isKitchenOpen);
     const prevStatusRef = useRef(isKitchenOpen);
-    const initializedRef = useRef(false);
 
     useEffect(() => {
-        // Fetch initial status on load
-        const fetchInitialStatus = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
-                const data = await res.json();
-                if (data.success && data.settings) {
-                    setIsKitchenOpen(data.settings.isKitchenOpen);
-                    prevStatusRef.current = data.settings.isKitchenOpen;
-                }
-            } catch (error) {
-                console.error("Failed to fetch initial kitchen status", error);
+        // Fetch initial status on load using store action
+        const initializeStatus = async () => {
+            const settings = await fetchSettings();
+            if (settings) {
+                prevStatusRef.current = settings.isKitchenOpen;
             }
         };
 
-        fetchInitialStatus();
+        initializeStatus();
 
         // Connect Socket
         const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', ''));
-        
+
         socket.on("connect", () => {
             console.log("Connected to real-time status updates");
         });
@@ -50,7 +44,7 @@ const KitchenStatusListener = () => {
         return () => {
             socket.disconnect();
         };
-    }, [setIsKitchenOpen]);
+    }, [fetchSettings, setIsKitchenOpen]);
 
     return null; // This component doesn't render anything visible directly
 };

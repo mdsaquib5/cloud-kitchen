@@ -28,7 +28,7 @@ export const addCategory = async (req, res, next) => {
 
 export const updateCategory = async (req, res, next) => {
     try {
-        const category = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const category = await Category.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
         res.status(200).json({ success: true, category });
     } catch (error) { next(error); }
 };
@@ -49,7 +49,7 @@ export const addFood = async (req, res, next) => {
 
 export const updateFood = async (req, res, next) => {
     try {
-        const food = await Food.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const food = await Food.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
         res.status(200).json({ success: true, food });
     } catch (error) { next(error); }
 };
