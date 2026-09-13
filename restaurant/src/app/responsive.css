@@ -331,7 +331,7 @@
 
     .auth-form-side {
         padding: 40px 24px;
-        background: url('/login-left-bg.png') top left / 240px auto no-repeat, #ffffff;
+        background: url('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/login-bg-2.webp') top left / 240px auto no-repeat, #ffffff;
     }
 }
 
