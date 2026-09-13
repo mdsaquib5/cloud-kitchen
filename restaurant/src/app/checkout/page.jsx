@@ -71,24 +71,61 @@ const Checkout = () => {
 
     const handleFetchLocation = () => {
         if (!navigator.geolocation) {
+            console.error("❌ Geolocation API is not supported by this browser.");
             toast.error("Geolocation is not supported by your browser.");
             return;
         }
         setIsFetchingLocation(true);
+        console.log("📡 Requesting browser high-accuracy GPS coordinates...");
         navigator.geolocation.getCurrentPosition(
             async (position) => {
-                const { latitude, longitude } = position.coords;
+                // Keep exact raw double precision latitude & longitude (no trimming/rounding)
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                console.log(`📍 Untruncated Exact GPS Coordinates Received:`);
+                console.log(`   Latitude:  ${latitude}`);
+                console.log(`   Longitude: ${longitude}`);
+                console.log(`   Accuracy:  ±${accuracy} meters`);
+
                 setDeliveryLat(latitude);
                 setDeliveryLng(longitude);
+
                 try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-                    );
+                    // zoom=18 specifies maximum building/house level detail in OpenStreetMap
+                    const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+                    console.log(`🌐 Fetching Deep Reverse Geocode from: ${apiUrl}`);
+
+                    const res = await fetch(apiUrl);
                     const data = await res.json();
-                    const address = data.display_name || `${latitude}, ${longitude}`;
-                    setDeliveryAddress(address);
-                    toast.success("Location fetched successfully!");
-                } catch {
+                    console.log("🗺️ OpenStreetMap Deep Address Response:", data);
+
+                    const addr = data.address || {};
+                    const houseOrBuilding = addr.house_number || addr.building || addr.house || addr.amenity || addr.shop || addr.office || "";
+                    const road = addr.road || addr.pedestrian || addr.path || addr.street || "";
+                    const sublocality = addr.suburb || addr.neighbourhood || addr.residential || addr.subdistrict || addr.quarter || "";
+                    const locality = addr.city_district || addr.district || addr.city || addr.town || addr.village || "";
+                    const state = addr.state || "";
+                    const postcode = addr.postcode || "";
+                    const country = addr.country || "";
+
+                    const parts = [];
+                    if (houseOrBuilding) parts.push(houseOrBuilding);
+                    if (road && !parts.includes(road)) parts.push(road);
+                    if (sublocality && !parts.includes(sublocality)) parts.push(sublocality);
+                    if (locality && !parts.includes(locality)) parts.push(locality);
+                    if (state && !parts.includes(state)) parts.push(state);
+                    if (postcode && !parts.includes(postcode)) parts.push(postcode);
+                    if (country && !parts.includes(country)) parts.push(country);
+
+                    const formattedAddress = parts.length >= 3 ? parts.join(", ") : (data.display_name || `${latitude}, ${longitude}`);
+
+                    console.log(`✅ Formatted Granular Address: "${formattedAddress}"`);
+                    setDeliveryAddress(formattedAddress);
+                    toast.success("Exact location fetched successfully!");
+                } catch (apiError) {
+                    console.warn("⚠️ Deep Reverse Geocoding API error. Using raw high-precision coordinates:", apiError);
                     setDeliveryAddress(`${latitude}, ${longitude}`);
                     toast.success("Location coordinates saved!");
                 } finally {
@@ -97,13 +134,14 @@ const Checkout = () => {
             },
             (error) => {
                 setIsFetchingLocation(false);
+                console.error("❌ Geolocation Error Code:", error.code, "Message:", error.message);
                 if (error.code === error.PERMISSION_DENIED) {
                     toast.error("Location permission denied. Please allow location access.");
                 } else {
                     toast.error("Unable to fetch location. Please try again.");
                 }
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
     };
 
@@ -122,12 +160,17 @@ const Checkout = () => {
 
         setIsSubmitting(true);
         try {
+            const fullCombinedAddress = [addressLine, landmark, deliveryAddress]
+                .map((str) => (str || "").trim())
+                .filter(Boolean)
+                .join(", ");
+
             const orderPayload = {
                 customer: {
                     name: `${firstName} ${lastName}`.trim(),
                     phone,
                     email,
-                    address: orderType === "delivery" ? deliveryAddress : "",
+                    address: orderType === "delivery" ? fullCombinedAddress : "",
                     addressLine: orderType === "delivery" ? addressLine : "",
                     landmark: orderType === "delivery" ? landmark : "",
                     latitude: orderType === "delivery" ? deliveryLat : null,
@@ -381,36 +424,6 @@ const Checkout = () => {
                                                         : "Fetch My Location"}
                                             </span>
                                         </button>
-
-                                        {deliveryAddress && (
-                                            <p className="fetched-address-preview">
-                                                <FiMapPin size={13} />
-                                                <span>{deliveryAddress}</span>
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Red Disclaimer Notice */}
-                                    <div
-                                        style={{
-                                            marginTop: "16px",
-                                            padding: "12px 16px",
-                                            backgroundColor: "#fef2f2",
-                                            border: "1.5px solid #ef4444",
-                                            borderRadius: "8px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "10px",
-                                            color: "#dc2626",
-                                            fontSize: "13.5px",
-                                            fontWeight: "600",
-                                            lineHeight: "1.4",
-                                        }}
-                                    >
-                                        <FiAlertCircle size={20} style={{ flexShrink: 0, color: "#dc2626" }} />
-                                        <span>
-                                            <strong>Disclaimer:</strong> Don&apos;t use Home Delivery. (Please choose <strong>Takeaway / Pickup</strong> or <strong>Dine-In</strong>).
-                                        </span>
                                     </div>
                                 </>
                             )}
