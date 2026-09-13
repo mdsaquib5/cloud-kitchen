@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { FiSearch } from "react-icons/fi";
 import ProCard from "@/components/shared/ProCard";
@@ -17,11 +17,21 @@ const FoodsClient = ({ initialCategories = [], initialProducts = [] }) => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Infinite Scroll State
+    const [visibleCount, setVisibleCount] = useState(10);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const sentinelRef = useRef(null);
+
     useEffect(() => {
         if (categoryParam) {
             setSelectedCategory(categoryParam);
         }
     }, [categoryParam]);
+
+    // Reset visible count back to 10 when filters or sorting change
+    useEffect(() => {
+        setVisibleCount(10);
+    }, [selectedCategory, searchQuery, sortBy]);
 
     const filteredList = initialProducts.filter((item) => {
         const itemCatSlug = item.category?.slug;
@@ -42,6 +52,38 @@ const FoodsClient = ({ initialCategories = [], initialProducts = [] }) => {
         if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
         return 0;
     });
+
+    const displayedItems = filteredList.slice(0, visibleCount);
+    const hasMore = visibleCount < filteredList.length;
+
+    // Infinite Scroll IntersectionObserver trigger
+    useEffect(() => {
+        if (!hasMore || isLoadingMore) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+                    setIsLoadingMore(true);
+                    setTimeout(() => {
+                        setVisibleCount((prev) => Math.min(prev + 10, filteredList.length));
+                        setIsLoadingMore(false);
+                    }, 800);
+                }
+            },
+            { threshold: 0.1, rootMargin: "100px" }
+        );
+
+        const currentSentinel = sentinelRef.current;
+        if (currentSentinel) {
+            observer.observe(currentSentinel);
+        }
+
+        return () => {
+            if (currentSentinel) {
+                observer.unobserve(currentSentinel);
+            }
+        };
+    }, [hasMore, isLoadingMore, filteredList.length]);
 
     const handleOpenModal = (prod) => {
         setSelectedProduct(prod);
@@ -117,7 +159,7 @@ const FoodsClient = ({ initialCategories = [], initialProducts = [] }) => {
 
                 <div className="foods-results-meta">
                     <span className="results-count-text">
-                        Showing <strong>{filteredList.length}</strong> fresh dishes
+                        Showing <strong>{displayedItems.length}</strong> of <strong>{filteredList.length}</strong> fresh dishes
                     </span>
                     {(selectedCategory !== "all" || searchQuery !== "") && (
                         <button
@@ -135,11 +177,48 @@ const FoodsClient = ({ initialCategories = [], initialProducts = [] }) => {
                 </div>
 
                 {filteredList.length > 0 ? (
-                    <div className="products-grid foods-grid">
-                        {filteredList.map((prod) => (
-                            <ProCard key={prod._id} prod={prod} onOpenModal={handleOpenModal} />
-                        ))}
-                    </div>
+                    <>
+                        <div className="products-grid foods-grid">
+                            {displayedItems.map((prod) => (
+                                <ProCard key={prod._id} prod={prod} onOpenModal={handleOpenModal} />
+                            ))}
+                        </div>
+
+                        {/* Infinite Scroll Sentinel & Loading Indicator */}
+                        <div ref={sentinelRef} style={{ marginTop: "30px", marginBottom: "30px", textAlign: "center", minHeight: "40px" }}>
+                            {isLoadingMore && (
+                                <div style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    padding: "10px 22px",
+                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                    borderRadius: "30px",
+                                    boxShadow: "0 4px 15px rgba(0,0,0,0.06)",
+                                    color: "#64748b",
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                    letterSpacing: "0.2px"
+                                }}>
+                                    <div style={{
+                                        width: "16px",
+                                        height: "16px",
+                                        border: "2px solid #cbd5e1",
+                                        borderTopColor: "#e11d48",
+                                        borderRadius: "50%",
+                                        animation: "spin 0.8s linear infinite"
+                                    }}></div>
+                                    <span>Loading more delicious items...</span>
+                                </div>
+                            )}
+
+                            {!hasMore && filteredList.length > 10 && (
+                                <div style={{ color: "#94a3b8", fontSize: "13px", fontWeight: "500", paddingTop: "10px" }}>
+                                    ✨ You&apos;ve reached the end of the menu! ({filteredList.length} items loaded)
+                                </div>
+                            )}
+                        </div>
+                    </>
                 ) : (
                     <div className="no-foods-found">
                         <h3>No dishes matched your criteria</h3>
