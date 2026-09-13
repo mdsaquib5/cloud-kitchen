@@ -2654,7 +2654,6 @@ a.contact-val:hover {
 .auth-form {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 16px;
 }
 

@@ -31,7 +31,7 @@ const Login = () => {
 
         const observer = new ResizeObserver(updateWidth);
         observer.observe(googleBtnContainerRef.current);
-        
+
         // Initial width
         updateWidth();
 
