@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore, useKitchenAuthStore } from "../store/useAuthStore";
 import { toast } from "sonner";
 
 const api = axios.create({
@@ -7,12 +7,32 @@ const api = axios.create({
     withCredentials: true, // Send cookies with every request
 });
 
-// Request Interceptor: Attach Access Token
+// Helper to identify kitchen/admin endpoints
+const isKitchenRequestUrl = (url = "") => {
+    return (
+        url.includes("/orders/admin") ||
+        url.includes("/settings") ||
+        url.includes("/menu") ||
+        url.includes("/food") ||
+        url.includes("/categories") ||
+        url.includes("/upload") ||
+        url.includes("/user/admin-login")
+    );
+};
+
+// Request Interceptor: Attach Access Token (Kitchen vs Customer)
 api.interceptors.request.use(
     (config) => {
-        const accessToken = useAuthStore.getState().accessToken;
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
+        const url = config.url || "";
+        const isKitchen = isKitchenRequestUrl(url) || (typeof window !== "undefined" && window.location.pathname.startsWith("/kitchen"));
+
+        const kitchenToken = useKitchenAuthStore.getState().kitchenToken;
+        const customerToken = useAuthStore.getState().accessToken;
+
+        if (isKitchen && kitchenToken) {
+            config.headers.Authorization = `Bearer ${kitchenToken}`;
+        } else if (customerToken) {
+            config.headers.Authorization = `Bearer ${customerToken}`;
         }
         return config;
     },
@@ -24,13 +44,21 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        const url = originalRequest?.url || "";
+        const isKitchen = isKitchenRequestUrl(url) || (typeof window !== "undefined" && window.location.pathname.startsWith("/kitchen"));
 
-        // If error is 401 and we haven't retried yet
+        // Handle 401 Unauthorized
         if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isKitchen) {
+                // Clear Kitchen Manager auth only without touching customer session
+                useKitchenAuthStore.getState().clearKitchenAuth();
+                return Promise.reject(error);
+            }
+
             originalRequest._retry = true;
 
             try {
-                // Try to silent refresh using the HttpOnly cookie
+                // Try to silent refresh using the HttpOnly cookie for customer
                 const response = await axios.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/user/refresh`,
                     {},
@@ -39,16 +67,18 @@ api.interceptors.response.use(
 
                 const newAccessToken = response.data.accessToken;
 
-                // Update Zustand store
+                // Update Customer Zustand store
                 useAuthStore.getState().setAccessToken(newAccessToken);
 
                 // Update original request header and retry
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, session is completely invalid -> Logout
+                // If refresh fails, session is completely invalid -> Logout Customer
                 useAuthStore.getState().clearAuth();
-                window.location.href = "/login";
+                if (typeof window !== "undefined" && !window.location.pathname.startsWith("/kitchen")) {
+                    window.location.href = "/login";
+                }
                 return Promise.reject(refreshError);
             }
         }

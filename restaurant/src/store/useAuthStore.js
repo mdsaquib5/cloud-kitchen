@@ -34,3 +34,39 @@ export const useAuthStore = create(
         }
     )
 );
+
+// Completely Independent Kitchen Manager Auth Store (for KDS / Kitchen Admin Panel)
+export const useKitchenAuthStore = create(
+    persist(
+        (set) => ({
+            kitchenUser: null,
+            kitchenToken: null,
+            isKitchenAuthenticated: false,
+
+            setKitchenAuth: (kitchenUser, kitchenToken) => set({
+                kitchenUser,
+                kitchenToken,
+                isKitchenAuthenticated: true
+            }),
+
+            setKitchenToken: (kitchenToken) => set({
+                kitchenToken
+            }),
+
+            clearKitchenAuth: () => set({
+                kitchenUser: null,
+                kitchenToken: null,
+                isKitchenAuthenticated: false
+            })
+        }),
+        {
+            name: "yours-kitchen-manager-auth",
+            partialize: (state) => ({
+                kitchenUser: state.kitchenUser,
+                kitchenToken: state.kitchenToken,
+                isKitchenAuthenticated: state.isKitchenAuthenticated
+            })
+        }
+    )
+);
+

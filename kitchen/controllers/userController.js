@@ -103,11 +103,10 @@ export const adminLogin = async (req, res, next) => {
         const inputUser = (username || email || "").trim();
         const inputPass = (password || "").trim();
 
-        const expectedUser = (process.env.ADMIN_USERNAME || "admin").trim();
-        const expectedPass = (process.env.ADMIN_PASSWORD || "ShreeShyam@Admin2026").trim();
+        const expectedUser = (process.env.ADMIN_USERNAME || "pushpender").trim();
+        const expectedPass = (process.env.ADMIN_PASSWORD || "shreeshyaam!kitchens@123").trim();
 
-        // Support both configured env credentials and fallback
-        const isUserValid = inputUser.toLowerCase() === expectedUser.toLowerCase() || inputUser.toLowerCase() === "admin@yourskitchen.com";
+        const isUserValid = inputUser.toLowerCase() === expectedUser.toLowerCase() || inputUser.toLowerCase() === "admin";
         const isPassValid = inputPass === expectedPass;
 
         if (isUserValid && isPassValid) {
@@ -119,7 +118,7 @@ export const adminLogin = async (req, res, next) => {
                     email: expectedUser
                 },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: "7d" }
+                { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "30d" }
             );
 
             return res.status(200).json({

@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { FiLock, FiUser, FiKey, FiArrowRight, FiShield, FiAlertCircle } from "react-icons/fi";
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useKitchenAuthStore } from "@/store/useAuthStore";
 import authService from "@/services/authService";
 
 export default function AdminAuthGuard({ children }) {
-    const { user, isAuthenticated, setAuth } = useAuthStore();
+    const { kitchenUser, isKitchenAuthenticated, setKitchenAuth } = useKitchenAuthStore();
     const [mounted, setMounted] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -41,7 +41,7 @@ export default function AdminAuthGuard({ children }) {
                 const adminUser = data.user || { role: "admin", name: "Kitchen Manager" };
                 adminUser.role = "admin";
 
-                setAuth(adminUser, data.accessToken);
+                setKitchenAuth(adminUser, data.accessToken);
                 toast.success("Manager verified! Welcome to Kitchen Control.");
             } else {
                 setErrorMsg(data.message || "Invalid Manager Credentials.");
@@ -67,7 +67,7 @@ export default function AdminAuthGuard({ children }) {
         );
     }
 
-    const isAdmin = isAuthenticated && user?.role === "admin";
+    const isAdmin = isKitchenAuthenticated && kitchenUser?.role === "admin";
 
     if (!isAdmin) {
         return (

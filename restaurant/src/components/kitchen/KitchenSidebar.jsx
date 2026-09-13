@@ -16,14 +16,14 @@ import {
 } from "react-icons/fi";
 import Logo from "../shared/Logo";
 import orderService from "@/services/orderService";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useKitchenAuthStore } from "@/store/useAuthStore";
 import { toast } from "sonner";
 
 const KitchenSidebar = () => {
     const pathname = usePathname();
     const [liveOrdersCount, setLiveOrdersCount] = useState(0);
     const [dispatchOrdersCount, setDispatchOrdersCount] = useState(0);
-    const { user, clearAuth } = useAuthStore();
+    const { kitchenUser, clearKitchenAuth } = useKitchenAuthStore();
 
     useEffect(() => {
         const fetchLiveCount = async () => {
@@ -50,7 +50,7 @@ const KitchenSidebar = () => {
     }, []);
 
     const handleLogout = () => {
-        clearAuth();
+        clearKitchenAuth();
         toast.info("Kitchen Manager logged out.");
     };
 
@@ -182,7 +182,7 @@ const KitchenSidebar = () => {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "rgba(255,255,255,0.04)", borderRadius: "8px", marginBottom: "8px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             <FiShield size={14} color="#38bdf8" />
-                            <span style={{ fontSize: "12px", fontWeight: "600", color: "#e2e8f0" }}>{user?.name || "Manager"}</span>
+                            <span style={{ fontSize: "12px", fontWeight: "600", color: "#e2e8f0" }}>{kitchenUser?.name || "Manager"}</span>
                         </div>
                         <button
                             type="button"
