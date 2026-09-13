@@ -2617,7 +2617,7 @@ a.contact-val:hover {
 
 .auth-form-container {
     width: 100%;
-    max-width: 380px;
+    max-width: 410px;
     margin: 0 auto;
     z-index: 2;
 }
@@ -2654,6 +2654,7 @@ a.contact-val:hover {
 .auth-form {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 16px;
 }
 
