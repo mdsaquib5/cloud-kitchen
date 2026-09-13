@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,29 @@ const Login = () => {
     const [currentState, setCurrentState] = useState("login");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const googleBtnContainerRef = useRef(null);
+    const [googleBtnWidth, setGoogleBtnWidth] = useState(0);
+
+    useEffect(() => {
+        if (!googleBtnContainerRef.current) return;
+
+        const updateWidth = () => {
+            if (googleBtnContainerRef.current) {
+                // Get the exact width of the container in pixels
+                setGoogleBtnWidth(googleBtnContainerRef.current.offsetWidth);
+            }
+        };
+
+        const observer = new ResizeObserver(updateWidth);
+        observer.observe(googleBtnContainerRef.current);
+        
+        // Initial width
+        updateWidth();
+
+        return () => observer.disconnect();
+    }, [currentState]); // Re-calculate if view switches and container might change
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -93,14 +116,20 @@ const Login = () => {
                             </div>
 
                             <form className="auth-form" onSubmit={handleSubmit}>
-                                <div className="google-auth-btn">
-                                    <GoogleLogin
-                                        onSuccess={handleGoogleSuccess}
-                                        onError={() => toast.error("Google login failed")}
-                                        theme="outline_blue"
-                                        shape="outline"
-                                        logo_alignment="center"
-                                    />
+                                <div className="google-auth-btn" ref={googleBtnContainerRef}>
+                                    {googleBtnWidth > 0 ? (
+                                        <GoogleLogin
+                                            width={String(googleBtnWidth)}
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={() => toast.error("Google login failed")}
+                                            theme="outline_blue"
+                                            shape="outline"
+                                            logo_alignment="center"
+                                        />
+                                    ) : (
+                                        // Fallback before measurement
+                                        <div style={{ height: "40px", visibility: "hidden" }}></div>
+                                    )}
                                 </div>
                                 {currentState === "signup" && (
                                     <div className="auth-input-group">
