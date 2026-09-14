@@ -418,10 +418,10 @@ const Checkout = () => {
                                             <FiNavigation size={15} />
                                             <span>
                                                 {isFetchingLocation
-                                                    ? "Fetching Location..."
+                                                    ? "Finding your exact spot..."
                                                     : deliveryAddress
-                                                        ? "Update My Location"
-                                                        : "Fetch My Location"}
+                                                        ? "Location Detected"
+                                                        : "Use Location"}
                                             </span>
                                         </button>
                                     </div>
