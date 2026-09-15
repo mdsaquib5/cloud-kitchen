@@ -68,6 +68,26 @@ export const getOrderById = async (req, res, next) => {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
+        // Local testing fallback: Since webhooks don't reach localhost, fetch courier info directly during polling
+        if (process.env.NODE_ENV !== "production" && order.deliveryPartner === "borzo" && order.externalOrderId && (!order.courierInfo || !order.courierInfo.name)) {
+            const { getBorzoCourierInfo } = await import("../services/borzoService.js");
+            const courierData = await getBorzoCourierInfo(order.externalOrderId);
+            
+            if (courierData.success && courierData.courier && courierData.courier.name) {
+                order = await Order.findOneAndUpdate(
+                    { orderId: req.params.orderId },
+                    {
+                        courierInfo: {
+                            name: courierData.courier.name,
+                            phone: courierData.courier.phone,
+                            photo_url: null, // Borzo may not provide photo URL via this endpoint
+                        }
+                    },
+                    { returnDocument: 'after' }
+                );
+            }
+        }
+
         res.status(200).json({ success: true, order });
     } catch (error) {
         next(error);
@@ -244,7 +264,7 @@ export const getUserOrders = async (req, res, next) => {
 // (Kitchen Panel) Generic Dispatch
 export const dispatchRider = async (req, res, next) => {
     try {
-        const { partner, pidgeFulfillmentData } = req.body; // partner: "pidge"
+        const { partner, pidgeFulfillmentData } = req.body; // partner: "pidge" | "borzo"
 
         if (!partner) {
             return res.status(400).json({ success: false, message: "Delivery partner not specified. Send 'partner' in body." });

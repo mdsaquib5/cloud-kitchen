@@ -13,10 +13,16 @@ import {
     getPidgeRiderTracking
 } from "./pidgeService.js";
 
+import {
+    dispatchBorzoRider,
+    cancelBorzoOrder,
+    getBorzoCourierInfo
+} from "./borzoService.js";
+
 /**
  * Dispatch a rider via Pidge.
  * @param {Object} order - Full Mongoose order document
- * @param {string} partner - "pidge"
+ * @param {string} partner - "pidge" or "borzo"
  * @param {Object} [pidgeFulfillmentData] - { token, service, networkId, price }
  * @returns {Object} { success, externalOrderId, trackingUrl, courierInfo, deliveryCost }
  */
@@ -76,6 +82,21 @@ export const routeDispatch = async (order, partner = "pidge", pidgeFulfillmentDa
         };
     }
 
+    if (partner === "borzo") {
+        const borzoResult = await dispatchBorzoRider(order);
+        if (!borzoResult.success) {
+            return { success: false, error: borzoResult.error };
+        }
+        
+        return {
+            success: true,
+            externalOrderId: borzoResult.borzoOrderId,
+            trackingUrl: borzoResult.trackingUrl,
+            deliveryCost: borzoResult.price || null,
+            courierInfo: { name: null, phone: null, photo_url: null }, // Fetched later via webhook/polling
+        };
+    }
+
     return { success: false, error: `Unsupported delivery partner: ${partner}` };
 };
 
@@ -84,10 +105,15 @@ export const routeDispatch = async (order, partner = "pidge", pidgeFulfillmentDa
  * @param {Object} order - Full Mongoose order document
  */
 export const routeCancel = async (order) => {
-    if (order.deliveryPartner === "pidge" || order.externalOrderId) {
+    if (order.deliveryPartner === "pidge" && order.externalOrderId) {
         return await cancelPidgeOrder(order.externalOrderId);
     }
-    return { success: false, error: "No active Pidge delivery found for this order." };
+    
+    if (order.deliveryPartner === "borzo" && order.externalOrderId) {
+        return await cancelBorzoOrder(order.externalOrderId);
+    }
+    
+    return { success: false, error: "No active delivery found for this order." };
 };
 
 /**

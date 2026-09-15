@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -12,6 +12,7 @@ import orderRoute from "./routes/orderRoute.js";
 import paymentRoute from "./routes/paymentRoute.js";
 import settingsRoute from "./routes/settingsRoute.js";
 import pidgeWebhookRoute from "./routes/pidgeWebhookRoute.js";
+import borzoWebhookRoute from "./routes/borzoWebhookRoute.js";
 
 const app = express();
 
@@ -24,8 +25,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Pidge webhook (/api/webhook/pidge)
-app.use("/api/webhook", pidgeWebhookRoute);
+// Webhooks
+app.use("/api/webhook/pidge", pidgeWebhookRoute);
+app.use("/api/webhook/borzo", borzoWebhookRoute);
 
 // CORS configuration for storefront & dashboard
 app.use(

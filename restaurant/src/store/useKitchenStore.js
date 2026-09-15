@@ -162,6 +162,29 @@ export const useKitchenStore = create((set, get) => ({
         }
     },
 
+    dispatchBorzoRider: async (orderOriginalId) => {
+        const { fetchOrders } = get();
+        if (!orderOriginalId) return;
+
+        const payload = {
+            partner: "borzo"
+        };
+
+        try {
+            const res = await apiDispatchOrder(orderOriginalId, payload);
+            const data = res.data;
+
+            if (data.success) {
+                toast.success("Borzo Delivery Partner dispatched successfully!");
+                fetchOrders();
+            } else {
+                toast.error("Failed to dispatch Borzo rider: " + (data.message || "Unknown error"));
+            }
+        } catch (err) {
+            toast.error("Error dispatching Borzo rider");
+        }
+    },
+
     updateOrderStatus: async (orderId, nextStatus) => {
         const { orders, fetchOrders } = get();
         try {

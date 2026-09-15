@@ -30,6 +30,7 @@ const Dashboard = () => {
         closeQuotesModal,
         setSelectedQuoteIndex,
         assignRider,
+        dispatchBorzoRider,
         updateOrderStatus
     } = useKitchenStore();
 
@@ -383,15 +384,24 @@ const Dashboard = () => {
                                     </div>
 
                                     {order.orderType === "delivery" && !order.riderName && (
-                                        <div className="ticket-actions" style={{ marginBottom: "10px" }}>
+                                        <div className="ticket-actions" style={{ marginBottom: "10px", display: "flex", gap: "8px" }}>
                                             <button
                                                 type="button"
                                                 className="ticket-primary-btn"
-                                                style={{ backgroundColor: "#8b5cf6", width: "100%", justifyContent: "center", border: "none", color: "#fff", padding: "8px", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", fontWeight: "bold" }}
+                                                style={{ backgroundColor: "#8b5cf6", flex: 1, justifyContent: "center", border: "none", color: "#fff", padding: "8px", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", fontWeight: "bold", fontSize: "11px" }}
                                                 onClick={() => openQuotesModal(order.originalId)}
                                             >
-                                                <FiSearch size={16} />
-                                                <span style={{ marginLeft: "5px" }}>Find Rider (Live Quotes)</span>
+                                                <FiSearch size={14} />
+                                                <span style={{ marginLeft: "4px" }}>Live Quotes</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="ticket-primary-btn"
+                                                style={{ backgroundColor: "#10b981", flex: 1, justifyContent: "center", border: "none", color: "#fff", padding: "8px", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", fontWeight: "bold", fontSize: "11px" }}
+                                                onClick={() => dispatchBorzoRider(order.originalId)}
+                                            >
+                                                <FaMotorcycle size={14} />
+                                                <span style={{ marginLeft: "4px" }}>Borzo</span>
                                             </button>
                                         </div>
                                     )}

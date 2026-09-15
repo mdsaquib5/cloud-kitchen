@@ -422,9 +422,15 @@ function TrackOrderContent() {
 
                                             <div className="rider-action-btns">
                                                 {(activeOrder.courierInfo?.phone || activeOrder.rider?.phone) && (
-                                                    <a href={`tel:${activeOrder.courierInfo?.phone || activeOrder.rider?.phone}`} className="rider-btn call-btn">
+                                                    <a href={`tel:${activeOrder.courierInfo?.phone || activeOrder.rider?.phone}`} className="rider-btn call-btn" style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', background: '#f1f5f9', borderRadius: '6px', textDecoration: 'none', color: '#0f172a', fontWeight: '500', fontSize: '13px' }}>
                                                         <FiPhone size={15} />
                                                         <span>Call Rider</span>
+                                                    </a>
+                                                )}
+                                                {activeOrder.deliveryPartner === "borzo" && activeOrder.trackingUrl && (
+                                                    <a href={activeOrder.trackingUrl} target="_blank" rel="noopener noreferrer" className="rider-btn track-btn" style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', background: '#10b981', borderRadius: '6px', textDecoration: 'none', color: '#fff', fontWeight: '500', fontSize: '13px', marginLeft: '10px' }}>
+                                                        <FiMapPin size={15} />
+                                                        <span>Track on Borzo</span>
                                                     </a>
                                                 )}
                                             </div>
