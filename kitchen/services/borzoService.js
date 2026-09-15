@@ -94,8 +94,9 @@ export const dispatchBorzoRider = async (order) => {
                         name: order.customer.name
                     },
                     client_order_id: `${order.orderId}-drop`,
-                    is_order_payment_here: order.paymentMethod === "cash" ? true : false,
-                    delivery_amount: order.paymentMethod === "cash" ? (order.totals?.grandTotal || 0) : 0
+                    ...(order.paymentMethod === "cash" && {
+                        taking_amount: Number((order.totals?.grandTotal || order.grandTotal || 0).toFixed(2))
+                    })
                 }
             ]
         };
@@ -118,7 +119,7 @@ export const dispatchBorzoRider = async (order) => {
 
         return { success: false, error: "Borzo response unsuccessful" };
     } catch (err) {
-        console.error("[BORZO] Dispatch error:", err.response?.data || err.message);
+        console.error("[BORZO] Dispatch error:", JSON.stringify(err.response?.data || err.message, null, 2));
         return { success: false, error: err.response?.data?.parameter_warnings?.join(", ") || err.response?.data?.errors?.[0]?.message || err.message };
     }
 };
