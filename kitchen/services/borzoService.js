@@ -36,6 +36,10 @@ export const getBorzoQuote = async (order) => {
             points: [
                 {
                     address: process.env.RESTAURANT_ADDRESS || "Uttam Nagar, Delhi",
+                    ...(process.env.RESTAURANT_LAT && process.env.RESTAURANT_LNG ? {
+                        latitude: process.env.RESTAURANT_LAT,
+                        longitude: process.env.RESTAURANT_LNG
+                    } : {}),
                     contact_person: { phone: formatBorzoPhone(process.env.RESTAURANT_PHONE || "9560774819") }
                 },
                 {
@@ -85,6 +89,10 @@ export const dispatchBorzoRider = async (order) => {
             points: [
                 {
                     address: process.env.RESTAURANT_ADDRESS || "Uttam Nagar, Delhi, 110059",
+                    ...(process.env.RESTAURANT_LAT && process.env.RESTAURANT_LNG ? {
+                        latitude: process.env.RESTAURANT_LAT,
+                        longitude: process.env.RESTAURANT_LNG
+                    } : {}),
                     contact_person: {
                         phone: pickupPhone,
                         name: "Shree Shyam Kitchen"
