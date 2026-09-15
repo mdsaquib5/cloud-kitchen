@@ -94,7 +94,7 @@ const Checkout = () => {
 
                 try {
                     // zoom=18 specifies maximum building/house level detail in OpenStreetMap
-                    const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+                    const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&accept-language=en`;
                     console.log(`🌐 Fetching Deep Reverse Geocode from: ${apiUrl}`);
 
                     const res = await fetch(apiUrl);
@@ -160,7 +160,7 @@ const Checkout = () => {
 
         setIsSubmitting(true);
         try {
-            const fullCombinedAddress = [addressLine, landmark, deliveryAddress]
+            const fullCombinedAddress = [addressLine, landmark]
                 .map((str) => (str || "").trim())
                 .filter(Boolean)
                 .join(", ");

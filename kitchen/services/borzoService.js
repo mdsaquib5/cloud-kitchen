@@ -40,6 +40,10 @@ export const getBorzoQuote = async (order) => {
                 },
                 {
                     address: order.customer.addressLine || order.customer.address || "Delhi",
+                    ...(order.customer.latitude && order.customer.longitude ? {
+                        latitude: order.customer.latitude,
+                        longitude: order.customer.longitude
+                    } : {}),
                     contact_person: { phone: formatBorzoPhone(order.customer.phone) }
                 }
             ]
@@ -89,6 +93,10 @@ export const dispatchBorzoRider = async (order) => {
                 },
                 {
                     address: order.customer.addressLine || order.customer.address || "Delhi",
+                    ...(order.customer.latitude && order.customer.longitude ? {
+                        latitude: order.customer.latitude,
+                        longitude: order.customer.longitude
+                    } : {}),
                     contact_person: {
                         phone: dropPhone,
                         name: order.customer.name
@@ -104,7 +112,8 @@ export const dispatchBorzoRider = async (order) => {
 
         if (res.data.is_successful && res.data.order) {
             const borzoOrder = res.data.order;
-            let trackingUrl = `https://borzodelivery.com/in/order/${borzoOrder.order_id}`; // Basic fallback URL
+            // Best tracking URL is usually provided in the drop-off point object, or at the root of the order object
+            let trackingUrl = borzoOrder.points?.[1]?.tracking_url || borzoOrder.tracking_url || `https://borzodelivery.com/in/client-tracking/${borzoOrder.order_id}`; 
 
             return {
                 success: true,
