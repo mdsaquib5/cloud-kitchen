@@ -93,10 +93,7 @@ export const dispatchBorzoRider = async (order) => {
                         phone: dropPhone,
                         name: order.customer.name
                     },
-                    client_order_id: `${order.orderId}-drop`,
-                    ...(order.paymentMethod === "cash" && {
-                        taking_amount: Number((order.totals?.grandTotal || order.grandTotal || 0).toFixed(2))
-                    })
+                    client_order_id: `${order.orderId}-drop`
                 }
             ]
         };
