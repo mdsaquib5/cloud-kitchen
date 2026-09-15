@@ -86,8 +86,8 @@ const orderSchema = new mongoose.Schema(
             photo_url: { type: String, default: null },
         },
 
-        // Generic Delivery Fields (works for Pidge, Borzo, or any future partner)
-        deliveryPartner: { type: String, enum: ["borzo", "pidge", null], default: null },
+        // Generic Delivery Fields (works for Pidge or any future partner)
+        deliveryPartner: { type: String, enum: ["pidge", null], default: null },
         externalOrderId: { type: String, default: null, index: true },
         trackingUrl:     { type: String, default: null },
         dispatchedAt:    { type: Date, default: null },

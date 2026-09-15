@@ -90,7 +90,7 @@ function TrackOrderContent() {
                 useStore.getState().updateActiveOrder(data.orderId, {
                     status: data.status,
                     courierInfo: data.courierInfo,
-                    trackingUrl: data.trackingUrl || data.borzoTrackingUrl,
+                    trackingUrl: data.trackingUrl,
                 });
 
                 setFetchedOrder((prev) => {
@@ -99,7 +99,7 @@ function TrackOrderContent() {
                             ...prev,
                             status: data.status,
                             courierInfo: data.courierInfo,
-                            trackingUrl: data.trackingUrl || data.borzoTrackingUrl,
+                            trackingUrl: data.trackingUrl,
                         };
                     }
                     return prev;

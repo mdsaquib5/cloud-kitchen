@@ -140,7 +140,7 @@ export const handlePidgeWebhook = async (req, res) => {
                 status: updatedOrder.status,
                 courierInfo: updatedOrder.courierInfo,
                 trackingUrl: emittedTrackingUrl,
-                borzoTrackingUrl: emittedTrackingUrl,
+
             });
 
             io.to("kitchen-room").emit("order-updated", {

@@ -64,8 +64,7 @@ export const useStore = create(
                                 totals: latest.totals || order.totals,
                                 courierInfo: latest.courierInfo || order.courierInfo,
                                 deliveryPartner: latest.deliveryPartner || order.deliveryPartner,
-                                trackingUrl: latest.trackingUrl || latest.borzoTrackingUrl || order.trackingUrl,
-                                borzoTrackingUrl: latest.trackingUrl || latest.borzoTrackingUrl || order.borzoTrackingUrl,
+                                trackingUrl: latest.trackingUrl || order.trackingUrl,
                             });
                         }
                     } catch (error) {

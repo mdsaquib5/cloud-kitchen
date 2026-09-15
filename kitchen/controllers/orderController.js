@@ -68,26 +68,6 @@ export const getOrderById = async (req, res, next) => {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        // Local testing fallback: Since webhooks don't reach localhost, fetch courier info directly during polling
-        if (process.env.NODE_ENV !== "production" && order.borzoOrderId && (!order.courierInfo || !order.courierInfo.name)) {
-            const { getBorzoCourierInfo } = await import("../services/borzoService.js");
-            const courierData = await getBorzoCourierInfo(order.borzoOrderId);
-            
-            if (courierData.success && courierData.courier && courierData.courier.name) {
-                order = await Order.findOneAndUpdate(
-                    { orderId: req.params.orderId },
-                    {
-                        courierInfo: {
-                            name: courierData.courier.name,
-                            phone: courierData.courier.phone,
-                            photo_url: courierData.courier.photo_url,
-                        }
-                    },
-                    { returnDocument: 'after' }
-                );
-            }
-        }
-
         res.status(200).json({ success: true, order });
     } catch (error) {
         next(error);
@@ -229,7 +209,6 @@ export const updateOrderStatus = async (req, res, next) => {
                 status: order.status,
                 courierInfo: order.courierInfo,
                 trackingUrl,
-                borzoTrackingUrl: trackingUrl,
             });
 
             io.to("kitchen-room").emit("order-updated", {
@@ -247,112 +226,6 @@ export const updateOrderStatus = async (req, res, next) => {
     }
 };
 
-// (Kitchen Panel) Dispatch Borzo Rider
-export const callBorzoRider = async (req, res, next) => {
-    try {
-        const order = await Order.findById(req.params.orderId);
-
-        if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
-        }
-
-        if (order.orderType !== "delivery") {
-            return res.status(400).json({
-                success: false,
-                message: "Borzo rider is only for Home Delivery orders.",
-            });
-        }
-
-        if (order.borzoOrderId) {
-            return res.status(400).json({
-                success: false,
-                message: `Rider already dispatched. Borzo Order ID: ${order.borzoOrderId}`,
-            });
-        }
-
-        console.log(`[BORZO] Dispatching rider for Order: ${order.orderId}`);
-
-        const { dispatchBorzoRider } = await import("../services/borzoService.js");
-        const borzoResult = await dispatchBorzoRider(order);
-
-        if (!borzoResult.success) {
-            return res.status(500).json({
-                success: false,
-                message: "Failed to dispatch Borzo rider. Please try again.",
-                error: borzoResult.error,
-            });
-        }
-
-        const updatedOrder = await Order.findByIdAndUpdate(
-            req.params.orderId,
-            {
-                borzoOrderId:      borzoResult.borzoOrderId,
-                borzoTrackingUrl:  borzoResult.borzoTrackingUrl,
-                trackingUrl:       borzoResult.borzoTrackingUrl,
-                borzoDispatchedAt: new Date(),
-                status:            "OUT_FOR_DELIVERY",
-            },
-            { returnDocument: 'after' }
-        );
-
-        try {
-            const io = getIO();
-            io.to(`order-${order.orderId}`).emit("order-status-update", {
-                orderId:          order.orderId,
-                status:           "OUT_FOR_DELIVERY",
-                courierInfo:      updatedOrder.courierInfo,
-                trackingUrl:      borzoResult.borzoTrackingUrl,
-                borzoTrackingUrl: borzoResult.borzoTrackingUrl,
-            });
-        } catch (e) {
-            console.error("[SOCKET] Could not emit after Borzo dispatch:", e.message);
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Borzo rider dispatched successfully!",
-            borzoOrderId:      borzoResult.borzoOrderId,
-            borzoTrackingUrl:  borzoResult.borzoTrackingUrl,
-            order:             updatedOrder,
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-// (Kitchen Panel) Cancel Borzo Rider
-export const cancelBorzoRider = async (req, res, next) => {
-    try {
-        const order = await Order.findById(req.params.orderId);
-
-        if (!order || !order.borzoOrderId) {
-            return res.status(400).json({
-                success: false,
-                message: "No active Borzo dispatch found for this order.",
-            });
-        }
-
-        const { cancelBorzoOrder } = await import("../services/borzoService.js");
-        const cancelResult = await cancelBorzoOrder(order.borzoOrderId);
-
-        if (!cancelResult.success) {
-            return res.status(500).json({
-                success: false,
-                message: "Failed to cancel Borzo rider.",
-                error: cancelResult.error,
-            });
-        }
-
-        await Order.findByIdAndUpdate(req.params.orderId, {
-            status: "CANCELLED",
-            borzoOrderId: null,
-        });
-
-        res.status(200).json({ success: true, message: "Borzo rider cancelled." });
-    } catch (error) {
-        next(error);
-    }
-};
 
 // Customer gets their own orders
 export const getUserOrders = async (req, res, next) => {
@@ -368,10 +241,10 @@ export const getUserOrders = async (req, res, next) => {
     }
 };
 
-// (Kitchen Panel) Generic Dispatch — supports both Borzo and Pidge
+// (Kitchen Panel) Generic Dispatch
 export const dispatchRider = async (req, res, next) => {
     try {
-        const { partner, pidgeFulfillmentData } = req.body; // partner: "borzo" | "pidge"
+        const { partner, pidgeFulfillmentData } = req.body; // partner: "pidge"
 
         if (!partner) {
             return res.status(400).json({ success: false, message: "Delivery partner not specified. Send 'partner' in body." });
@@ -404,7 +277,6 @@ export const dispatchRider = async (req, res, next) => {
                 status: "OUT_FOR_DELIVERY",
                 courierInfo: updatedOrder.courierInfo,
                 trackingUrl: result.trackingUrl,
-                borzoTrackingUrl: partner === "borzo" ? result.trackingUrl : null,
             });
             io.to("kitchen-room").emit("order-updated", {
                 orderId: order.orderId,

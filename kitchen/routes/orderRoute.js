@@ -24,7 +24,7 @@ router.get("/track/:orderId/live-location", getOrderLiveTracking);
 router.get("/admin/all", isAuthenticated, authorizeRoles("admin"), getAllOrders);
 router.put("/admin/status/:orderId", isAuthenticated, authorizeRoles("admin"), updateOrderStatus);
 
-// Generic Delivery Endpoints — supports Borzo + Pidge (Protected for Admin)
+// Generic Delivery Endpoints — supports Pidge (Protected for Admin)
 router.post("/admin/dispatch/:orderId", isAuthenticated, authorizeRoles("admin"), dispatchRider);
 router.post("/admin/cancel/:orderId", isAuthenticated, authorizeRoles("admin"), cancelRider);
 router.get("/admin/quotes/:orderId", isAuthenticated, authorizeRoles("admin"), getDeliveryQuotes);

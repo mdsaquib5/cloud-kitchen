@@ -21,7 +21,7 @@ All strategy, market insights, and architecture specs are organized inside the [
 | **[Market Reality (India 2026)](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/MARKET_REALITY_INDIA_2026.md)** | Swiggy/Zomato take-rates, ₹17.58 fee hike, ONDC landscape, hybrid shift strategy |
 | **[Business Model & Pricing](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/BUSINESS_MODEL_AND_PRICING.md)** | Model A (SaaS) vs Model B (Marketplace), RBI PA compliance, Delhi GTM |
 | **[Technical Architecture](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/TECHNICAL_ARCHITECTURE.md)** | Multi-tenancy, 4 surfaces (Storefront, KDS, Owner, Admin), State machine |
-| **[Delivery Logistics](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/DELIVERY_LOGISTICS.md)** | 3PL APIs (Shadowfax, Borzo, Porter), multi-provider fallback waterfall |
+| **[Delivery Logistics](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/DELIVERY_LOGISTICS.md)** | 3PL APIs (Shadowfax, Porter), multi-provider fallback waterfall |
 | **[Risk Register](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/RISK_REGISTER.md)** | 6 critical risk factors and concrete operational mitigations |
 | **[90-Day Roadmap](file:///c:/Users/mdsaq/OneDrive/Desktop/kitchen/.agents/context/ROADMAP_90_DAYS.md)** | 4-phase execution plan from validation to 15+ paying outlets |
 
@@ -34,7 +34,7 @@ All strategy, market insights, and architecture specs are organized inside the [
 - **Real-Time Layer**: WebSockets & Server-Sent Events (SSE) with offline polling fallback
 - **Payments**: Direct Merchant Razorpay / Cashfree / UPI Intent
 - **Hardware Integration**: WebUSB / Bluetooth ESC/POS 58mm/80mm thermal receipt printing
-- **Logistics**: Shadowfax / Borzo / Porter / Shiprocket Quick API adapters
+- **Logistics**: Shadowfax / Porter / Shiprocket Quick API adapters
 - **Messaging**: WhatsApp Business Cloud API (Gupshup / AiSensy)
 
 ---
