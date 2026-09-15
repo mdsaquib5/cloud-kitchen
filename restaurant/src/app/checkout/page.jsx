@@ -511,14 +511,14 @@ const Checkout = () => {
                                     <span className="payment-name">Online Payment (UPI/Card)</span>
                                 </label>
 
-                                {/* <label
+                                <label
                                     className={`payment-option-label ${paymentMethod === "cash" ? "selected" : ""}`}
                                     onClick={() => setPaymentMethod("cash")}
                                 >
                                     <span className={`custom-radio ${paymentMethod === "cash" ? "checked" : ""}`}></span>
                                     <FiShoppingBag className="payment-icon" size={16} />
                                     <span className="payment-name">Cash on Delivery (COD)</span>
-                                </label> */}
+                                </label>
                             </div>
 
                             <button
