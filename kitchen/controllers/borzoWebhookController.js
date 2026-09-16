@@ -3,12 +3,15 @@ import { getIO } from "../configs/socket.js";
 
 export const handleBorzoWebhook = async (req, res) => {
     try {
-        const borzoOrder = req.body; // Borzo sends the order object directly
+        // Borzo sometimes wraps the order object in an `order` property, or sends it directly.
+        const borzoOrder = req.body.order || req.body; 
+        const eventType = req.body.event_type || null;
         
-        // Log webhook payload if needed for debugging
-        // console.log("[BORZO WEBHOOK] Received payload:", JSON.stringify(borzoOrder, null, 2));
+        // Log webhook payload for debugging (Crucial for seeing what Borzo sent)
+        console.log(`[BORZO WEBHOOK] Event: ${eventType}`, JSON.stringify(borzoOrder, null, 2));
 
         if (!borzoOrder || !borzoOrder.order_id) {
+            console.error("[BORZO WEBHOOK] Invalid webhook payload missing order_id.");
             return res.status(400).send("Invalid webhook payload");
         }
 
