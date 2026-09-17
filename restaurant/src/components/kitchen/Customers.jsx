@@ -109,6 +109,12 @@ const Customers = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [tagFilter, setTagFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, tagFilter]);
 
     const sendWhatsAppPromo = (cust) => {
         const message = encodeURIComponent(
@@ -135,6 +141,12 @@ const Customers = () => {
         customers.reduce((sum, c) => sum + c.totalSpend, 0) /
         customers.reduce((sum, c) => sum + c.totalOrders, 0)
     );
+
+    const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentCustomers = filteredCustomers.slice(startIndex, startIndex + itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <div className="cust-screen">
@@ -206,7 +218,7 @@ const Customers = () => {
             </div>
 
             <div className="cust-cards-grid">
-                {filteredCustomers.map((cust) => (
+                {currentCustomers.map((cust) => (
                     <div key={cust.id} className="cust-profile-card">
                         <div className="c-card-top">
                             <div className="c-avatar-block">
@@ -265,6 +277,50 @@ const Customers = () => {
                     </div>
                 ))}
             </div>
+
+            {totalPages > 1 && (
+                <div className="pagination-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginTop: '40px', gap: '15px', padding: '0 15px 30px' }}>
+                    <button
+                        onClick={() => paginate(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        style={{
+                            padding: '8px 20px',
+                            borderRadius: '8px',
+                            border: '1px solid #e5e7eb',
+                            background: currentPage === 1 ? '#f9fafb' : '#ffffff',
+                            color: currentPage === 1 ? '#9ca3af' : '#111827',
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            fontWeight: '600',
+                            boxShadow: currentPage === 1 ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Previous
+                    </button>
+                    
+                    <span style={{ fontSize: '14px', fontWeight: '500', color: '#4b5563', backgroundColor: '#f3f4f6', padding: '6px 14px', borderRadius: '20px' }}>
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    
+                    <button
+                        onClick={() => paginate(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                            padding: '8px 20px',
+                            borderRadius: '8px',
+                            border: '1px solid #e5e7eb',
+                            background: currentPage === totalPages ? '#f9fafb' : '#ffffff',
+                            color: currentPage === totalPages ? '#9ca3af' : '#111827',
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            fontWeight: '600',
+                            boxShadow: currentPage === totalPages ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
