@@ -162,7 +162,7 @@ const Profile = () => {
 
                                     <div className="po-meta-info">
                                         <span className="po-label">Restaurant</span>
-                                        <span className="po-value">Your's Kitchen</span>
+                                        <span className="po-value">Shree Shyaam</span>
                                     </div>
 
                                     <div className="po-meta-info">
