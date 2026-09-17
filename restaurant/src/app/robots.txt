@@ -1,5 +1,8 @@
 User-Agent: *
 Allow: /
 Disallow: /kitchen/
+Disallow: /profile/
+Disallow: /checkout/
+Disallow: /cart/
 
 Sitemap: https://shreeshyaamfastfood.com/sitemap.xml

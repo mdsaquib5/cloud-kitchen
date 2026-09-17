@@ -4,7 +4,7 @@ export default function sitemap() {
   // These are the public routes you want Google to index
   const routes = [
     '',
-    '/menu',
+    '/foods',
     '/contact',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
