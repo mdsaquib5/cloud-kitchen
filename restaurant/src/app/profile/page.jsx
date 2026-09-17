@@ -13,6 +13,7 @@ const Profile = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [pastOrders, setPastOrders] = useState([]);
+    const [sortOrder, setSortOrder] = useState("newest");
 
     // Tracking Modal State
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -109,9 +110,14 @@ const Profile = () => {
                     </button>
                     <div className="sort-dropdown">
                         <span style={{ color: '#6b7280', marginRight: '10px' }}>Sort By :</span>
-                        <select className="checkout-input" style={{ width: 'auto', padding: '8px 15px' }}>
-                            <option>Newest Orders</option>
-                            <option>Oldest Orders</option>
+                        <select 
+                            className="checkout-input" 
+                            style={{ width: 'auto', padding: '8px 15px' }}
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                        >
+                            <option value="newest">Newest Orders</option>
+                            <option value="oldest">Oldest Orders</option>
                         </select>
                     </div>
                 </div>
@@ -126,7 +132,13 @@ const Profile = () => {
                     </div>
                 ) : (
                     <div className="past-orders-list">
-                        {pastOrders.map((order, idx) => {
+                        {[...pastOrders]
+                            .sort((a, b) => {
+                                const dateA = new Date(a.createdAt || 0);
+                                const dateB = new Date(b.createdAt || 0);
+                                return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+                            })
+                            .map((order, idx) => {
                             const orderId = order.orderId || order.id || (order._id ? order._id.substring(order._id.length - 6).toUpperCase() : `ORD${idx}`);
                             const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
 
