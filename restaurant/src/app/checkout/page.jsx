@@ -69,6 +69,14 @@ const Checkout = () => {
 
     const totals = getCartTotals();
 
+    // Auto-switch away from delivery if subtotal < 200
+    useEffect(() => {
+        if (totals.subtotal < 200 && orderType === "delivery") {
+            setOrderType("takeaway");
+            toast("Switched to Takeaway. Minimum order for Home Delivery is Rs.200");
+        }
+    }, [totals.subtotal, orderType, setOrderType]);
+
     const handleFetchLocation = () => {
         if (!navigator.geolocation) {
             console.error("❌ Geolocation API is not supported by this browser.");
@@ -288,15 +296,24 @@ const Checkout = () => {
                             <div className="order-type-selector-grid">
                                 <button
                                     type="button"
-                                    className={`order-type-btn ${orderType === "delivery" ? "active" : ""}`}
-                                    onClick={() => setOrderType("delivery")}
+                                    className={`order-type-btn ${orderType === "delivery" ? "active" : ""} ${totals.subtotal < 200 ? "disabled-btn" : ""}`}
+                                    onClick={() => {
+                                        if (totals.subtotal < 200) {
+                                            toast.error("Minimum order of Rs.200 is required for Home Delivery.");
+                                            return;
+                                        }
+                                        setOrderType("delivery");
+                                    }}
+                                    style={totals.subtotal < 200 ? { opacity: 0.5, cursor: "not-allowed" } : {}}
                                 >
                                     <div className="type-icon-circle">
                                         <FaMotorcycle size={20} />
                                     </div>
                                     <div className="type-info">
                                         <span className="type-title">Home Delivery</span>
-                                        <span className="type-subtitle">At your doorstep (20-30 mins)</span>
+                                        <span className="type-subtitle">
+                                            {totals.subtotal < 200 ? "Min. Rs.200 required" : "At your doorstep (20-30 mins)"}
+                                        </span>
                                     </div>
                                 </button>
 
@@ -310,7 +327,7 @@ const Checkout = () => {
                                     </div>
                                     <div className="type-info">
                                         <span className="type-title">Takeaway / Pickup</span>
-                                        <span className="type-subtitle">Self-collect from kitchen</span>
+                                        <span className="type-subtitle">Self-collect from Restaurant</span>
                                     </div>
                                 </button>
 
@@ -407,6 +424,9 @@ const Checkout = () => {
                                             />
                                         </div>
                                     </div>
+                                    <p style={{ color: "#ef4444", fontSize: "12px", marginTop: "10px", textAlign: "center", fontWeight: "500" }}>
+                                        Please provide your correct address so we can deliver your hot food without any delay!
+                                    </p>
                                     <div className="fetch-location-row">
                                         <button
                                             type="button"
@@ -481,6 +501,17 @@ const Checkout = () => {
                                 })}
                             </div>
 
+                            {/* Dynamic Delivery Message */}
+                            <div style={{ marginTop: "15px", padding: "12px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", fontSize: "14px", color: "#166534", textAlign: "center", fontWeight: "500" }}>
+                                {totals.subtotal < 200 ? (
+                                    <span>On ₹200+ home delivery available. Order ₹{(200 - totals.subtotal).toFixed(2)} more!</span>
+                                ) : totals.subtotal < 300 ? (
+                                    <span>Get FREE delivery on ₹300+ (Add ₹{(300 - totals.subtotal).toFixed(2)} more)</span>
+                                ) : (
+                                    <span>Free Delivery Applied</span>
+                                )}
+                            </div>
+
                             <div className="summary-rows" style={{ marginTop: "20px" }}>
                                 <div className="summary-row">
                                     <span className="summary-label">Subtotal</span>
@@ -511,14 +542,14 @@ const Checkout = () => {
                                     <span className="payment-name">Online Payment (UPI/Card)</span>
                                 </label>
 
-                                <label
+                                {/* <label
                                     className={`payment-option-label ${paymentMethod === "cash" ? "selected" : ""}`}
                                     onClick={() => setPaymentMethod("cash")}
                                 >
                                     <span className={`custom-radio ${paymentMethod === "cash" ? "checked" : ""}`}></span>
                                     <FiShoppingBag className="payment-icon" size={16} />
                                     <span className="payment-name">Cash on Delivery (COD)</span>
-                                </label>
+                                </label> */}
                             </div>
 
                             <button

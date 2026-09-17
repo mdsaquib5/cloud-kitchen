@@ -52,7 +52,7 @@ const Login = () => {
             const res = await authService.googleAuth(credentialResponse.credential);
             if (res.data.success) {
                 setAuth(res.data.user, res.data.accessToken);
-                toast.success("Welcome! 👋");
+                toast.success("Welcome Back!");
                 router.push("/");
             }
         } catch (error) {
@@ -76,7 +76,7 @@ const Login = () => {
                 const res = await authService.signup(formData);
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
-                    toast.success("Welcome to Yours Kitchen! 👋");
+                    toast.success("Welcome to Yours Kitchen!");
                     router.push("/");
                 }
             } else {
@@ -86,7 +86,7 @@ const Login = () => {
                 });
                 if (res.data.success) {
                     setAuth(res.data.user, res.data.accessToken);
-                    toast.success("Welcome back! 👋");
+                    toast.success("Welcome back!");
                     router.push("/");
                 }
             }
