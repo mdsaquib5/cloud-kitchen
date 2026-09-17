@@ -55,8 +55,9 @@ export default function RootLayout({ children }) {
         </GoogleOAuthProvider>
         <Toaster
           position="top-right"
+          duration={2000}
+          closeButton={true}
           toastOptions={{
-            duration: 4000,
             style: {
               background: "#ffffff",
               border: "1px solid #f1f5f9",
