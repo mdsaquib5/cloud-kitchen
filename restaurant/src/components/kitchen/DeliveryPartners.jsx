@@ -7,60 +7,90 @@ import {
 } from "react-icons/fi";
 import { FaMotorcycle, FaStar } from "react-icons/fa";
 import { toast } from "sonner";
+import orderService from "@/services/orderService";
 
-const mockRiders = [
-    {
-        id: "RIDER-01",
-        name: "Sonu Kumar",
-        phone: "+91 91234 56780",
-        provider: "Shadowfax",
-        vehicle: "Hero Splendor (DL 3S 8921)",
-        rating: "4.9",
-        todayDeliveries: 9,
-        status: "ON_DUTY",
-        currentOrder: "#YK-84920",
-    },
-    {
-        id: "RIDER-02",
-        name: "Deepak Rawat",
-        phone: "+91 98990 11223",
-        provider: "Porter",
-        vehicle: "Honda Activa (HR 26 4410)",
-        rating: "4.8",
-        todayDeliveries: 7,
-        status: "ON_DUTY",
-        currentOrder: "#YK-84915",
-    },
-    {
-        id: "RIDER-03",
-        name: "Manish Sharma",
-        phone: "+91 98110 55667",
-        provider: "Restaurant Self Fleet",
-        vehicle: "TVS Jupiter (DL 4S 1209)",
-        rating: "5.0",
-        todayDeliveries: 12,
-        status: "AVAILABLE",
-        currentOrder: "Idle at Kitchen",
-    },
-    {
-        id: "RIDER-04",
-        name: "Rakesh Yadav",
-        phone: "+91 98109 44332",
-        provider: "Shiprocket Quick",
-        vehicle: "Bajaj Pulsar (HR 51 9081)",
-        rating: "4.7",
-        todayDeliveries: 6,
-        status: "AVAILABLE",
-        currentOrder: "Idle near Cyber City",
-    },
-];
 
 const DeliveryPartners = () => {
-    const [riders, setRiders] = useState(mockRiders);
+    const [riders, setRiders] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [fleetFilter, setFleetFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
+
+    const fetchRiders = async () => {
+        try {
+            const res = await orderService.getAllOrders();
+            const data = res.data;
+            if (data.success) {
+                const riderMap = {};
+                const today = new Date().toLocaleDateString('en-IN');
+
+                (data.orders || []).forEach((o) => {
+                    const courier = o.courierInfo;
+                    // Skip if no courier phone or name
+                    if (!courier || !courier.phone) return;
+
+                    const phone = courier.phone;
+                    if (!riderMap[phone]) {
+                        riderMap[phone] = {
+                            id: "RIDER-" + phone.replace(/\D/g, "").substring(0, 6),
+                            name: courier.name || "Unknown Rider",
+                            phone: phone,
+                            provider: o.deliveryPartner ? (o.deliveryPartner.charAt(0).toUpperCase() + o.deliveryPartner.slice(1)) : "3PL Partner",
+                            vehicle: courier.vehicle || "Standard Bike",
+                            rating: "4.9",
+                            todayDeliveries: 0,
+                            totalDeliveries: 0,
+                            status: "AVAILABLE",
+                            currentOrder: "Idle at Kitchen",
+                            lastActive: new Date(o.createdAt)
+                        };
+                    }
+
+                    riderMap[phone].totalDeliveries += 1;
+                    
+                    const orderDate = new Date(o.createdAt);
+                    
+                    // Increment today's deliveries if completed today
+                    if (orderDate.toLocaleDateString('en-IN') === today && (o.status === "DELIVERED" || o.status === "COMPLETED")) {
+                        riderMap[phone].todayDeliveries += 1;
+                    }
+
+                    if (orderDate > riderMap[phone].lastActive) {
+                        riderMap[phone].lastActive = orderDate;
+                    }
+
+                    // Check if currently delivering
+                    if (o.status === "OUT_FOR_DELIVERY") {
+                        riderMap[phone].status = "ON_DUTY";
+                        const orderIdent = o.orderId || (o._id ? o._id.substring(o._id.length - 6).toUpperCase() : "ORDER");
+                        riderMap[phone].currentOrder = "#" + orderIdent;
+                    }
+                });
+
+                const formattedRiders = Object.values(riderMap);
+                
+                // Sort: ON_DUTY first, then by todayDeliveries
+                formattedRiders.sort((a, b) => {
+                    if (a.status === "ON_DUTY" && b.status !== "ON_DUTY") return -1;
+                    if (b.status === "ON_DUTY" && a.status !== "ON_DUTY") return 1;
+                    return b.todayDeliveries - a.todayDeliveries;
+                });
+
+                setRiders(formattedRiders);
+            }
+        } catch (error) {
+            console.error("Failed to fetch riders", error);
+            toast.error("Failed to load rider data");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchRiders();
+    }, []);
 
     React.useEffect(() => {
         setCurrentPage(1);
