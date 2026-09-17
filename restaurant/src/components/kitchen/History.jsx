@@ -64,7 +64,7 @@ const History = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 5;
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [typeFilter, setTypeFilter] = useState("all");
 
@@ -277,23 +277,43 @@ const History = () => {
             </div>
 
             {totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '20px', padding: '15px' }}>
+                <div className="pagination-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginTop: '40px', gap: '15px', padding: '0 15px 30px' }}>
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === 1 ? '#f3f4f6' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontWeight: '500' }}
+                        style={{
+                            padding: '8px 20px',
+                            borderRadius: '8px',
+                            border: '1px solid #e5e7eb',
+                            background: currentPage === 1 ? '#f9fafb' : '#ffffff',
+                            color: currentPage === 1 ? '#9ca3af' : '#111827',
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            fontWeight: '600',
+                            boxShadow: currentPage === 1 ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                            transition: 'all 0.2s'
+                        }}
                     >
                         Previous
                     </button>
-
-                    <span style={{ fontSize: '0.9rem', color: '#4b5563', fontWeight: '500' }}>
+                    
+                    <span style={{ fontSize: '14px', fontWeight: '500', color: '#4b5563', backgroundColor: '#f3f4f6', padding: '6px 14px', borderRadius: '20px' }}>
                         Page {currentPage} of {totalPages}
                     </span>
-
+                    
                     <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #e5e7eb', background: currentPage === totalPages ? '#f3f4f6' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontWeight: '500' }}
+                        style={{
+                            padding: '8px 20px',
+                            borderRadius: '8px',
+                            border: '1px solid #e5e7eb',
+                            background: currentPage === totalPages ? '#f9fafb' : '#ffffff',
+                            color: currentPage === totalPages ? '#9ca3af' : '#111827',
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            fontWeight: '600',
+                            boxShadow: currentPage === totalPages ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                            transition: 'all 0.2s'
+                        }}
                     >
                         Next
                     </button>

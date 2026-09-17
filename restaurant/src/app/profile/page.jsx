@@ -14,6 +14,8 @@ const Profile = () => {
     const [mounted, setMounted] = useState(false);
     const [pastOrders, setPastOrders] = useState([]);
     const [sortOrder, setSortOrder] = useState("newest");
+    const [currentPage, setCurrentPage] = useState(1);
+    const ordersPerPage = 5;
 
     // Tracking Modal State
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -78,6 +80,21 @@ const Profile = () => {
         setLiveStatus(null);
     };
 
+    // Pagination Calculation
+    useEffect(() => {
+        setCurrentPage(1); // Reset to first page when sort changes
+    }, [sortOrder]);
+
+    const sortedOrders = [...pastOrders].sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0);
+        const dateB = new Date(b.createdAt || 0);
+        return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    const totalPages = Math.ceil(sortedOrders.length / ordersPerPage);
+    const startIndex = (currentPage - 1) * ordersPerPage;
+    const currentOrders = sortedOrders.slice(startIndex, startIndex + ordersPerPage);
+
     if (!mounted) return <div style={{ padding: '50px', textAlign: 'center' }}>Loading profile...</div>;
     if (!isAuthenticated) return <div style={{ padding: '50px', textAlign: 'center' }}>Redirecting to login...</div>;
 
@@ -132,13 +149,7 @@ const Profile = () => {
                     </div>
                 ) : (
                     <div className="past-orders-list">
-                        {[...pastOrders]
-                            .sort((a, b) => {
-                                const dateA = new Date(a.createdAt || 0);
-                                const dateB = new Date(b.createdAt || 0);
-                                return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
-                            })
-                            .map((order, idx) => {
+                        {currentOrders.map((order, idx) => {
                             const orderId = order.orderId || order.id || (order._id ? order._id.substring(order._id.length - 6).toUpperCase() : `ORD${idx}`);
                             const firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
 
@@ -202,6 +213,51 @@ const Profile = () => {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {pastOrders.length > 0 && totalPages > 1 && (
+                    <div className="pagination-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginTop: '40px', gap: '15px' }}>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            style={{
+                                padding: '8px 20px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
+                                background: currentPage === 1 ? '#f9fafb' : '#ffffff',
+                                color: currentPage === 1 ? '#9ca3af' : '#111827',
+                                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                fontWeight: '600',
+                                boxShadow: currentPage === 1 ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Previous
+                        </button>
+                        
+                        <span style={{ fontSize: '14px', fontWeight: '500', color: '#4b5563', backgroundColor: '#f3f4f6', padding: '6px 14px', borderRadius: '20px' }}>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            style={{
+                                padding: '8px 20px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
+                                background: currentPage === totalPages ? '#f9fafb' : '#ffffff',
+                                color: currentPage === totalPages ? '#9ca3af' : '#111827',
+                                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                fontWeight: '600',
+                                boxShadow: currentPage === totalPages ? 'none' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Next
+                        </button>
                     </div>
                 )}
             </div>
