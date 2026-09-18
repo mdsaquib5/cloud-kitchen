@@ -40,7 +40,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         // Initialize audio only once on mount
-        audioRef.current = new Audio('/bell.ogg');
+        audioRef.current = new Audio('https://pub-863ef00e7a5f45a892803d4befa874c3.r2.dev/home-media/bell.ogg');
         audioRef.current.loop = true;
 
         fetchOrders();
