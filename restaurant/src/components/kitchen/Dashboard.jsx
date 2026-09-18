@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     FiSearch,
     FiClock,
@@ -36,12 +36,44 @@ const Dashboard = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
+    const audioRef = useRef(null);
 
     useEffect(() => {
+        // Initialize audio only once on mount
+        audioRef.current = new Audio('/bell.ogg');
+        audioRef.current.loop = true;
+
         fetchOrders();
         const interval = setInterval(fetchOrders, 10000);
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
     }, [fetchOrders]);
+
+    // Effect to monitor new orders and play/pause sound
+    useEffect(() => {
+        if (!audioRef.current || !orders) return;
+
+        const newOrders = orders.filter((o) => o.status === "PLACED");
+
+        if (newOrders.length > 0) {
+            // We have new orders, play sound if not already playing
+            if (audioRef.current.paused) {
+                audioRef.current.play().catch((err) => {
+                    console.log("Audio autoplay prevented by browser. User interaction needed.", err);
+                });
+            }
+        } else {
+            // No new orders, pause sound
+            if (!audioRef.current.paused) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        }
+    }, [orders]);
 
     const handlePrintKOT = (order) => {
         toast.success(`Thermal KOT Printed for #${order.id}`, {
