@@ -5,7 +5,7 @@ export async function GET(req) {
     // but for a simple health check ping, it's safe to leave open.
 
     try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://shree-shyaam-backend.onrender.com/api'; // Fallback to a production URL if env is missing in cron context
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://kitchen-0r0i.onrender.com/api'; // Fallback to a production URL if env is missing in cron context
         // Ensure we hit the health endpoint
         const healthUrl = backendUrl.includes('/api') ? backendUrl.replace('/api', '/api/health') : `${backendUrl}/health`;
 
